@@ -23,8 +23,8 @@ class Animal
     #[ORM\JoinColumn(name: "species_id", referencedColumnName: "id")]
     private Species $species;
 
-    #[ORM\Column(type: 'float', length: 5)]
-    private int $age;
+    #[ORM\Column(type: 'float', length: 5, scale: 2, nullable: true)]
+    private ?int $age;
 
     #[ORM\Column(type: 'string', length: 255)]
     private string $breed;

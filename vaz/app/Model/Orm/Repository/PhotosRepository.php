@@ -48,4 +48,10 @@ class PhotosRepository extends EntityRepository
         $this->getEntityManager()->setDeleted($photo);
     }
 
+    public function save(Photo $photoUpload): void
+    {
+        $this->getEntityManager()->persist($photoUpload);
+        $this->getEntityManager()->flush();
+    }
+
 }

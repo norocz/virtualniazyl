@@ -58,4 +58,19 @@ class AnimalsRepository extends EntityRepository
         return $this->findOneBy(['id' => $id])->toArray();
 
     }
+
+    public function persist(Animal $animal)
+    {
+        $this->getEntityManager()->persist($animal);
+    }
+
+    public function remove(Animal $animal)
+    {
+        $this->getEntityManager()->remove($animal);
+    }
+
+    public function flush()
+    {
+        $this->getEntityManager()->flush();
+    }
 }

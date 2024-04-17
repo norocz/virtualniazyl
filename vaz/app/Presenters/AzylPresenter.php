@@ -10,10 +10,13 @@ use App\Forms\azylSetingsFormFactory;
 use App\Forms\newsFormFactory;
 use App\Model\Orm\Entity\Animal;
 use App\Model\Orm\Entity\News;
+use App\Model\Orm\Entity\Photo;
 use App\Model\Orm\Enums\RoleTypeEnum;
 use App\Model\Orm\Repository\AnimalsRepository;
 use App\Model\Orm\Repository\NewsRepository;
+use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Services\Menu;
+use App\Repository\SpeciesRepository;
 use Contributte\Application\UI\BasePresenter;
 use DateTimeImmutable;
 use Nette\Forms\Form;
@@ -30,11 +33,15 @@ class AzylPresenter extends BasePresenter
                                 AzylSetingsFormFactory $azylSetingsFormFactory,
                                 public NewsRepository  $newsRepository,
                                 public NewsFormFactory $newsFormFactory,
-                                public NewsDatagridFactory $newsDatagridFactory)
+                                public NewsDatagridFactory $newsDatagridFactory,
+                                public Photo $photos,
+                                public PhotosRepository $photosRepository,
+                                public SpeciesRepository $speciesRepository)
     {
         $this->animalsRepository = $animalsRepository;
         $this->animalFormFactory = $animalFormFactory;
         $this->azylSetingsFormFactory = $azylSetingsFormFactory;
+        $this->speciesRepository = $speciesRepository;
         $this->newsRepository = $newsRepository;
         $this->newsFormFactory = $newsFormFactory;
         $this->newsDatagridFactory = $newsDatagridFactory;
@@ -148,23 +155,24 @@ class AzylPresenter extends BasePresenter
         {
             bdump($values);
             $animal = New Animal();
-            $animal->setAzyl($this->getUser()->getIdentity()->getId());
+            $animal->setAzyl($this->getUser()->getIdentity()->getData()['Azyl']);
             $animal->setIsDeleted(false);
             $animal->setAdopted(false);
             $animal->setToAdoption($values->toAdoption);
             $animal->setName($values->name);
             $animal->setDescription($values->description);
-            $animal->setSpecies($values->species);
+            $animal->setSpecies($this->speciesRepository->findOneById($values->species));
             $animal->setBirthDate($values->birthDate);
             $animal->setBreed($values->breed);
+            $this->animalsRepository->persist($animal);
             foreach ($values->photos as $photo)
             {
-
+                $photoUpload = New Photo();
+                $photoUpload->uploadAzylPhoto($photo);
+                $photoUpload->setAnimal($animal);
+                $this->photosRepository->save($photoUpload);
             }
-            $animal->setPhotos([]);
-
-
-            $this->animalsRepository->saveAnimal($values);
+            $this->animalsRepository->flush($animal);
             $this->flashMessage('Zvířátko bylo úspěšně přidáno.', 'alert-success');
         }
         else
@@ -177,12 +185,18 @@ class AzylPresenter extends BasePresenter
             $animal->setBirthDate($values->birthDate);
             $animal->setBreed($values->breed);
             $animal->setToAdoption($values->toAdoption);
-            //$animal->setPhotos([]);
+            foreach ($values->photos as $photo)
+            {
+                $photoUpload = New Photo();
+                $photoUpload->uploadAzylPhoto($photo);
+                $photoUpload->setAnimal($animal);
+                $this->photosRepository->save($photoUpload);
+            }
 
             $this->animalsRepository->saveAnimal($values);
             $this->flashMessage('Zvířátko bylo úspěšně upraveno.', 'alert-success');
         }
-        $this->redirect('Azyl:animals');
+        $this->redirect('this');
     }
 
     public function createComponentNewsForm(): \Nette\Application\UI\Form

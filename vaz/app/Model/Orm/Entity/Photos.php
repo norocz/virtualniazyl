@@ -54,7 +54,7 @@ class Photo
     const WWW_UPLOAD_PATH = '/upload/photos/';
     const UPLOAD_PATH = '/../../../www' . self::WWW_UPLOAD_PATH; // Path to Part Document dir.
 
-    public function uploadAzylPhoto(FileUpload $fileUpload)
+    public function uploadAzylPhoto(FileUpload $fileUpload) : void
     {
 
 
