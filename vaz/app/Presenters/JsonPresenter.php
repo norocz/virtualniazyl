@@ -14,11 +14,10 @@ class JsonPresenter extends Presenter
 
     private CityRepository $cityRepository;
 
-    public function __construct(public Citys $citys, CityRepository $cityRepository)
+    public function __construct(CityRepository $cityRepository)
     {
         parent::__construct();
         $this->cityRepository = $cityRepository;
-        $this->citys = $citys;
 
     }
 
