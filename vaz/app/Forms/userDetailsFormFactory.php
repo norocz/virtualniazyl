@@ -18,7 +18,6 @@ class userDetailsFormFactory extends Form
         parent::__construct();
 
         $this->cityRepository = $cityRepository;
-        $this->jsonPresenter = $jsonPresenter;
 
     }
 

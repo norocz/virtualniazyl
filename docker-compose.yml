@@ -24,7 +24,7 @@ services:
       MYSQL_PASSWORD: test
       MYSQL_DATABASE: azyl
     volumes:
-      - ./build/database/baseDb.sql:/docker-entrypoint-initdb.d/baseDb.sql
+      - ./db:/var/lib/mysql
 
   adminer:
     image: adminer

@@ -33,8 +33,8 @@ class News
     #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $visibleFrom;
 
-    #[ORM\ManyToOne(targetEntity: "Users")]
-    private Users $author;
+    #[ORM\ManyToOne(targetEntity: "Users", cascade: ['persist'], inversedBy: 'news')]
+    private ?Users $author;
 
     #[ORM\Column(type: 'boolean')]
     private $deleted;
@@ -99,7 +99,7 @@ class News
         return $this;
     }
 
-    public function getAuthor(): Users
+    public function getAuthor(): ?Users
     {
         return $this->author;
     }

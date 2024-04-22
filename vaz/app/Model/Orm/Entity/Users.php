@@ -84,7 +84,7 @@ class Users
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $phoneVerified;
 
-    #[ORM\OneToMany(mappedBy: "user", targetEntity: "News")]
+    #[ORM\OneToMany(mappedBy: 'author', targetEntity: News::class)]
     public ?Collection $news;
 
     #[ORM\OneToMany(mappedBy: "author", targetEntity: "Pages")]

@@ -53,11 +53,11 @@
 						</span><span class="ms-1 fs-10 fs-sm-9">Podpořili</span>
 					</a>
 					{if $user->isLoggedIn()}
-					<a class="ms-2 ms-md-3 submenu" href="{link user:messages}">
-						<span class="uil uil-mailbox"><span class="rounded-bottom-xl-circle" style="vertical-align: super; font-size: smaller; background-color: red; color: white;">{$messagesCount}</span></span>
+					<a class="ms-2 ms-md-3 submenu" href="{link User:messages}">
+						<span class="uil uil-mailbox"><span class="rounded" style="vertical-align: super; horiz-align: center; font-size: smaller; background-color: red; color: white;">&nbsp;{$messagesCount}&nbsp;</span></span>
 					</a>
 
-					<a class="ms-2 ms-md-3 submenu" href="{link user:profil}">
+					<a class="ms-2 ms-md-3 submenu" href="{link User:profil}">
 						<span class="uil uil-user-circle"> {$user->getIdentity()->data['User']->email}</span>
 					</a>
 

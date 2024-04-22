@@ -50,6 +50,7 @@ class UserPresenter extends BasePresenter
     {
         parent::startup();
         $menu = new Menu();
+        $this->getTemplate()->messagesCount = 1;
         $this->getTemplate()->mainMenuItems = $menu->getMenu();
         if (!$this->getPresenter()->getUser()->isLoggedIn())
         {

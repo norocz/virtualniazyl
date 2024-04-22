@@ -26,6 +26,7 @@ class newsFormFactory extends Form
             ->setHtmlAttribute('class','form-check-input');
         $form->addDateTime('visibleFrom', 'Viditelné od:')
             ->setHtmlAttribute('class','form-control')
+            ->setDefaultValue(date('d.m.Y H:i'))
             ->setRequired('Datum viditelnosti.');
         $form->addSubmit('send', 'Uložit')
             ->setHtmlAttribute('class', 'btn btn-primary');

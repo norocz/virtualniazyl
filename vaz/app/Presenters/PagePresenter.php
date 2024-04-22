@@ -21,6 +21,7 @@ class PagePresenter extends BasePresenter
     {
         parent::startup();
         $menu = new Menu();
+        $this->getTemplate()->messagesCount = 1;
         $this->getTemplate()->mainMenuItems = $menu->getMenu();
     }
 

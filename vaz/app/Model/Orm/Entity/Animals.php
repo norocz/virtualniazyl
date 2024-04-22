@@ -15,8 +15,7 @@ class Animal
     #[ORM\GeneratedValue(strategy: 'AUTO')]
     private int $id;
 
-    #[ORM\ManyToOne(targetEntity: "Azyl", inversedBy: "animals")]
-    #[ORM\JoinColumn(name: "azyl_id", referencedColumnName: "id")]
+    #[ORM\ManyToOne(targetEntity: "Azyl", cascade: ['persist'], inversedBy: "animals")]
     private Azyl $azyl;
 
     #[ORM\ManyToOne(targetEntity: "Species", inversedBy: "animals")]
