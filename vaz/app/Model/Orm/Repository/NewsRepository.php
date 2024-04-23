@@ -19,9 +19,9 @@ class NewsRepository extends EntityRepository
         return $this->findBy(['deleted' => false], ['visibleFrom' => 'DESC']);
     }
 
-    public function findAllVisibleUser($user): array
+    public function findAllVisibleUser($id): array
     {
-        return $this->findBy(['deleted' => false, 'author' => $user], ['visibleFrom' => 'DESC']);
+        return $this->findBy(['deleted' => false, 'author' => $id], ['visibleFrom' => 'DESC']);
     }
 
     public function findImportant(): array

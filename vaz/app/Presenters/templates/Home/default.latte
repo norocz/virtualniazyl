@@ -23,7 +23,7 @@
                     <div class="news" id="news">
 
                         {foreach $news as $new}
-                        {var $authorRole = $new->getAuthor()->getRole()}
+                        {var $user = $userRepository->getUserById($new->getAuthor())}
                         {if $new->getImportant() === true}
                                    <div class = "card news-card text-dark bg-warning">
                         {else}
@@ -32,12 +32,12 @@
                                     <h5 class="card-header">{$new->getTitle()}</h5>
                                     <div class="card-body">
                                         <p class="card-text"> {$new->getContent()|noescape}</p>
-                                        <p class="author-name card-text"><small class="text-muted">Autor: {$new->getAuthor()->getUserName()}</small>
+                                        <p class="author-name card-text"><small class="text-muted">Autor: {$user->getUserName()}</small>
                                         <br><small class="text-muted">Vytvořeno: {$new->getCreatedAt()->format('d.m.Y. H:m:s')}</small>
 
                                         </p>
-                                        {if $authorRole == 'azyl'}
-                                        <a href="{link Home:azyl, $new->getAuthor()->getId()}" class="btn btn-sm btn-primary">Stránka azylu</a>
+                                        {if $user->getRole() === 'azyl'}
+                                        <a href="{link Home:azyl, $user->getAzyl()}" class="btn btn-sm btn-primary">Stránka azylu</a>
                                         {/if}
                                     </div>
                                 </div>

@@ -224,22 +224,10 @@ class AzylPresenter extends BasePresenter
             }
         } else {
             $user = $this->getPresenter()->getUser()->getIdentity()->getData()['User'];
-
-            //$user->news = new News();
-            $user->news->setTitle($values->title);
-            $user->news->setContent($values->content);
-            $user->news->setGlobal($values->global);
-            $user->news->setVisibleFrom($values->visibleFrom);
-            $user->news->setUpdatedAt(new DateTimeImmutable());
-            $user->news->setDeleted($values->deleted);
-            $user->news->setImportant($values->important);
-
-            $this->newsRepository->save($user);
-
             bdump($user);
-            /*
+
             $news = new News();
-            $news->setAuthor($this->getPresenter()->getUser()->getIdentity()->getData()['User']);
+            $news->setAuthor($this->getPresenter()->getUser()->getIdentity()->getId());
             $news->setTitle($values->title);
             $news->setContent($values->content);
             $news->setGlobal($values->global);
@@ -248,9 +236,9 @@ class AzylPresenter extends BasePresenter
             $news->setCreatedAt(new DateTimeImmutable());
             $news->setDeleted(false);
             $news->setImportant(false);
-
+            bdump($news);
             $this->newsRepository->save($news);
-            */
+
 
             $this->flashMessage('Novinka byla uložena.', 'success');
             $this->redirect('Azyl:news');
@@ -259,8 +247,9 @@ class AzylPresenter extends BasePresenter
 
     public function createComponentNewsDatagrid(): DataGrid
     {
-        $grid = $this->newsDatagridFactory->create($this->getPresenter()->getUser()->getIdentity()->getData()['User']);
-        $grid ->setDataSource($this->getPresenter()->getUser()->getIdentity()->getData()['User']->news);
+        bdump($this->getPresenter()->getUser()->getIdentity()->getData()['User']->news);
+        $grid = $this->newsDatagridFactory->create($this->getPresenter()->getUser()->getIdentity()->getData()['User']->id);
+        //$grid ->setDataSource($this->getPresenter()->getUser()->getIdentity()->getData()['User']->news);
         return $grid;
     }
 }

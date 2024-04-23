@@ -17,10 +17,10 @@ class NewsDatagridFactory extends DataGrid
         $this->newsRepository = $newsRepository;
     }
 
-    public function create($user): DataGrid
+    public function create($id): DataGrid
     {
         $grid = new DataGrid;
-        $grid->setDataSource($this->newsRepository->findAllVisibleUser($user));
+        $grid->setDataSource($this->newsRepository->findAllVisibleUser($id));
         $grid->addColumnText('id', 'ID')
             ->setSortable()
             ->setDefaultHide()

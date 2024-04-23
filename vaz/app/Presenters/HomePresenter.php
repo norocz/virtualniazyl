@@ -51,6 +51,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $menu = new Menu();
         $this->getTemplate()->mainMenuItems = $menu->getMenu();
         $this->getTemplate()->messagesCount = 1;
+        $this->getTemplate()->userRepository = $this->usersRepository;
     }
 
     public function renderDefault(): void

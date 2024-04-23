@@ -33,8 +33,9 @@ class News
     #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $visibleFrom;
 
-    #[ORM\ManyToOne(targetEntity: "Users", cascade: ['persist'], inversedBy: 'news')]
-    private ?Users $author;
+    #[ORM\Column(type:'integer')]
+
+    private ?int $author;
 
     #[ORM\Column(type: 'boolean')]
     private $deleted;
@@ -99,12 +100,12 @@ class News
         return $this;
     }
 
-    public function getAuthor(): ?Users
+    public function getAuthor(): ?int
     {
         return $this->author;
     }
 
-    public function setAuthor(Users $author): News
+    public function setAuthor(int $author): News
     {
         $this->author = $author;
         return $this;
