@@ -6,6 +6,7 @@ namespace App\Presenters;
 
 use App\Forms\registerFormFactory;
 use App\Forms\SignInFormFactory;
+use App\Model\Orm\Entity\Azyl;
 use App\Model\Orm\Entity\Users;
 use App\Model\Orm\Repository\AdoptionsRepository;
 use App\Model\Orm\Repository\AzylRepository;
@@ -26,6 +27,8 @@ final class HomePresenter extends Nette\Application\UI\Presenter
 {
     protected EntityManagerInterface $entityManager;
     protected UsersRepository $usersRepository;
+    public Azyl $azylProfil;
+    public Users $azylUser;
 
 
 
@@ -33,7 +36,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                                 EntityManagerInterface                 $entityManager,
                                 protected readonly SignInFormFactory   $signInFormFactory,
                                 protected readonly RegisterFormFactory $registerFormFactory,
-                                private            Passwords           $passwords,
+                                private readonly Passwords             $passwords,
                                 public            TemplateFactory      $templateFactory,
                                 public readonly NewsRepository         $newsRepository,
                                 public readonly AzylRepository         $azylRepository,
@@ -60,15 +63,6 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $news = $this->newsRepository->findBy(['global' => true, 'deleted' => false],  ['createdAt' => 'DESC'],8);
         $adoptions = $this->adoptionsRepository->findBy(['deleted' => false],  ['createdAt' => 'DESC'],8);
 
-        /*
-        $test[] = ['name' => 'Mourice','age'=>14,'breed'=>'Britský modrý colorpoint','photo'=>'kytka'.rand(1,4).'.jpeg', 'description'=>'Mourice je velmi klidný a mazlivý kocour.'];
-        $test[] = ['name' => 'Cassidy','age'=>4,'breed'=>'Tosa inu','photo'=>'kytka'.rand(1,4).'.jpeg', 'description'=>'Cassidy je velmi hravý a veselý pes.'];
-        $test[] = ['name' => 'Baghira','age'=>10,'breed'=>'Tosa inu','photo'=>'kytka'.rand(1,4).'.jpeg', 'description'=>'Baghira je velmi klidný a mazlivý pes.'];
-
-        $news[] = ['title' => 'Nový pes','content'=>'V našem azylu se objevil nový pes. Je to kříženec německého ovčáka a labradora. Je velmi hravý a milý.'];
-        $news[] = ['title' => 'Morčata k adopci','content'=>'Zachráněná samička morčete se stala čerstvou maminkou.'];
-        $news[] = ['title' => 'Brigáda červenec','content'=>'Kdo chce může 20.7.2024 přijít na brigádu.'];
-        */
         $this->getTemplate()->title = 'Domácí stránka';
         $this->getTemplate()->adoptions = $adoptions;
         $this->getTemplate()->news = $news;
@@ -85,6 +79,35 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->getTemplate()->news = $news;
         $this->getTemplate()->newsCount = $this->newsRepository->count(['deleted' => false, 'global' => true]);
         $this->getTemplate()->offset = $offset;
+    }
+
+    public function renderAzyl(int $id) : void
+    {
+
+        $azylProfil = $this->azylRepository->findById($id);
+        bdump($azylProfil);
+        $azylUser = $this->usersRepository->getUserByAzylId($id);
+        $this->getTemplate()->azylProfil = $azylProfil->toArray();
+        $this->getTemplate()->azylAdoptions = $this->adoptionsRepository->findBy(['id' => $azylProfil->getId()], ['createdAt' => 'DESC']);
+        $this->getTemplate()->azylNews = $this->newsRepository->findBy(['id'=> $azylUser->getId()], ['createdAt' => 'DESC']);
+        $this->getTemplate()->azylUser = $azylUser;
+        $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
+        $this->getTemplate()->newsCount = $this->newsRepository->count(['deleted' => false, 'author' => $azylUser->getId()]);
+    }
+
+    public function actionAzylAdoptions(int $id) : void
+    {
+
+    }
+
+    public function actionAzylNews(int $id) : void
+    {
+
+    }
+
+    public function actionAzylPhotos(int $id) : void
+    {
+
     }
 
     public function actionSignIn(): void

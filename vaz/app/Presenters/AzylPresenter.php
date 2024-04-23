@@ -13,6 +13,7 @@ use App\Model\Orm\Entity\News;
 use App\Model\Orm\Entity\Photo;
 use App\Model\Orm\Enums\RoleTypeEnum;
 use App\Model\Orm\Repository\AnimalsRepository;
+use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\NewsRepository;
 use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Services\Menu;
@@ -36,7 +37,8 @@ class AzylPresenter extends BasePresenter
                                 public NewsDatagridFactory $newsDatagridFactory,
                                 public Photo $photos,
                                 public PhotosRepository $photosRepository,
-                                public SpeciesRepository $speciesRepository)
+                                public SpeciesRepository $speciesRepository,
+                                public AzylRepository $azylRepository)
     {
         $this->animalsRepository = $animalsRepository;
         $this->animalFormFactory = $animalFormFactory;
@@ -45,6 +47,7 @@ class AzylPresenter extends BasePresenter
         $this->newsRepository = $newsRepository;
         $this->newsFormFactory = $newsFormFactory;
         $this->newsDatagridFactory = $newsDatagridFactory;
+        $this->azylRepository = $azylRepository;
         parent::__construct();
     }
 
@@ -137,14 +140,29 @@ class AzylPresenter extends BasePresenter
     public function createComponentAzylSettingsForm(): Form
     {
         $form = $this->azylSetingsFormFactory->create();
-        $form->setDefaults($this->getUser()->getIdentity()->data['Azyl']);
+        $form->setDefaults($this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()));
+        bdump($form);
         $form->onSuccess[] = [$this, 'azylSettingsFormSucceeded'];
         return $form;
     }
 
     public function azylSettingsFormSucceeded(Form $form, $values) :void
     {
+        bdump($values);
+        bdump($form);
+        $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
+        bdump($azyl);
 
+        $azyl->setAzylName($values['azylName']);
+        $azyl->setDescription($values['description']);
+        $azyl->setBankAccount($values['bankAccount']);
+        $azyl->setBankCode($values['bankCode']);
+        $azyl->setBankSpecificCode($values['bankSpecificCode']);
+        $azyl->setPhoneNumber($values['phoneNumber']);
+
+        $this->azylRepository->saveAzyl($azyl);
+        $this->flashMessage('Nastavení azylu bylo aktualizováno.', 'alert-success');
+        $this->redirect('this');
     }
 
     public function animalFormSucceeded(Form $form, $values): void

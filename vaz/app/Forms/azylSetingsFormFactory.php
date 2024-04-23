@@ -12,11 +12,12 @@ class AzylSetingsFormFactory extends Form
     public function create()
     {
         $form = new Form;
+        $form->addHidden('id');
         $form->addText('azylName', 'Jméno azylu')
             ->setRequired('Zadejte jméno azylu')
             ->setHtmlAttribute('class', 'form-control')
             ->addRule(Form::MaxLength, 'Jméno azylu může mít maximálně %d znaků', 255);
-        $form->addTextArea('azylDescription', 'Popis azylu')
+        $form->addTextArea('description', 'Popis azylu')
             ->setHtmlAttribute('id', 'azylDescription')
             ->setHtmlAttribute('class', 'form-control')
             ->addRule(Form::MaxLength, 'Info o azylu může mít maximálně %d znaků', 2048);

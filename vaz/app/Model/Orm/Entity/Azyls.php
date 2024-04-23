@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Model\Orm\Entity;
 
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -18,27 +19,49 @@ class Azyl
     public int $id;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private string $azylName;
+    private ?string $azylName;
 
     #[ORM\Column(type: 'string', length: 1024, nullable: true)]
-    private string $description;
+    private ?string $description;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private string $bankAccount;
+    private ?string $bankAccount;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private string $bankCode;
+    private ?string $bankCode;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private string $bankSpecificCode;
+    private ?string $bankSpecificCode;
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private string $phoneNumber;
+    private ?string $phoneNumber;
 
     #[ORM\OneToMany(mappedBy: "azyl", targetEntity: Animal::class)]
     private Collection $animals;
 
+    public function __construct()
+    {
+        $this->animals = new ArrayCollection();
+        $this->azylName = 'Jmeno azylu';
+        $this->description = null;
+        $this->bankAccount = null;
+        $this->bankCode = null;
+        $this->bankSpecificCode = null;
+        $this->phoneNumber = null;
+    }
 
-    public function getAzylName(): string
+    public function toArray(): array
+    {
+        return ['azylName' => $this->azylName
+        , 'description' => $this->description
+        , 'bankAccount' => $this->bankAccount
+        , 'bankCode' => $this->bankCode
+        , 'bankSpecificCode' => $this->bankSpecificCode
+        , 'phoneNumber' => $this->phoneNumber]
+            ;
+    }
+
+
+    public function getAzylName(): ?string
     {
         return $this->azylName;
     }
@@ -57,7 +80,7 @@ class Azyl
         return $this;
     }
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }

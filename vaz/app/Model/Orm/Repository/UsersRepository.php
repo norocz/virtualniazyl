@@ -79,13 +79,14 @@ class UsersRepository extends EntityRepository
         return $this->findOneBy(['id' => $user]);
     }
 
-    public function setPassword(string $hash)
+    public function getUserByAzylId(int $azyl) : ?Users
     {
+        return $this->findOneBy(['azyl' => $azyl]);
     }
 
-    public function setUserName(string $userName)
+    public function setPassword(string $hash)
     {
-        $this->userName = $userName;
+
     }
 
     public function getUserByMailVerifyToken(mixed $vrf)
