@@ -85,11 +85,11 @@ final class HomePresenter extends Nette\Application\UI\Presenter
     {
 
         $azylProfil = $this->azylRepository->findById($id);
-        bdump($azylProfil);
+
         $azylUser = $this->usersRepository->getUserByAzylId($id);
         $this->getTemplate()->azylProfil = $azylProfil->toArray();
         $this->getTemplate()->azylAdoptions = $this->adoptionsRepository->findBy(['id' => $azylProfil->getId()], ['createdAt' => 'DESC']);
-        $this->getTemplate()->azylNews = $this->newsRepository->findBy(['id'=> $azylUser->getId()], ['createdAt' => 'DESC']);
+        $this->getTemplate()->azylNews = $this->newsRepository->findBy(['author'=> $azylUser->id], ['createdAt' => 'DESC']);
         $this->getTemplate()->azylUser = $azylUser;
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
         $this->getTemplate()->newsCount = $this->newsRepository->count(['deleted' => false, 'author' => $azylUser->getId()]);

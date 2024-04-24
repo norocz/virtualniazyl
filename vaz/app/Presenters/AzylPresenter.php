@@ -139,19 +139,21 @@ class AzylPresenter extends BasePresenter
 
     public function createComponentAzylSettingsForm(): Form
     {
+        $formDefaults = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
         $form = $this->azylSetingsFormFactory->create();
-        $form->setDefaults($this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()));
+        bdump($formDefaults);
+
         bdump($form);
         $form->onSuccess[] = [$this, 'azylSettingsFormSucceeded'];
+
+        $form->onRender[] = fn() => $form->setDefaults($formDefaults->toArray());
         return $form;
     }
 
     public function azylSettingsFormSucceeded(Form $form, $values) :void
     {
-        bdump($values);
-        bdump($form);
+
         $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
-        bdump($azyl);
 
         $azyl->setAzylName($values['azylName']);
         $azyl->setDescription($values['description']);
@@ -253,7 +255,7 @@ class AzylPresenter extends BasePresenter
             $news->setImportant($values->important);
             $news->setCreatedAt(new DateTimeImmutable());
             $news->setDeleted(false);
-            $news->setImportant(false);
+
             bdump($news);
             $this->newsRepository->save($news);
 
