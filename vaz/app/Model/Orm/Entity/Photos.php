@@ -51,8 +51,9 @@ class Photo
 
 
 
+    const REAL_UPLOAD_PATH = '../../upload/photos/';
     const WWW_UPLOAD_PATH = '/upload/photos/';
-    const UPLOAD_PATH = '/../../../../www' . self::WWW_UPLOAD_PATH; // Path to Part Document dir.
+    const UPLOAD_PATH = '/../../../../www' . self::WWW_UPLOAD_PATH;
 
     public function uploadAzylPhoto(FileUpload $fileUpload) : void
     {
@@ -66,7 +67,7 @@ class Photo
         $extension = array_pop($array);
         $this->name = Random::generate(39) . "." . $extension;
 
-        $pathPart = self::WWW_UPLOAD_PATH."azyl/" .$this->getAzyl()->id.'/';
+        $pathPart = self::REAL_UPLOAD_PATH."azyl/" .$this->getAzyl()->id.'/';
         $path = __DIR__ . self::UPLOAD_PATH . "azyl/" .$this->getAzyl()->id.'/';
         $this->setPath($pathPart);
 
@@ -90,7 +91,7 @@ class Photo
         $array = explode('.', $this->originalName);
         $extension = array_pop($array);
         $this->name = Random::generate(39) . "." . $extension;
-        $pathPart = self::WWW_UPLOAD_PATH."user/" .$this->getUser()->id.'/';
+        $pathPart = self::REAL_UPLOAD_PATH."user/" .$this->getUser()->id.'/';
         $path = __DIR__ . self::UPLOAD_PATH . "user/" .$this->getUser()->id.'/';
         $this->setPath($pathPart);
 
@@ -114,7 +115,7 @@ class Photo
         $array = explode('.', $this->originalName);
         $extension = array_pop($array);
         $this->name = Random::generate(39) . "." . $extension;
-        $pathPart = self::WWW_UPLOAD_PATH."owner/" .$this->getOwner()->id.'/';
+        $pathPart = self::REAL_UPLOAD_PATH."owner/" .$this->getOwner()->id.'/';
         $path = __DIR__ . self::UPLOAD_PATH . "owner/" .$this->getOwner()->id.'/';
         $this->setPath($pathPart);
 

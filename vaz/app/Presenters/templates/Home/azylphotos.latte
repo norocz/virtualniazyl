@@ -1,4 +1,6 @@
-{templateType App\Presenters\Home\AzylPhotos}
+/**
+* @property-read Nette\Bridges\ApplicationLatte\Template|\stdClass $template
+*/
 
 {block content}
 <style>
@@ -79,6 +81,13 @@
                         </div>
                         <hr>
                         <span class="sidebar-brand">{$azylProfil['azylName']} </span>
+                        <div class="photo sidebar">
+                            {ifset $azylProfil['mainPhoto']}
+                            <img src="{$azylProfil['mainPhoto']}" alt="{$azylProfil['azylName']}" class="img-fluid">
+                            {else}
+                            <img src="{$basePath}/assets/vazdata/img/pic/defaultPhoto.jpeg" alt="{$azylProfil['azylName']}" class="img-fluid">
+                            {/ifset}
+                        </div>
                         <div class="sidebar-footer">{$azylProfil['description']|noescape}</div>
                         <hr>
                         <span class="">Další informace:<br></span>
@@ -96,12 +105,12 @@
                     <div class="col-9 photos">
                         <h3>Fotky</h3>
                         <div class="row">
-                            {foreach $azylPhotos as $photo}
+                            {foreach $azylPhotos as $azylPhoto}
                             <div class="col-4">
                                 <div class="card">
-                                    <img src="{$photo-> } {$photo['name']} " class="card-img-top" alt="{$photo['originalName']}">
+                                    <img src="{$azylPhoto->getPath()}{$azylPhoto->getName()} " class="card-img-top" alt="{$azylPhoto->getOriginalName()}">
                                     <div class="card-body">
-                                        <h5 class="card-title">{$photo['originalName']}</h5>
+                                        <h5 class="card-title">{$azylPhoto->getOriginalName()}</h5>
                                     </div>
                                 </div>
                             </div>
