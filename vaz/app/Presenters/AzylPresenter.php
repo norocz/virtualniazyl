@@ -174,8 +174,11 @@ class AzylPresenter extends BasePresenter
         if ($id === null)
         {
             bdump($values);
+            
             $animal = New Animal();
-            $animal->setAzyl($this->getUser()->getIdentity()->getData()['Azyl']);
+            $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
+            bdump($azyl);
+            $animal->setAzyl($azyl);
             $animal->setIsDeleted(false);
             $animal->setAdopted(false);
             $animal->setToAdoption($values->toAdoption);
@@ -188,6 +191,8 @@ class AzylPresenter extends BasePresenter
             foreach ($values->photos as $photo)
             {
                 $photoUpload = New Photo();
+                $photoUpload -> setAzyl($azyl);
+                $photoUpload -> setDate(new DateTimeImmutable('now'));
                 $photoUpload->uploadAzylPhoto($photo);
                 $photoUpload->setAnimal($animal);
                 $this->photosRepository->save($photoUpload);

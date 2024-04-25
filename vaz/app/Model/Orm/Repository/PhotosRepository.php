@@ -22,6 +22,15 @@ class PhotosRepository extends EntityRepository
             ->getResult();
     }
 
+    public function fetchByAzylId(int $azylId): array
+    {
+        return $this->createQueryBuilder('p')
+            ->where('p.azyl = :azylId')
+            ->setParameter('azylId', $azylId)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function addPhoto(Photo $photo): void
     {
         $this->getEntityManager()->persist($photo);

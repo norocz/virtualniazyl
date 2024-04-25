@@ -11,6 +11,7 @@ use App\Model\Orm\Entity\Users;
 use App\Model\Orm\Repository\AdoptionsRepository;
 use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\NewsRepository;
+use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,6 +28,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
 {
     protected EntityManagerInterface $entityManager;
     protected UsersRepository $usersRepository;
+
     public Azyl $azylProfil;
     public Users $azylUser;
 
@@ -36,11 +38,12 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                                 EntityManagerInterface                 $entityManager,
                                 protected readonly SignInFormFactory   $signInFormFactory,
                                 protected readonly RegisterFormFactory $registerFormFactory,
-                                private readonly Passwords             $passwords,
-                                public            TemplateFactory      $templateFactory,
-                                public readonly NewsRepository         $newsRepository,
-                                public readonly AzylRepository         $azylRepository,
-                                public          AdoptionsRepository    $adoptionsRepository)
+                                private readonly   Passwords             $passwords,
+                                public             TemplateFactory      $templateFactory,
+                                public readonly    NewsRepository         $newsRepository,
+                                public readonly    AzylRepository         $azylRepository,
+                                public             AdoptionsRepository    $adoptionsRepository,
+                                public             PhotosRepository    $photosRepository)
     {
         parent::__construct();
         $this->entityManager = $entityManager;
@@ -97,16 +100,40 @@ final class HomePresenter extends Nette\Application\UI\Presenter
 
     public function actionAzylAdoptions(int $id) : void
     {
+        $azylProfil = $this->azylRepository->findById($id);
+
+        $azylUser = $this->usersRepository->getUserByAzylId($id);
+        $this->getTemplate()->azylProfil = $azylProfil->toArray();
+        $this->getTemplate()->azylAdoptions = $this->adoptionsRepository->findBy(['id' => $azylProfil->getId()], ['createdAt' => 'DESC']);
+        $this->getTemplate()->azylUser = $azylUser;
+        $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
+        $this->getTemplate()->newsCount = $this->newsRepository->count(['deleted' => false, 'author' => $azylUser->getId()]);
 
     }
 
     public function actionAzylNews(int $id) : void
     {
+        $azylProfil = $this->azylRepository->findById($id);
+
+        $azylUser = $this->usersRepository->getUserByAzylId($id);
+        $this->getTemplate()->azylProfil = $azylProfil->toArray();
+        $this->getTemplate()->azylNews = $this->newsRepository->findBy(['author'=> $azylUser->id], ['createdAt' => 'DESC']);
+        $this->getTemplate()->azylUser = $azylUser;
+        $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
+        $this->getTemplate()->newsCount = $this->newsRepository->count(['deleted' => false, 'author' => $azylUser->getId()]);
 
     }
 
     public function actionAzylPhotos(int $id) : void
     {
+        $azylProfil = $this->azylRepository->findById($id);
+
+        $azylUser = $this->usersRepository->getUserByAzylId($id);
+        $this->getTemplate()->azylProfil = $azylProfil->toArray();
+        $this->getTemplate()->azylPhotos = $this->photosRepository->fetchByAzylId($id);
+        $this->getTemplate()->azylUser = $azylUser;
+        $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
+        $this->getTemplate()->newsCount = $this->newsRepository->count(['deleted' => false, 'author' => $azylUser->getId()]);
 
     }
 

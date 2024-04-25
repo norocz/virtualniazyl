@@ -52,7 +52,7 @@ class Photo
 
 
     const WWW_UPLOAD_PATH = '/upload/photos/';
-    const UPLOAD_PATH = '/../../../www' . self::WWW_UPLOAD_PATH; // Path to Part Document dir.
+    const UPLOAD_PATH = '/../../../../www' . self::WWW_UPLOAD_PATH; // Path to Part Document dir.
 
     public function uploadAzylPhoto(FileUpload $fileUpload) : void
     {
@@ -66,8 +66,9 @@ class Photo
         $extension = array_pop($array);
         $this->name = Random::generate(39) . "." . $extension;
 
-        $path = __DIR__ . self::UPLOAD_PATH . "/azyl/" .$this->getAzyl()->id;
-
+        $pathPart = self::WWW_UPLOAD_PATH."azyl/" .$this->getAzyl()->id.'/';
+        $path = __DIR__ . self::UPLOAD_PATH . "azyl/" .$this->getAzyl()->id.'/';
+        $this->setPath($pathPart);
 
         if (!file_exists($path)) {
             if (!mkdir($path, 0755, true)) {
@@ -89,9 +90,9 @@ class Photo
         $array = explode('.', $this->originalName);
         $extension = array_pop($array);
         $this->name = Random::generate(39) . "." . $extension;
-
-        $path = __DIR__ . self::UPLOAD_PATH . "/user/" .$this->getUser()->id;
-
+        $pathPart = self::WWW_UPLOAD_PATH."user/" .$this->getUser()->id.'/';
+        $path = __DIR__ . self::UPLOAD_PATH . "user/" .$this->getUser()->id.'/';
+        $this->setPath($pathPart);
 
         if (!file_exists($path)) {
             if (!mkdir($path, 0755, true)) {
@@ -113,9 +114,9 @@ class Photo
         $array = explode('.', $this->originalName);
         $extension = array_pop($array);
         $this->name = Random::generate(39) . "." . $extension;
-
-        $path = __DIR__ . self::UPLOAD_PATH . "/owner/" .$this->getOwner()->id;
-
+        $pathPart = self::WWW_UPLOAD_PATH."owner/" .$this->getOwner()->id.'/';
+        $path = __DIR__ . self::UPLOAD_PATH . "owner/" .$this->getOwner()->id.'/';
+        $this->setPath($pathPart);
 
         if (!file_exists($path)) {
             if (!mkdir($path, 0755, true)) {
@@ -225,4 +226,12 @@ class Photo
         return $this;
     }
 
+    public function toArray(): array
+    {
+        return ['id' => $this->id
+        , 'date' => $this->date
+        , 'path' => $this->path
+        , 'name' => $this->name
+        , 'originalName' => $this->originalName];
+    }
 }

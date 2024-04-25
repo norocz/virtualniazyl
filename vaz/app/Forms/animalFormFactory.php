@@ -28,6 +28,8 @@ class animalFormFactory extends Form
             ->setRequired('Zadejte prosím jméno.');
         $form->addTextArea('description', 'Popis:')
             ->setHtmlAttribute('class', 'form-control')
+            ->setHtmlAttribute('rows', '7')
+            ->setHtmlAttribute('cols', '20')
             ->setRequired('Zadejte prosím popis.');
         $form->addSelect('species', 'Druh:', $species)
             ->setCaption('Druh:')

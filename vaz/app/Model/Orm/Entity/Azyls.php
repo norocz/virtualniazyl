@@ -38,6 +38,10 @@ class Azyl
     #[ORM\OneToMany(mappedBy: "azyl", targetEntity: Animal::class)]
     private Collection $animals;
 
+    #[ORM\OneToOne(targetEntity: Photo::class)]
+    #[ORM\Column(nullable: true)]
+    private ?Photo $mainPhoto;
+
     public function __construct()
     {
         $this->animals = new ArrayCollection();
@@ -139,6 +143,19 @@ class Azyl
     {
         return $this->id;
     }
+
+    public function getMainPhoto(): Photo
+    {
+        return $this->mainPhoto;
+    }
+
+    public function setMainPhoto(Photo $mainPhoto): Azyl
+    {
+        $this->mainPhoto = $mainPhoto;
+        return $this;
+    }
+
+
 
 }
 

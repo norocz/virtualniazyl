@@ -11,9 +11,11 @@
     }
 
      .news-card {
-
          margin-bottom: 2rem;
+     }
 
+     .sidenav a:hover {
+         background-color: #eeeeee;
      }
 
     .adoptions-card {
@@ -52,7 +54,7 @@
                                         <path d="M8 6.982C9.664 5.309 13.825 8.236 8 12 2.175 8.236 6.336 5.309 8 6.982"/>
                                         <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.707L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.646a.5.5 0 0 0 .708-.707L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"/>
                                     </svg>
-                                    <span>Všechny adopce</span>
+                                    <span>Všechny adopce azylu</span>
                                 </div>
                             </a>
                             <a n:class="sidebar-item, $presenter->isLinkCurrent('Home:azylnews') ? 'active'" n:href ="Home:azylnews $presenter->getParameter('id')">
@@ -60,7 +62,7 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar2-fill" viewBox="0 0 16 16">
                                         <path d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4zM2.545 3h10.91c.3 0 .545.224.545.5v1c0 .276-.244.5-.546.5H2.545C2.245 5 2 4.776 2 4.5v-1c0-.276.244-.5.545-.5"/>
                                     </svg>
-                                    <span>Aktuality</span>
+                                    <span>Aktuality azylu</span>
                                 </div>
                             </a>
                             <a n:class="sidebar-item, $presenter->isLinkCurrent('Home:azylphotos') ? 'active'" n:href ="Home:azylphotos $presenter->getParameter('id')">
