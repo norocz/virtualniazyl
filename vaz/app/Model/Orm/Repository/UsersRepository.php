@@ -33,7 +33,7 @@ class UsersRepository extends EntityRepository
     }
 
 
-    public function findOneBy(array $criteria, ?array $orderBy = null) : Users
+    public function findOneBy(array $criteria, ?array $orderBy = null) : ?Users
     {
         return parent::findOneBy($criteria, $orderBy);
     }
