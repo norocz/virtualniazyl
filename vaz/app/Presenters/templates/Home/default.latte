@@ -21,9 +21,9 @@
                 <div class="col-5  flex-column">
                     <h3>Aktuality</h3>
                     <div class="news" id="news">
-
+                      {if $newsCount !== 0}
                         {foreach $news as $new}
-                        {var $user = $userRepository->getUserById($new->getAuthor())}
+                        {var $newsUser = $userRepository->getUserById($new->getAuthor())}
                         {if $new->getImportant() === true}
                                    <div class = "card news-card text-dark bg-warning">
                         {else}
@@ -32,12 +32,12 @@
                                     <h5 class="card-header">{$new->getTitle()}</h5>
                                     <div class="card-body">
                                         <p class="card-text"> {$new->getContent()|noescape}</p>
-                                        <p class="author-name card-text"><small class="text-muted">Autor: {$user->getUserName()}</small>
+                                        <p class="author-name card-text"><small class="text-muted">Autor: {$newsUser->getUserName()}</small>
                                         <br><small class="text-muted">Vytvořeno: {$new->getCreatedAt()->format('d.m.Y. H:m:s')}</small>
 
                                         </p>
-                                        {if $user->getRole() === 'azyl'}
-                                        <a href="{link Home:azyl, $user->getAzyl()}" class="btn btn-sm btn-primary">Stránka azylu</a>
+                                        {if $newsUser->getRole() === 'azyl'}
+                                        <a href="{link Home:azyl, $newsUser->getAzyl()}" class="btn btn-sm btn-primary">Stránka azylu</a>
                                         {/if}
                                     </div>
                                 </div>
@@ -47,6 +47,11 @@
                                        {else}
                                         <p>Žádné novinky</p>
                                        {/if}
+                      {else}
+                        <p>Žádné novinky</p>
+                      {/if}
+
+
                     </div>
                 </div>
                 <div class="col-lg-7" >
