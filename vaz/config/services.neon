@@ -21,12 +21,17 @@ services:
 	- App\Model\Orm\Enums\RoleTypeEnum
 	##Factory##
 	- App\Forms\SignInFormFactory
+	- App\Forms\userDetailsFormFactory
+	- App\Forms\animalFormFactory
+	- App\Forms\newsFormFactory
+	- App\Forms\AzylSetingsFormFactory
 	##Repository##
 	- App\Model\Orm\Repository\UsersRepository
 	- App\Model\Orm\Repository\MessagesRepository
 	- App\Model\Services\MyAuthenticator
 
 	- Nepada\Bridges\PhoneNumberInputDI\PhoneNumberInputExtension
+	- App\Presenters\UserPresenter
 
 search:
 	-	in: %appDir%

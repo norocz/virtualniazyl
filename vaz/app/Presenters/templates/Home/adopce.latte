@@ -14,10 +14,9 @@
         <div class="content">
             <div class="row">
                 <div class="col-5  flex-column">
-                    <h3>Azyly</h3>
-                    <div class="azyls" id="azyls">
+                    <h3>Info o adopci</h3>
+                    <div class="adopce" id="adopce">
 
-                        {foreach $azyls as $azyl}
 
                         <div class="card azyl-card text-dark bg-light">
                             <h5 class="card-header">{$azyl->getAzylName()}</h5>
@@ -28,12 +27,12 @@
                             </div>
 
                         </div>
-                    {/foreach}
 
-                  </div>
+
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    {/block}
-{block scripts-user}
-{/block}
+        {/block}
+        {block scripts-user}
+        {/block}

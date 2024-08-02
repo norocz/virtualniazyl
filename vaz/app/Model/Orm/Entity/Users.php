@@ -85,7 +85,7 @@ class Users
     private bool $phoneVerified;
 
     #[ORM\OneToMany(mappedBy: 'author', targetEntity: News::class)]
-    public ?Collection $news;
+    private ?Collection $news;
 
     #[ORM\OneToMany(mappedBy: "author", targetEntity: "Pages")]
     #[ORM\Column(type: 'integer', nullable: true)]
@@ -181,6 +181,10 @@ class Users
         return $this->getUsers();
     }
 
+    public function getNews(): Collection
+    {
+        return $this->news;
+    }
 
     public function getVerified(): bool
     {

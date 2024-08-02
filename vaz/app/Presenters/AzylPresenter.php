@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Presenters;
 
+use App\Components\Datagrids\AnimalsDatagridFactory;
 use App\Components\Datagrids\NewsDatagridFactory;
 use App\Forms\animalFormFactory;
 use App\Forms\azylSetingsFormFactory;
@@ -16,6 +17,7 @@ use App\Model\Orm\Repository\AnimalsRepository;
 use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\NewsRepository;
 use App\Model\Orm\Repository\PhotosRepository;
+use App\Model\Orm\Repository\UsersRepository;
 use App\Model\Services\Menu;
 use App\Repository\SpeciesRepository;
 use Contributte\Application\UI\BasePresenter;
@@ -35,9 +37,11 @@ class AzylPresenter extends BasePresenter
                                 public NewsRepository  $newsRepository,
                                 public NewsFormFactory $newsFormFactory,
                                 public NewsDatagridFactory $newsDatagridFactory,
+                                public AnimalsDatagridFactory $animalsDatagridFactory,
                                 public Photo $photos,
                                 public PhotosRepository $photosRepository,
                                 public SpeciesRepository $speciesRepository,
+                                public UsersRepository $usersRepository,
                                 public AzylRepository $azylRepository)
     {
         $this->animalsRepository = $animalsRepository;
@@ -67,6 +71,16 @@ class AzylPresenter extends BasePresenter
             }
         }
     }
+
+    public function handleDelete(int $id): void
+    {
+        $animal = $this->animalsRepository->findById($id);
+        $animal->setIsDeleted(true);
+        $this->animalsRepository->saveAnimal($animal);
+        $this->flashMessage('Zvířátko bylo smazáno.', 'alert-success');
+        $this->redirect('this');
+    }
+
     public function renderDefault(): void
     {
         $this->template->title = 'Azyl';
@@ -99,7 +113,7 @@ class AzylPresenter extends BasePresenter
         }
     }
 
-    public function renderNews(): void
+    public function actionNews(): void
     {
         $this->template->title = 'News';
     }
@@ -107,6 +121,8 @@ class AzylPresenter extends BasePresenter
     public function renderPhotos(): void
     {
         $this->template->title = 'Photos';
+        $this->getTemplate()->basepath = '';
+        bdump($this->getTemplate()->photos = $this->photosRepository->fetchByAzylId($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()));
     }
 
     public function renderMessages(): void
@@ -227,32 +243,42 @@ class AzylPresenter extends BasePresenter
     public function createComponentNewsForm(): \Nette\Application\UI\Form
     {
         $form = $this->newsFormFactory->create();
-        $form->onSuccess[] = [$this, 'newsFormSucceeded'];
+
+        if ($this->getPresenter()->getParameter('id') !== null) {
+            $news = $this->newsRepository->findOneBy(['id' => $this->getPresenter()->getParameter('id')]);
+            if ($news) {
+                bdump($news);
+                $form->addHidden('newsid', $news->getId());
+                $form->setDefaults(
+                    [
+                        'title' => $news->getTitle(),
+                        'content' => $news->getContent(),
+                        'global' => $news->getGlobal(),
+                        'visibleFrom' => $news->getVisibleFrom(),
+                        'important' => $news->getImportant(),
+
+                    ]);
+
+                $form->onSuccess[] = [ $this, 'newsFormSucceededUpdate'];
+                return $form;
+
+            }
+            else
+            {
+                $this->flashMessage('Novinka nebyla nalezena.', 'alert-danger');
+                $this->redirect('Azyl:news');
+            }
+        }
+        $form->onSuccess[] = [ $this, 'newsFormSucceeded'];
+        bdump($form, 'Form');
         return $form;
     }
 
     public function newsFormSucceeded(Form $form, \stdClass $values): void
     {
-        if ($this->getPresenter()->getParameter('id') !== null) {
-            $news = $this->newsRepository->findOneBy(['id' => $this->getPresenter()->getParameter('id')]);
-            if ($news) {
-                $news->setTitle($values->title);
-                $news->setContent($values->content);
-                $news->setGlobal($values->global);
-                $news->setVisibleFrom($values->visibleFrom);
-                $news->setUpdatedAt(new DateTimeImmutable());
-                $news->setDeleted($values->deleted);
-                $news->setImportant($values->important);
-                $this->newsRepository->save($news);
-                $this->flashMessage('Novinka byla aktualizována.', 'success');
-                $this->redirect('Azyl:news');
-            }
-        } else {
-            $user = $this->getPresenter()->getUser()->getIdentity()->getData()['User'];
-            bdump($user);
 
             $news = new News();
-            $news->setAuthor($this->getPresenter()->getUser()->getIdentity()->getId());
+            $news->setAuthor($this->usersRepository->getUserById($this->getPresenter()->getUser()->getIdentity()->getId()));
             $news->setTitle($values->title);
             $news->setContent($values->content);
             $news->setGlobal($values->global);
@@ -261,20 +287,52 @@ class AzylPresenter extends BasePresenter
             $news->setCreatedAt(new DateTimeImmutable());
             $news->setDeleted(false);
 
-            bdump($news);
+            bdump($news, 'Tady nemám do piči bejt');
             $this->newsRepository->save($news);
 
 
             $this->flashMessage('Novinka byla uložena.', 'success');
             $this->redirect('Azyl:news');
+
+    }
+
+    public function newsFormSucceededUpdate(Form $form, \stdClass $values): void
+    {
+        $id = $this->getPresenter()->getParameter('id');
+        if ($id !== null)  {
+            $news = $this->newsRepository->findOneBy(['id' => $id]);
+            bdump($news,'Před if');
+            if ($news) {
+
+                $news->setTitle($values->title);
+                $news->setContent($values->content);
+                $news->setGlobal($values->global);
+                $news->setVisibleFrom($values->visibleFrom);
+                $news->setUpdatedAt(new DateTimeImmutable());
+                $news->setImportant($values->important);
+                $this->newsRepository->save($news);
+                $this->flashMessage('Novinka byla aktualizována.', 'success');
+                $this->redirect('Azyl:news');
+            }
         }
     }
 
+
+
     public function createComponentNewsDatagrid(): DataGrid
     {
-        bdump($this->getPresenter()->getUser()->getIdentity()->getData()['User']->news);
-        $grid = $this->newsDatagridFactory->create($this->getPresenter()->getUser()->getIdentity()->getData()['User']->id);
-        //$grid ->setDataSource($this->getPresenter()->getUser()->getIdentity()->getData()['User']->news);
+       // bdump($this->getPresenter()->getUser()->getIdentity()->getData()['User']->getId());
+        $grid = $this->newsDatagridFactory->create($this->getPresenter()->getUser()->getIdentity()->getData()['User']->getId());
+      //  $grid ->setDataSource($this->getPresenter()->getUser()->getIdentity()->getData()['User']->getNews());
+        return $grid;
+    }
+
+    public function createComponentAnimalsAzylDatagrid(): DataGrid
+    {
+        bdump($this->animalsRepository->findBy(['azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]));
+        //bdump($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getAnimals());
+        $grid = $this->animalsDatagridFactory->create();
+        $grid->setDataSource($this->animalsRepository->findBy(['azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]));
         return $grid;
     }
 }

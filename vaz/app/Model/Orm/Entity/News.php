@@ -7,6 +7,9 @@ namespace App\Model\Orm\Entity;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\DateTimeImmutableType;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
+
+
 #[ORM\Entity]
 #[ORM\Table(name: 'news')]
 
@@ -33,9 +36,9 @@ class News
     #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $visibleFrom;
 
-    #[ORM\Column(type:'integer')]
-
-    private ?int $author;
+    #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'news')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Users $author;
 
     #[ORM\Column(type: 'boolean')]
     private $deleted;
@@ -100,12 +103,12 @@ class News
         return $this;
     }
 
-    public function getAuthor(): ?int
+    public function getAuthor(): ?Users
     {
         return $this->author;
     }
 
-    public function setAuthor(int $author): News
+    public function setAuthor($author): News
     {
         $this->author = $author;
         return $this;

@@ -29,6 +29,9 @@ class NewsDatagridFactory extends DataGrid
             ->setSortable()
             ->setFilterText();
         $grid->addColumnText('content', 'Content')
+            ->setRenderer(function ($item) {
+                return ($item->getContent());
+            })
             ->setSortable()
             ->setFilterText();
         $grid->addColumnDateTime('createdAt', 'Created at')
@@ -50,12 +53,18 @@ class NewsDatagridFactory extends DataGrid
             ->setSortable()
             ->setFilterText();
         $grid->addColumnText('global', 'Global')
+            ->setRenderer(function ($item) {
+                return $item->getGlobal() ? 'Ano' : 'Ne';
+            })
             ->setSortable()
             ->setFilterText();
         $grid->addColumnText('important', 'Important')
+            ->setRenderer(function ($item) {
+                return $item->getGlobal() ? 'Ano' : 'Ne';
+            })
             ->setSortable()
             ->setFilterText();
-        $grid->addAction('edit', '', 'edit')
+        $grid->addAction('edit', '', 'news', ['id' => 'id'])
             ->setIcon('pencil-alt')
             ->setClass('btn btn-sm btn-primary');
         $grid->addAction('delete', '', 'delete')
