@@ -21,10 +21,10 @@ class JsonPresenter extends Presenter
 
     }
 
-    public function actionCities($region): void
+    public function actionCity($region): void
     {
-        $cities = $this->cityRepository->findCityByRegion($region);
-        $this->sendJson($cities);
+        $city = $this->cityRepository->findCityByRegion($region);
+        $this->sendJson($city);
     }
 
     public function actionStates(): void
@@ -33,7 +33,7 @@ class JsonPresenter extends Presenter
         $this->sendJson($states);
     }
 
-    public function actionRegions(): void
+    public function actionRegion(): void
     {
         $regions = $this->cityRepository->fetchRegions();
         $this->sendJson($regions);

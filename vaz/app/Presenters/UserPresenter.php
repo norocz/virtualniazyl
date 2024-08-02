@@ -11,6 +11,7 @@ use App\Forms\userDetailsFormFactory;
 use App\Model\Orm\Entity\Azyl;
 use App\Model\Orm\Enums\RoleTypeEnum;
 use App\Model\Orm\Repository\AzylRepository;
+use App\Model\Orm\Repository\CityRepository;
 use App\Model\Orm\Repository\OwnersRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use App\Model\Services\Menu;
@@ -28,22 +29,21 @@ class UserPresenter extends BasePresenter
     private EntityManagerInterface $entityManager;
     private AzylRepository $azylRepository;
 
-    public function __construct(roleFormFactory        $roleFormFactory,
-                                UsersRepository        $usersRepository,
-                                AzylRepository         $azylRepository,
-                                EntityManagerInterface $entityManager,
-                        private UserDetailsFormFactory $userDetailsFormFactory,
-                        private registerFormFactory    $registerFormFactory,
-                        private PhotoUploadFormFactory  $photoUploadFormFactory,
-                        private OwnersRepository        $ownerRepository)
+    public function __construct(roleFormFactory                 $roleFormFactory,
+                                UsersRepository                 $usersRepository,
+                                AzylRepository                  $azylRepository,
+                                EntityManagerInterface          $entityManager,
+                        private readonly UserDetailsFormFactory $userDetailsFormFactory,
+                        private readonly registerFormFactory    $registerFormFactory,
+                        private readonly PhotoUploadFormFactory $photoUploadFormFactory,
+                        private OwnersRepository                $ownerRepository,
+                        private CityRepository                  $cityRepository)
     {
         parent::__construct();
         $this->roleFormFactory = $roleFormFactory;
         $this->usersRepository = $usersRepository;
         $this->entityManager = $entityManager;
         $this->azylRepository = $azylRepository;
-        $this->photoUploadFormFactory = $photoUploadFormFactory;
-        $this->ownerRepository = $ownerRepository;
     }
 
     public function startup(): void
@@ -132,25 +132,20 @@ public function actionDefault(): void
 
     public function createComponentUserDetailsForm(): Form
     {
-        $form = $this->userDetailsFormFactory->create();
+        $form = $this->userDetailsFormFactory->create($this->getPresenter());
         $form->onSuccess[] = [$this, 'userDetailsFormSucceeded'];
+
         return $form;
     }
 
     public function userDetailsFormSucceeded(Form $form,  \stdClass $values) : void
     {
         $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
+
         $user->setUpdatedAt(new DateTimeImmutable());
         $user->setUpdatedBy($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()));
         $user->setFirstName($values->firstName);
         $user->setLastName($values->lastName);
-
-
-
-
-
-
-
 
         $this->getPresenter()->flashMessage('Detaily byly úspěšně uloženy!', 'alert-success');
         $this->getPresenter()->redirect('User:profil');
@@ -159,7 +154,6 @@ public function actionDefault(): void
     public function createComponentUserUpdateForm(): Form
     {
         $form = $this->registerFormFactory->create();
-        //TODO: Upravit tlačíto do stejné podoby jako jinde už jen upravit šířku
         $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
 
         $form->setDefaults($user->toArray());

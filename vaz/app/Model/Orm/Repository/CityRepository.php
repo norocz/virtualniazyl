@@ -87,9 +87,22 @@ class CityRepository extends EntityRepository
     public function fetchCountries()
     {
         return $this->createQueryBuilder('c')
-            ->select('countryCode')
-            ->addGroupBy('Country')
+            ->select('c.country')
+            ->groupBy('c.country, c.countryCode')
             ->getQuery()
             ->getResult();
     }
+
+    public function findRegionByCountry(mixed $country)
+    {
+        return $this->createQueryBuilder('c')
+            ->select('c.region')
+            ->where('c.country = :country')
+            ->setParameter('country', $country)
+            ->groupBy('c.region')
+            ->getQuery()
+            ->getResult();
+    }
+
+
 }

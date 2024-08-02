@@ -21,6 +21,15 @@ class AzylRepository extends EntityRepository
             ->getResult();
     }
 
+    public function fetchLast(): ?array
+    {
+        return $this->createQueryBuilder('a')
+            ->orderBy('a.id', 'DESC')
+            ->setMaxResults(15)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function saveAzyl(Azyl $azyl): void
     {
         $this->getEntityManager()->persist($azyl);
@@ -50,7 +59,7 @@ class AzylRepository extends EntityRepository
 
     public function getAzyl($id): ?Azyl
     {
-return $this->findOneBy(['id' => $id]);
+    return $this->findOneBy(['id' => $id]);
 
     }
 

@@ -3,7 +3,18 @@
         <div class="row">
             <div class="col-md-12">
                <h2>Vaše fotografie</h2>
+                {foreach $photos as $photo}
+                    <div class="col-md-4">
+                        <div class="thumbnail">
 
+                            <div class="caption">
+                                <h4>{$photo->getOriginalName()}</h4>
+
+                                <p><a href="www/{$photo->getPath().$photo->getName()}" role="button"><img width="150px"  src="www/{$photo->getPath().$photo->getName()}" alt="{$photo->getName()}" class="img-responsive"></a></p>
+                            </div>
+                        </div>
+                    </div>
+                {/foreach}
             </div>
         </div>
     </div>

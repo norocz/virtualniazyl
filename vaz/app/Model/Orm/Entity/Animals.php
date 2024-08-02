@@ -5,6 +5,7 @@ namespace App\Model\Orm\Entity;
 
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'animals')]
@@ -30,11 +31,11 @@ class Animal
 
     #[ORM\OneToMany(targetEntity: "Photo", mappedBy: "animal")]
     #[ORM\JoinColumn(name: "animal_id", referencedColumnName: "id")]
-    private Photo $photos;
+    private ?Collection $photos;
 
     #[ORM\OneToMany(targetEntity: "Adoption", mappedBy: "animal")]
     #[ORM\JoinColumn(name: "animal_id", referencedColumnName: "id")]
-    private Adoption $adoption;
+    private ?Collection $adoption;
 
     #[ORM\Column(type: 'string', length: 255)]
     private string $name;
@@ -52,6 +53,14 @@ class Animal
     private bool $adopted;
     #[ORM\Column(type: 'boolean')]
     private bool $isDeleted;
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
 
     public function getAzyl(): Azyl
     {
@@ -75,9 +84,10 @@ class Animal
         return $this;
     }
 
-    public function getAge(): int
+    public function getAge(): ?int
     {
-        return $this->age;
+        return $this->birthDate->diff(new DateTimeImmutable())->y;
+
     }
 
     public function setAge(int $age): Animal
@@ -97,7 +107,7 @@ class Animal
         return $this;
     }
 
-    public function getPhotos(): Photo
+    public function getPhotos(): ?Collection
     {
         return $this->photos;
     }
@@ -108,7 +118,7 @@ class Animal
         return $this;
     }
 
-    public function getAdoption(): Adoption
+    public function getAdoption(): ?Collection
     {
         return $this->adoption;
     }

@@ -23,7 +23,7 @@
                     <div class="news" id="news">
                       {if $newsCount !== 0}
                         {foreach $news as $new}
-                        {var $newsUser = $userRepository->getUserById($new->getAuthor())}
+                        {var $newsUser = $new->getAuthor()}
                         {if $new->getImportant() === true}
                                    <div class = "card news-card text-dark bg-warning">
                         {else}
@@ -77,5 +77,7 @@
             </div>
         </div>
     </div>
-    </div>
+   </div>
 {/block}
+    {block scripts-user}
+    {/block}

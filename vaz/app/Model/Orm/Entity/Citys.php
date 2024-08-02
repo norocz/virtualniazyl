@@ -59,6 +59,10 @@ class Citys
     {
         return $this->country;
     }
+    public function getCountryCode(): string
+    {
+        return $this->countryCode;
+    }
 
     public function getCityCode(): int
     {

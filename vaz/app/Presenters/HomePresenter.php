@@ -79,11 +79,30 @@ final class HomePresenter extends Nette\Application\UI\Presenter
     {
         $news = $this->newsRepository->findBy(['deleted' => false, 'global' => true],  ['createdAt' => 'DESC'],20, $offset);
         $this->getTemplate()->title = 'Všechny Novinky';
-        $this->getTemplate()->news = $news;
+        bdump($this->getTemplate()->news = $news);
         $this->getTemplate()->newsCount = $this->newsRepository->count(['deleted' => false, 'global' => true]);
         $this->getTemplate()->offset = $offset;
     }
 
+    public function renderAzyls(): void
+    {
+
+        $this->getTemplate()->title = 'Všechny azyl';
+        $this->getTemplate()->azyls = $this->azylRepository->fetchLast();
+    }
+
+    public function renderAdoptions(): void
+    {
+        $this->getTemplate()->title = 'Všechny adopce';
+        $this->getTemplate()->adoptions = $this->adoptionsRepository->findBy(['deleted' => false],  ['createdAt' => 'DESC']);
+    }
+
+    public function renderAdopce($id): void
+    {
+        $adopce = $this->adoptionsRepository->findById($id);
+        $this->getTemplate()->title = 'Adopce - ' . $adopce->getAnimalName();
+        $this->getTemplate()->adopce = $adopce;
+    }
     public function renderAzyl(int $id) : void
     {
 

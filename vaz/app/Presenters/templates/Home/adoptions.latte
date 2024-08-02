@@ -1,0 +1,40 @@
+{block content}
+<style>
+    .adoptions-card {
+
+        margin: 1rem;
+
+    }
+    .azyl-name { background-color: #9da9bb}
+
+</style>
+
+<main class="main" id="top">
+    <div class="bg">
+        <div class="content">
+            <div class="row">
+                <div class="col-5  flex-column">
+                    <h3>Adopce</h3>
+                    <div class="adoptions" id="adoptions">
+
+                        {foreach $adoptions as $adoption}
+
+                        <div class="card adoptions-card text-dark bg-light">
+                            <h5 class="card-header">{$adoption->getAzylName()}</h5>
+                            <div class="card-body">
+                                <p class="card-text"> {$adoption->getDescription()|noescape}</p>
+
+                                <a href="{link Home:adopce, $adoption->getId()}" class="btn btn-sm">Detaily adopce</a>
+                                <a href="{link Home:azyl, $adoption->azyl->getId()}" class="btn btn-sm">Azyl</a>
+                            </div>
+
+                        </div>
+                        {/foreach}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        {/block}
+{block scripts-user}
+{/block}

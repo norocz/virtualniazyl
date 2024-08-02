@@ -15,7 +15,7 @@
             <div class="news d-flex flex-row flex-wrap" id="news">
 
                 {foreach $news as $new}
-                {var $authorRole = $new->getAuthor()->getRole()}
+                {var $authorRole = $new->getAuthor()}
                 {if $new->getImportant() === true}
                 <div class = "card news-card text-dark bg-warning" style="width: 40rem;" >
                     {else}
@@ -44,4 +44,6 @@
             {if $newsCount - $offset > 20} <a n:href = "Home:news $offset+20" class="btn btn-sm btn-primary">Starší novinky</a>{/if}
             </div>
         </div>
+{/block}
+{block scripts-user}
 {/block}
