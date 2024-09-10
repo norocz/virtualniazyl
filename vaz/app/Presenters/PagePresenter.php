@@ -9,48 +9,46 @@ use Contributte\Application\UI\BasePresenter;
 
 class PagePresenter extends BasePresenter
 {
-    public PageRepository $pageRepository;
-    public function __construct(PageRepository $pageRepository)
+    public PageRepository $PageRepository;
+    public function __construct(PageRepository $PageRepository)
     {
-
         parent::__construct();
-        $this->pageRepository = $pageRepository;
+        $this->PageRepository = $PageRepository;
     }
 
     public function startup(): void
     {
+
         parent::startup();
         $menu = new Menu();
+        $this->getTemplate()->setFile('/webik/app/Presenters/templates/Page/default.latte');
         $this->getTemplate()->messagesCount = 1;
         $this->getTemplate()->mainMenuItems = $menu->getMenu();
     }
 
     public function renderDefault(): void
     {
-        $this->getTemplate()->kytka = 'error404-dino.jpeg';
-        $this->getTemplate()->content =  "404 - Stránka nebyla nalezena";
-        $this->getTemplate()->title = "404 - Stránka nebyla nalezena";
-        $this->getPresenter()->sendResponse('404');
+        $this->getTemplate()->setFile('/webik/app/Presenters/templates/Page/default.latte');
+        $this->template->kytka = 'error404-dino.jpeg';
+        $this->template->content =  "404 - Stránka nebyla nalezena";
+        $this->template->title = "404 - Stránka nebyla nalezena";
+       // $this->getPresenter()->sendResponse('S404_NotFound ');
     }
 
     public function actionShow(string $link): void
     {
-        $page = $this->pageRepository->findByLink($link);
-        if(!$page) {
-            $this->getTemplate()->kytka = 'error404-dino.jpeg';
-            $this->getTemplate()->content =  "404 - Stránka nebyla nalezena";
-            $this->getTemplate()->title = "404 - Stránka nebyla nalezena";
-            $this->getPresenter()->sendResponse('404');
-
+        $page = $this->PageRepository->findByLink($link);
+        if(!$page){
+            $this->getTemplate()->setFile('/webik/app/Presenters/templates/Page/default.latte');
+            $this->template->content = "404 - Stránka nebyla nalezena";
+            $this->template->kytka = 'kytka'.rand(1,4).'.jpeg';
         }
-        else
-        {
+        else{
+            $this->getTemplate()->setFile('/webik/app/Presenters/templates/Page/default.latte');
+            $this->template->content = $page->getContent();
+            $this->template->title = $page->getTitle();
+            $this->template->kytka = 'kytka'.rand(1,4).'.jpeg';
 
-
-            $this->getTemplate()->content =  $page->getContent();
-            $this->getTemplate()->title = $page->getTitle();
-            $this->getTemplate()->kytka = 'kytka'.rand(1,4).'.jpeg';
-            $this->setView('default');
         }
     }
 }

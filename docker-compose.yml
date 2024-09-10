@@ -1,16 +1,21 @@
 version: '3.8'
 
+networks:
+  mynet:
+
 services:
   php:
     container_name: nette_php_virtualniazyl
     image: nette_php
     build: build/php
     volumes:
-      - s:\web\VirtualniAzyl:/var/www/html/web
+      - ./vaz:/webik
     ports:
       - 80:80
     environment:
       - NETTE_DEBUG=1
+    networks:
+      - mynet
 
   database:
     container_name: mysql_db_virtualniazyl
@@ -25,10 +30,16 @@ services:
       MYSQL_DATABASE: azyl
     volumes:
       - ./db:/var/lib/mysql
+    networks:
+      - mynet
 
   adminer:
     image: adminer
     restart: always
     ports:
-      - 8080:8080
+      - 8081:8080
+    links:
+      - database
+    networks:
+      - mynet
 

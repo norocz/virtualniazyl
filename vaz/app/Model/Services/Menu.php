@@ -9,7 +9,7 @@ class Menu
     {
         return [
             ['logged' => false, 'role' => '','title' => 'Domovská stránka - Home page', 'name' => 'Domovská stránka', 'link' => 'Home:default', 'alwaysAvailable' => true],
-            ['logged' => false, 'role' => '','title' => 'O nás - About', 'name' => 'O Nás', 'link' => 'Page:default', 'alwaysAvailable' => true],
+            ['logged' => false, 'role' => '','title' => 'O nás - About', 'name' => 'O Nás', 'link' => 'Page:onas', 'alwaysAvailable' => true],
             ['logged' => false, 'role' => '','title' => 'Seznam azylů - list of azyls', 'name' => 'Azyly', 'link' => 'Home:azyls', 'alwaysAvailable' => true],
             ['logged' => false, 'role' => '','title' => 'Seznam zvířat k adopci - List of animals for adoption', 'name' => 'Zvířátka k adopci', 'link' => 'Home:adoptions', 'alwaysAvailable' => true],
             ['logged' => true, 'role' => 'admin','title' => 'Administrace', 'name' => 'Administrace', 'link' => 'Admin:default', 'alwaysAvailable' => false],
@@ -81,8 +81,8 @@ class Menu
             ['logged' => false, 'role' => '', 'name' => 'Podpora', 'link' => 'Home:support', 'alwaysAvailable' => true],
             ['logged' => false, 'role' => '', 'name' => 'Č.K.D', 'link' => 'Home:faq', 'alwaysAvailable' => true],
             ['logged' => false, 'role' => '', 'name' => 'Podpořili nás', 'link' => 'Home:support', 'alwaysAvailable' => true],
-            ['logged' => false, 'role' => '', 'name' => 'Přihlášení', 'link' => 'home:signIn'],
-            ['logged' => false, 'role' => '', 'name' => 'Registrace', 'link' => 'home:register'],
+            ['logged' => false, 'role' => '', 'name' => 'Přihlášení', 'link' => 'Home:signIn'],
+            ['logged' => false, 'role' => '', 'name' => 'Registrace', 'link' => 'Home:register'],
             ['logged' => true, 'role' => '', 'name' => 'Odhlásit', 'link' => 'Home:logOut']
         ];
     }

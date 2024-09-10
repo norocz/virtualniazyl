@@ -308,7 +308,8 @@ class AdminPresenter extends BasePresenter
                 $this->redirect('Admin:news');
             }
         } else {
-            bdump ($values);
+
+          //  bdump ($values);
             $news = new News();
             $news->setAuthor($this->getPresenter()->getUser()->getIdentity()->getData()['User']);
             $news->setTitle($values->title);
@@ -327,7 +328,7 @@ class AdminPresenter extends BasePresenter
 
     public function createComponentNewsDatagrid(): DataGrid
     {
-        $grid = $this->newsDatagridFactory->create();
+        $grid = $this->newsDatagridFactory->create($this->getPresenter()->getUser()->id);
         return $grid;
     }
 

@@ -140,6 +140,7 @@ class Users
         $this->adoptionVerification = false;
         $this->legalTerms = false;
         $this->photos = null;
+        $this->phone = '';
     }
 
     public function __toString(): string
@@ -431,7 +432,7 @@ class Users
         return [
             'username' => $this->userName,
             'email' => $this->email,
-            'phone' => $this->phone,
+            'phone' => isset($this->phone) ? $this->phone : null, //kontrola incializace
             'password' => '11223334445556677',
             'password2' => '11223334445556677'
         ];
