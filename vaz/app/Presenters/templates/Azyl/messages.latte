@@ -1,0 +1,33 @@
+{block content}
+<main class="main" id="top">
+    <div class="bg">
+        <div class="content">
+            <div class="row g-12 g-lg-6 g-xl-7 pt-6">
+                <div class ="col-lg-4">
+
+                        <div class="messages" id="messages">
+                            {snippet chats}
+                            {foreach $chats ad $chat}
+
+
+                            {/foreach}
+                            {/snippet chats}
+                        </div>
+
+                </div>
+
+                <div class="col-lg-8">
+                    <div class="chat-detail" id="chat-detail">
+                        {snippet messages}
+                           {foreach $massages as $massage}
+                            <div class=""
+                           {/foreach}
+                        {/snippet messages}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {/block}
+        {block scripts-user}
+        {/block}

@@ -1,0 +1,41 @@
+<div class="row">
+    <div id="messages" class="col-lg-4">
+        <h3>Kontakty</h3>
+        {foreach $contacts as $contact}
+            <div class="chat">
+                <a class="ajax" n:href="chat! {$contact->id}">
+                    {$contact->userName}
+                </a>
+            </div>
+        {/foreach}
+
+        <!-- Formulář pro nový chat -->
+        <h4>Start new chat</h4>
+        {control newChatForm}
+    </div>
+
+    <div id="chat-detail" class="col-lg-8">
+        <h3>Zprávy</h3>
+        {if $selectedContact}
+            {if $messages}
+                {foreach $messages as $message}
+                    <div class="msg {if $message->sender->id === $currentUser->id}outgoing{else}incoming{/if}">
+                        <div class="msg-title">{$message->title}</div>
+                        <div class="msg-message">{$message->message}</div>
+                        <small>{$message->createdAt|date}</small>
+                    </div>
+                {/foreach}
+            {else}
+                <p>Žádné zprávy.</p>
+            {/if}
+
+            <!-- Formulář pro odeslání zprávy -->
+            <form n:name=sendMessage!>
+                <textarea name="messageContent" rows="3" placeholder="Napište zprávu"></textarea>
+                <button type="submit">Odeslat</button>
+            </form>
+        {else}
+            <p>Vyberte kontakt pro zobrazení zpráv.</p>
+        {/if}
+    </div>
+</div>

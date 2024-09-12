@@ -7,9 +7,12 @@ namespace App\Presenters;
 use App\Forms\registerFormFactory;
 use App\Forms\SignInFormFactory;
 use App\Model\Orm\Entity\Azyl;
+use App\Model\Orm\Entity\Messages;
 use App\Model\Orm\Entity\Users;
+use App\Model\Orm\Enums\MessageTypeEnum;
 use App\Model\Orm\Repository\AdoptionsRepository;
 use App\Model\Orm\Repository\AzylRepository;
+use App\Model\Orm\Repository\MessagesRepository;
 use App\Model\Orm\Repository\NewsRepository;
 use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\UsersRepository;
@@ -43,11 +46,13 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                                 public readonly    NewsRepository         $newsRepository,
                                 public readonly    AzylRepository         $azylRepository,
                                 public             AdoptionsRepository    $adoptionsRepository,
-                                public             PhotosRepository    $photosRepository)
+                                public             PhotosRepository    $photosRepository,
+                                private MessagesRepository             $messagesRepository)
     {
         parent::__construct();
         $this->entityManager = $entityManager;
         $this->usersRepository = $usersRepository;
+        $this->messagesRepository = $messagesRepository;
 
     }
 
@@ -56,7 +61,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         parent::startup();
         $menu = new Menu();
         $this->getTemplate()->mainMenuItems = $menu->getMenu();
-        $this->getTemplate()->messagesCount = 1;
+        $this->getTemplate()->messagesCount = $this->messagesRepository->countUnreadMessages($this->getPresenter()->getUser()->getId());
         $this->getTemplate()->userRepository = $this->usersRepository;
     }
 
@@ -234,6 +239,16 @@ final class HomePresenter extends Nette\Application\UI\Presenter
             if ($this->getUser()->isInRole('user')) {
                 $this->getPresenter()->redirect('User:first');
             }
+            $message = new Messages();
+            $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
+            $message->setSender($user);
+            $message->setCreatedAt(new DateTimeImmutable());
+            $message->setMessage('Přihlásil se uživatel:'.$user->getUserName());
+            $message->setReceiver($this->usersRepository->getUserById(1));
+            $message->setType(MessageTypeEnum::TOADMIN_TYPE);
+            $message->setReaded(false);
+            $this->messagesRepository->save($message);
+
             $this->getPresenter()->redirect('Home:default');
         } catch (AuthenticationException $e) {
             $this->getPresenter()->flashMessage('Email nebo heslo jsou špatně', 'alert-warning');
@@ -256,7 +271,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         }
         else {
             try {
-                bdump($values);
+               // bdump($values);
 
                 $now = new DateTimeImmutable();
                 $token = md5($values->email.$now->format('Y-m-d H:i:s'));

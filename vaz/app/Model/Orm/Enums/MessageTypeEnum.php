@@ -9,13 +9,12 @@ use Doctrine\DBAL\Types\Type;
 class MessageTypeEnum extends Type
 {
     public const MESSAGE_TYPE_ENUM = 'messageTypeEnum';
-
-    public const FROMSYSTEM_TYPE = 'Zpráva od virtuálního azylu',
-         FROMADMIN_TYPE = 'Zpráva od administrátora',
-        FROMUSER_TYPE = 'Zpráva od uživatele',
-        TOUSER_TYPE = 'Zpráva pro uživatele',
-     TOADMIN_TYPE = 'Zpráva pro administrátora',
-     TOSYSTEM_TYPE = 'Zpráva pro virtuální azyl';
+    public const FROMSYSTEM_TYPE = 'frs',
+                 FROMADMIN_TYPE = 'fra',
+                 FROMUSER_TYPE = 'fru',
+                 TOUSER_TYPE = 'fou',
+                 TOADMIN_TYPE = 'foa',
+                 TOSYSTEM_TYPE = 'fos';
 
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string
     {

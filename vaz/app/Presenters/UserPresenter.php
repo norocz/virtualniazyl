@@ -6,18 +6,22 @@ namespace App\Presenters;
 
 use App\Forms\PhotoUploadFormFactory;
 use App\Forms\RegisterFormFactory;
+use App\Forms\messagesFormFactory;
 use App\Forms\roleFormFactory;
 use App\Forms\userDetailsFormFactory;
 use App\Model\Orm\Entity\Azyl;
+use App\Model\Orm\Entity\Users;
 use App\Model\Orm\Enums\RoleTypeEnum;
 use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\CityRepository;
+use App\Model\Orm\Repository\MessagesRepository;
 use App\Model\Orm\Repository\OwnersRepository;
 use App\Model\Orm\Repository\UsersRepository;
+use App\Components\Messenger\ChatControl;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Model\Services\Menu;
 use Contributte\Application\UI\BasePresenter;
 use DateTimeImmutable;
-use Doctrine\ORM\EntityManagerInterface;
 use Nette\Application\UI\Form;
 use App\Model\Orm\Entity\Owner;
 
@@ -28,6 +32,7 @@ class UserPresenter extends BasePresenter
     private UsersRepository $usersRepository;
     private EntityManagerInterface $entityManager;
     private AzylRepository $azylRepository;
+    private Users $currentUser; // Aktuálně přihlášený uživatel
 
     public function __construct(roleFormFactory                 $roleFormFactory,
                                 UsersRepository                 $usersRepository,
@@ -37,20 +42,23 @@ class UserPresenter extends BasePresenter
                         private readonly registerFormFactory    $registerFormFactory,
                         private readonly PhotoUploadFormFactory $photoUploadFormFactory,
                         private OwnersRepository                $ownerRepository,
-                        private CityRepository                  $cityRepository)
+                        private CityRepository                  $cityRepository,
+                        private MessagesRepository              $messagesRepository,
+                        private messagesFormFactory              $messagesFormFactory)
     {
         parent::__construct();
         $this->roleFormFactory = $roleFormFactory;
         $this->usersRepository = $usersRepository;
         $this->entityManager = $entityManager;
         $this->azylRepository = $azylRepository;
+        $this->messagesFormFactory = $messagesFormFactory;
     }
 
     public function startup(): void
     {
         parent::startup();
         $menu = new Menu();
-        $this->getTemplate()->messagesCount = 1;
+        $this->getTemplate()->messagesCount = $this->messagesRepository->countUnreadMessages($this->getPresenter()->getUser()->getId());
         $this->getTemplate()->mainMenuItems = $menu->getMenu();
         if (!$this->getPresenter()->getUser()->isLoggedIn())
         {
@@ -106,9 +114,35 @@ public function actionDefault(): void
         $this->template->title = 'Profil';
     }
 
-    public function renderMessages(): void
+    public function actionMessages(): void
     {
         $this->template->title = 'Zprávy';
+        $messages = $this->messagesRepository->getMessagesByReceiverId($this->getPresenter()->getUser()->getId());
+        foreach($messages as $message)
+        {
+            $chats[$message->getSender()->getId()] = $message->getSender()->getUsername();
+        }
+
+        $this->template->chats = $chats;
+    }
+
+    public function handleChat(int $id): void
+    {
+    $messages = $this->messagesRepository->getMessagesBySenderId($id);
+    $this->getTemplate()->messages = $messages;
+        $this->redrawControl('chats');
+        $this->redrawControl('messages');
+        foreach ($messages as $message)
+        {
+            $message->setReaded(true);
+            $this->messagesRepository->save($message);
+        }
+
+    }
+
+    public function handleSendMessage($id): void
+    {
+
     }
 
     public function renderAdoptions(): void
@@ -176,6 +210,13 @@ public function actionDefault(): void
         return $form;
     }
 
+    public function createComponentMessagesForm(): Form
+    {
+        $form = $this->messagesFormFactory->create();
+        $form->onSuccess[] = [$this, 'messagesFormSucceeded'];
+        return $form;
+    }
+
     public function ownerPhotoUploadFormSucceeded(Form $form, \stdClass $values): void
     {
         $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
@@ -226,5 +267,9 @@ public function actionDefault(): void
 
         }
 
+    }
+    public function createComponentChat(): ChatControl
+    {
+        return new ChatControl($this->entityManager, $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()) );
     }
 }

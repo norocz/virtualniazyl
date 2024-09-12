@@ -1,11 +1,143 @@
 {block content}
+<style>
+
+    /* Styly pro kontakty (obdélníky roztažené na celou šířku) */
+    #messages {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        background-color: #f0f0f0;
+        padding: 10px;
+    }
+
+    .chat {
+        width: 100%; /* Roztažení kontaktu na celou šířku sloupce */
+        margin-bottom: 10px;
+        padding: 15px;
+        border-radius: 8px;
+        background-color: #8ab6d6;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .chat:hover {
+        background-color: #6c9cb1;
+    }
+
+    a.ajax {
+        text-decoration: none;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    a.ajax:hover {
+        text-decoration: underline;
+    }
+
+    /* Styl pro chat detail */
+    #chat-detail {
+        width: 70%;
+        background-color: #fff;
+        padding: 20px;
+        border-left: 1px solid #ddd;
+        justify-content: flex-end; /* Zajišťuje, že se zprávy zarovnají dole */
+        height: 50vh; /* Nastaví výšku chatu, můžeš upravit dle potřeby */
+        overflow-y: auto; /* Umožňuje skrolování, pokud je více zpráv */
+    }
+
+    /* Společné styly pro zprávy */
+    .msg {
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        max-width: 60%;
+        word-wrap: break-word;
+    }
+
+    /* Příchozí zprávy */
+    .frs, .fra, .fru {
+        background-color: #d1e7dd;
+        text-align: left;
+        margin-left: 0;
+    }
+
+    /* Odchozí zprávy */
+    .fou, .foa, .fos {
+        background-color: #f0f0f0;
+        text-align: right;
+        margin-left: auto;
+    }
+
+    /* Styl pro nadpis zprávy */
+    .msg-title {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    /* Styl pro tělo zprávy */
+    .msg-message {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+
+</style>
+<main class="main" id="top">
     <div class="bg">
         <div class="content">
-            {snippet signin}
-                Tady budou zprávy
-            {/snippet}
+            <h2>Komunikace</h2>
+            <div class="row g-12 g-lg-6 g-xl-7 pt-6">
+                <div class ="col-lg-4">
+                    <h4>Kontakty</h4>
+
+
+                    {ifset $chats}
+                        {snippet chats}
+                    <div class="messages" id="messages">
+                            {foreach $chats as $chat=>$key}
+                            <div class="chat">
+                             <a class="ajax" n:href="chat! $chat">{$key}</a>
+                            </div>
+
+                            {/foreach}
+                    </div>
+                        {/snippet}
+                    {/ifset}
+
+
+                </div>
+
+                <div class="col-lg-8">
+                    <h4>Vzkazy</h4>
+
+
+                        {snippet messages}
+                        {ifset $messages}
+                            <div class="chat-detail" id="chat-detail">
+                            {foreach $messages as $message}
+                                <div class="msg {$message->getType()}">
+                                    <div class="msg-title">{$message->getTitle()}</div>
+                                    <div class="msg-message">{$message->getMessage()}</div>
+                                </div>
+
+                            {/foreach}
+
+                            </div>
+                        {/ifset}
+                        {control messagesForm}
+                        {/snippet}
+
+                </div>
+            </div>
         </div>
-    </div>
-{/block}
+
+        {control chat}
+
+        {/block}
+
 {block scripts-user}
+        <script>
+        const chatDetail = document.getElementById('chat-detail');
+        chatDetail.scrollTop = chatDetail.scrollHeight;
+        </script>
 {/block}

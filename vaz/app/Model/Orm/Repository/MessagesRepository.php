@@ -15,12 +15,14 @@ class MessagesRepository extends EntityRepository
         parent::__construct($em, $em->getClassMetadata($entityClass));
     }
 
-    public function countUnreadMessages(): int
+    public function countUnreadMessages(int $receiverId): int
     {
         return $this->createQueryBuilder('m')
             ->select('COUNT(m)')
-            ->andWhere('m.isRead = :isRead')
-            ->setParameter('isRead', false)
+            ->andWhere('m.readed = :readed')
+            ->andWhere('m.receiver = :receiverId')
+            ->setParameter('readed', false)
+            ->setParameter('receiverId', $receiverId)
             ->getQuery()
             ->getSingleScalarResult();
     }
@@ -74,5 +76,20 @@ class MessagesRepository extends EntityRepository
     public function getMessagesByReceiverIdAndSenderIdAndReaded(int $receiverId, int $senderId, bool $readed): array
     {
         return $this->findBy(['receiver' => $receiverId, 'sender' => $senderId, 'readed' => $readed]);
+    }
+
+    public function setReaded(int $id, bool $readed): void
+    {
+
+    }
+    public function save(Messages $messages): void
+    {
+        $this->getEntityManager()->persist($messages);
+        $this->getEntityManager()->flush();
+    }
+
+    public function remove(Messages $messages): void
+    {
+        $this->getEntityManager()->remove($messages);
     }
 }

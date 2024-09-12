@@ -3,14 +3,18 @@ declare(strict_types=1);
 
 namespace App\Presenters;
 
+use AllowDynamicProperties;
 use App\Model\Orm\Repository\PageRepository;
 use App\Model\Services\Menu;
 use Contributte\Application\UI\BasePresenter;
+use App\Model\Orm\Repository\MessagesRepository;
 
-class PagePresenter extends BasePresenter
+#[AllowDynamicProperties] class PagePresenter extends BasePresenter
 {
     public PageRepository $PageRepository;
-    public function __construct(PageRepository $PageRepository)
+
+
+    public function __construct(PageRepository $PageRepository, private readonly MessagesRepository $messagesRepository)
     {
         parent::__construct();
         $this->PageRepository = $PageRepository;
@@ -22,7 +26,7 @@ class PagePresenter extends BasePresenter
         parent::startup();
         $menu = new Menu();
         $this->getTemplate()->setFile('/webik/app/Presenters/templates/Page/default.latte');
-        $this->getTemplate()->messagesCount = 1;
+        $this->getTemplate()->messagesCount = $this->messagesRepository->countUnreadMessages($this->getPresenter()->getUser()->getId());
         $this->getTemplate()->mainMenuItems = $menu->getMenu();
     }
 
