@@ -11,6 +11,8 @@ class messagesFormFactory extends Form
     public function create(): Form
     {
         $form = new Form;
+        $form->addHidden('id')
+            ->setRequired();
         $form->addTextArea('message', 'Zpráva:')
             ->setRequired('Prosím zadejte zprávu.')
             ->setHtmlAttribute('class', 'form-control msg-textarea');

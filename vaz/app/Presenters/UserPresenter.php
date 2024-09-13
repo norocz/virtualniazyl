@@ -10,7 +10,9 @@ use App\Forms\messagesFormFactory;
 use App\Forms\roleFormFactory;
 use App\Forms\userDetailsFormFactory;
 use App\Model\Orm\Entity\Azyl;
+use App\Model\Orm\Entity\Messages;
 use App\Model\Orm\Entity\Users;
+use App\Model\Orm\Enums\MessageTypeEnum;
 use App\Model\Orm\Enums\RoleTypeEnum;
 use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\CityRepository;
@@ -114,7 +116,7 @@ public function actionDefault(): void
         $this->template->title = 'Profil';
     }
 
-    public function actionMessages(): void
+    public function actionMessages($id): void
     {
         $this->template->title = 'Zprávy';
         $messages = $this->messagesRepository->getMessagesByReceiverId($this->getPresenter()->getUser()->getId());
@@ -122,6 +124,8 @@ public function actionDefault(): void
         {
             $chats[$message->getSender()->getId()] = $message->getSender()->getUsername();
         }
+        $this->redrawControl('chats');
+        $this->redrawControl('messages');
 
         $this->template->chats = $chats;
     }
@@ -130,18 +134,48 @@ public function actionDefault(): void
     {
     $messages = $this->messagesRepository->getMessagesBySenderId($id);
     $this->getTemplate()->messages = $messages;
-        $this->redrawControl('chats');
-        $this->redrawControl('messages');
+    $this->getTemplate()->reciver = $id;
+
+    $this->redrawControl('chats');
         foreach ($messages as $message)
         {
             $message->setReaded(true);
             $this->messagesRepository->save($message);
         }
+    $this->redrawControl('messages');
+    }
+
+    public function handleDeleteMsg(int $id): void
+    {
+        $messages = $this->messagesRepository->getMessagesById($id);
+        $redirectId = $messages->getSender()->getId();
+        $messages->setDeletedAt(new DateTimeImmutable());
+        $this->messagesRepository->save($messages);
+
+        if($this->isAjax()){
+            $this->redrawControl('messages');
+        }
+        else {
+            $chat = "?do=chat";
+            $url = $this->link('User:messages', $redirectId) . $chat;
+            $this->redirectUrl($url);
+
+        }
 
     }
 
-    public function handleSendMessage($id): void
+    public function handleSendMessage($ajax): void
     {
+        $this->getPresenter()->isAjax();
+        $message = New Messages();
+        $message->setSender($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()));
+        $message->setType(MessageTypeEnum::FROMUSER_TYPE);
+        $message->setReceiver($this->usersRepository->getUserById(intval($values->id)));
+        $message->setMessage($values->message);
+        $message->setCreatedAt(new DateTimeImmutable());
+        $message->setReaded(false);
+        $this->messagesRepository->save($message);
+        $this->redrawControl('messages');
 
     }
 
@@ -215,6 +249,29 @@ public function actionDefault(): void
         $form = $this->messagesFormFactory->create();
         $form->onSuccess[] = [$this, 'messagesFormSucceeded'];
         return $form;
+    }
+
+    public function messagesFormSucceeded(Form $form, \stdClass $values) : void
+    {
+        $message = New Messages();
+        $message->setSender($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()));
+        $message->setType(MessageTypeEnum::FROMUSER_TYPE);
+        $message->setReceiver($this->usersRepository->getUserById(intval($values->id)));
+        $message->setMessage($values->message);
+        $message->setCreatedAt(new DateTimeImmutable());
+        $message->setReaded(false);
+        $this->messagesRepository->save($message);
+
+        if($this->isAjax()){
+        $this->redrawControl('messages');
+        }
+        else {
+            $chat = "?do=chat";
+            $url = $this->link('User:messages', $values->id) . $chat;
+            $this->redirectUrl($url);
+
+        }
+        //$this->redirect('this');
     }
 
     public function ownerPhotoUploadFormSucceeded(Form $form, \stdClass $values): void

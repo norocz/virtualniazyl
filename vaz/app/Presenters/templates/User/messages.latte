@@ -11,27 +11,30 @@
     }
 
     .chat {
-        width: 100%; /* Roztažení kontaktu na celou šířku sloupce */
-        margin-bottom: 10px;
-        padding: 15px;
-        border-radius: 8px;
-        background-color: #8ab6d6;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
+
     }
 
     .chat:hover {
-        background-color: #6c9cb1;
+
     }
 
-    a.ajax {
-        text-decoration: none;
-        color: #fff;
-        font-weight: bold;
+    a.cont {
+      display: flex;
+        flex-direction: column;
+        width: 100%;
+        background-color: #8ab6d6;
+        margin-bottom: 10px;
+        padding: 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+
     }
 
-    a.ajax:hover {
-        text-decoration: underline;
+    a.cont:hover {
+    background-color: #9aC6D6;
+
     }
 
     /* Styl pro chat detail */
@@ -79,6 +82,10 @@
         font-size: 14px;
         line-height: 1.5;
     }
+    .msg-unreaded {
+
+        background-color: darkolivegreen;
+    }
 
 
 </style>
@@ -96,7 +103,7 @@
                     <div class="messages" id="messages">
                             {foreach $chats as $chat=>$key}
                             <div class="chat">
-                             <a class="ajax" n:href="chat! $chat">{$key}</a>
+                             <a class="ajax cont btn-light" n:href="chat! $chat">{$key}</a>
                             </div>
 
                             {/foreach}
@@ -107,7 +114,7 @@
 
                 </div>
 
-                <div class="col-lg-8">
+                <div class="col-lg-8 border-primary">
                     <h4>Vzkazy</h4>
 
 
@@ -115,27 +122,47 @@
                         {ifset $messages}
                             <div class="chat-detail" id="chat-detail">
                             {foreach $messages as $message}
-                                <div class="msg {$message->getType()}">
+                                <div class="msg {if $message->getReaded() == false}msg-unreaded{/if} {$message->getType()}">
+                                <div class="row">
+                                    <div class="col-lg-10">
                                     <div class="msg-title">{$message->getTitle()}</div>
                                     <div class="msg-message">{$message->getMessage()}</div>
+                                    </div>
+                                    <div class="col-lg-2">
+                                    <a class="align-center align-right ajax" n:href="deleteMsg! $message->getId()">(X)</a>
+                                    </div>
+                                </div>
                                 </div>
 
                             {/foreach}
 
                             </div>
+                            <div class="row">
+                                <form n:name=messagesForm class="ajax form row col-auto" data-reciver="{$reciver}">
+                                    <div class="msg-text-array col-lg-9">
+                                     <label n:name=message><textarea class="font-monospace form-control ajax chat-textarray" cols="55" rows="2" n:name=message autofocus></textarea></label>
+                                    </div>
+                                     <div class="msg-text-array col-lg-3">
+                                     <input n:name=id value="{$reciver}">
+                                     <input class="align-center  ajax chat-send btn btn-secondary" n:name=send>
+                                     </div>
+
+                                </form>
+                        </div>
                         {/ifset}
-                        {control messagesForm}
+
+
                         {/snippet}
 
                 </div>
             </div>
         </div>
 
-        {control chat}
-
         {/block}
 
 {block scripts-user}
+<script src="https://unpkg.com/naja@2/dist/Naja.min.js"></script>
+
         <script>
         const chatDetail = document.getElementById('chat-detail');
         chatDetail.scrollTop = chatDetail.scrollHeight;

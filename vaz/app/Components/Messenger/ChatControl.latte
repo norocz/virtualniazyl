@@ -3,7 +3,7 @@
         <h3>Kontakty</h3>
         {foreach $contacts as $contact}
             <div class="chat">
-                <a class="ajax" n:href="chat! {$contact->id}">
+                <a class="ajax" n:href="chat! $contact->id">
                     {$contact->userName}
                 </a>
             </div>

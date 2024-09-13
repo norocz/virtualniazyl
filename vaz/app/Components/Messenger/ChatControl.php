@@ -41,7 +41,7 @@ class ChatControl extends Control
     private function getContacts(): array
     {
         $dql = 'SELECT DISTINCT u FROM App\Model\Orm\Entity\Users u
-                JOIN App\Entity\Messages m
+                JOIN App\Model\Orm\Entity\Messages m
                 WITH (m.sender = u OR m.receiver = u)
                 WHERE u != :currentUser';
 

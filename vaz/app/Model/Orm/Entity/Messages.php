@@ -70,6 +70,26 @@ class Messages
         return $this->message;
     }
 
+    public function getDeletedAt(): ?DateTimeImmutable
+    {
+        return $this->deletedAt;
+    }
+
+    public function getReadedAt(): ?DateTimeImmutable
+    {
+        return $this->readedAt;
+    }
+
+    public function getReaded(): bool
+    {
+        return $this->readed;
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
     public function getTitle(): string
     {
         return isset($this->title) ? $this->title : "";
