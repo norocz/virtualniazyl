@@ -59,13 +59,15 @@ class UserPresenter extends BasePresenter
     public function startup(): void
     {
         parent::startup();
-        $menu = new Menu();
-        $this->getTemplate()->messagesCount = $this->messagesRepository->countUnreadMessages($this->getPresenter()->getUser()->getId());
-        $this->getTemplate()->mainMenuItems = $menu->getMenu();
         if (!$this->getPresenter()->getUser()->isLoggedIn())
         {
             $this->redirect('Home:signIn');
+
         }
+        $menu = new Menu();
+        $this->getTemplate()->messagesCount = $this->messagesRepository->countUnreadMessages($this->getPresenter()->getUser()->getId());
+        $this->getTemplate()->mainMenuItems = $menu->getMenu();
+
     }
 public function actionDefault(): void
     {

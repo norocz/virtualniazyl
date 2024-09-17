@@ -26,7 +26,11 @@ use App\Model\Orm\Repository\MessagesRepository;
         parent::startup();
         $menu = new Menu();
         $this->getTemplate()->setFile('/webik/app/Presenters/templates/Page/default.latte');
-        $this->getTemplate()->messagesCount = $this->messagesRepository->countUnreadMessages($this->getPresenter()->getUser()->getId());
+        if ($this->getPresenter()->getUser()->isLoggedIn())
+        {
+            $this->getTemplate()->messagesCount = $this->messagesRepository->countUnreadMessages($this->getPresenter()->getUser()->getId());
+
+        }
         $this->getTemplate()->mainMenuItems = $menu->getMenu();
     }
 

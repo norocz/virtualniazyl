@@ -61,7 +61,12 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         parent::startup();
         $menu = new Menu();
         $this->getTemplate()->mainMenuItems = $menu->getMenu();
-        $this->getTemplate()->messagesCount = $this->messagesRepository->countUnreadMessages($this->getPresenter()->getUser()->getId());
+        if ($this->getPresenter()->getUser()->isLoggedIn())
+        {
+            $this->getTemplate()->messagesCount = $this->messagesRepository->countUnreadMessages($this->getPresenter()->getUser()->getId());
+
+        }
+
         $this->getTemplate()->userRepository = $this->usersRepository;
     }
 
