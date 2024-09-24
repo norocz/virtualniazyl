@@ -25,7 +25,7 @@ use App\Model\Orm\Repository\MessagesRepository;
 
         parent::startup();
         $menu = new Menu();
-        $this->getTemplate()->setFile('/webik/app/Presenters/templates/Page/default.latte');
+        $this->getTemplate()->setFile(__DIR__ . '/templates/Page/default.latte');
         if ($this->getPresenter()->getUser()->isLoggedIn())
         {
             $this->getTemplate()->messagesCount = $this->messagesRepository->countUnreadMessages($this->getPresenter()->getUser()->getId());
@@ -36,7 +36,7 @@ use App\Model\Orm\Repository\MessagesRepository;
 
     public function renderDefault(): void
     {
-        $this->getTemplate()->setFile('/webik/app/Presenters/templates/Page/default.latte');
+        $this->getTemplate()->setFile(__DIR__ . '/templates/Page/default.latte');
         $this->template->kytka = 'error404-dino.jpeg';
         $this->template->content =  "404 - Stránka nebyla nalezena";
         $this->template->title = "404 - Stránka nebyla nalezena";
@@ -47,12 +47,12 @@ use App\Model\Orm\Repository\MessagesRepository;
     {
         $page = $this->PageRepository->findByLink($link);
         if(!$page){
-            $this->getTemplate()->setFile('/webik/app/Presenters/templates/Page/default.latte');
+            $this->getTemplate()->setFile(__DIR__ . '/templates/Page/default.latte');
             $this->template->content = "404 - Stránka nebyla nalezena";
             $this->template->kytka = 'kytka'.rand(1,4).'.jpeg';
         }
         else{
-            $this->getTemplate()->setFile('/webik/app/Presenters/templates/Page/default.latte');
+            $this->getTemplate()->setFile(__DIR__ . '/templates/Page/default.latte');
             $this->template->content = $page->getContent();
             $this->template->title = $page->getTitle();
             $this->template->kytka = 'kytka'.rand(1,4).'.jpeg';
