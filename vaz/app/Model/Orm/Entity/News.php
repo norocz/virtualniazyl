@@ -48,6 +48,23 @@ class News
     #[ORM\Column(type: 'boolean')]
     private $important;
 
+    public function toArray(): array //return array of all fields
+    {
+
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'content' => $this->content,
+            'createdAt' => $this->createdAt,
+            'updatedAt' => $this->updatedAt,
+            'global' => $this->global,
+            'important' => $this->important,
+            'author' => $this->author,
+            'deleted' => $this->deleted
+        ];
+
+    }
+
     public function getTitle(): string
     {
         return $this->title;

@@ -40,20 +40,20 @@ class AdminPresenter extends BasePresenter
     private PageRepository $pageRepository;
 
 
-    public function __construct(roleFormFactory               $roleFormFactory,
-                                UsersRepository               $usersRepository,
-                                PageRepository                $pageRepository,
-                                EntityManagerInterface        $entityManager,
-                                PageFormFactory               $pageFormFactory,
-                                public UserDetailsFormFactory $userDetailsFormFactory,
-                                public registerFormFactory    $registerFormFactory,
-                                public PhotoUploadFormFactory $photoUploadFormFactory,
-                                public UsersDatagridFactory   $usersDatagridFactory,
-                                public CitysDatagridFactory   $citysDatagridFactory,
-                                public PagesDatagridFactory   $pagesDatagridFactory,
-                       public readonly newsFormFactory        $newsFormFactory,
-                       public readonly newsDatagridFactory    $newsDatagridFactory,
-                       public  newsRepository            $newsRepository)
+    public function __construct(roleFormFactory                     $roleFormFactory,
+                                UsersRepository                     $usersRepository,
+                                PageRepository                      $pageRepository,
+                                EntityManagerInterface              $entityManager,
+                                PageFormFactory                     $pageFormFactory,
+                                public UserDetailsFormFactory       $userDetailsFormFactory,
+                                public registerFormFactory          $registerFormFactory,
+                                public PhotoUploadFormFactory       $photoUploadFormFactory,
+                                public UsersDatagridFactory         $usersDatagridFactory,
+                                public CitysDatagridFactory         $citysDatagridFactory,
+                                public PagesDatagridFactory         $pagesDatagridFactory,
+                                public readonly newsFormFactory     $newsFormFactory,
+                                public readonly newsDatagridFactory $newsDatagridFactory,
+                                public newsRepository               $newsRepository)
     {
         parent::__construct();
         $this->roleFormFactory = $roleFormFactory;
@@ -109,11 +109,6 @@ class AdminPresenter extends BasePresenter
         $this->template->title = 'Azyls';
     }
 
-    public function renderNews(): void
-    {
-        $this->template->title = 'News';
-    }
-
     public function renderOwner(): void
     {
         $this->template->title = 'Owner';
@@ -134,6 +129,21 @@ class AdminPresenter extends BasePresenter
         $this->template->title = 'Citys';
     }
 
+    public function actionNews(?int $id): void
+    {
+        if ($id !== null) {
+            $news = $this->newsRepository->findOneBy(['id' => $id]);
+            if($news === null) {
+                $this->flashMessage('Novinka nebyla nalezena.', 'danger');
+                $this->redirect('Admin:news');
+            }
+            $this->getTemplate()->title = 'Editace novinky'. $news->getTitle();
+            $newsForm = $this->getComponent('newsForm');
+            $newsForm->setDefaults($news->toArray());
+        }
+
+        $this->template->title = 'Novinky';
+    }
     public function actionPage(?int $id): void
     {
         $this->getTemplate()->Title = 'Pages';
@@ -301,7 +311,7 @@ class AdminPresenter extends BasePresenter
                 $news->setGlobal($values->global);
                 $news->setVisibleFrom($values->visibleFrom);
                 $news->setUpdatedAt(new DateTimeImmutable());
-                $news->setDeleted($values->deleted);
+                $news->setDeleted(false);
                 $news->setImportant($values->important);
                 $this->newsRepository->save($news);
                 $this->flashMessage('Novinka byla aktualizována.', 'success');
@@ -311,7 +321,8 @@ class AdminPresenter extends BasePresenter
 
           //  bdump ($values);
             $news = new News();
-            $news->setAuthor($this->getPresenter()->getUser()->getIdentity()->getData()['User']);
+            $author = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getIdentity()->getId());
+            $news->setAuthor($author);
             $news->setTitle($values->title);
             $news->setContent($values->content);
             $news->setGlobal($values->global);
@@ -320,6 +331,7 @@ class AdminPresenter extends BasePresenter
             $news->setCreatedAt(new DateTimeImmutable());
             $news->setDeleted(false);
             $news->setImportant(false);
+           // $this->entityManager->persist($author);
             $this->newsRepository->save($news);
             $this->flashMessage('Novinka byla uložena.', 'success');
             $this->redirect('Admin:news');
