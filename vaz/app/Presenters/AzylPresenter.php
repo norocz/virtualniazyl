@@ -59,7 +59,7 @@ class AzylPresenter extends BasePresenter
     {
 
         if (!$this->getPresenter()->getUser()->isLoggedIn()) {
-            $this->redirect('Home:singIn');
+            $this->redirect('Home:SignIn');
         } else {
             if (!($this->getPresenter()->getUser()->isInRole('azyl') || $this->getPresenter()->getUser()->isInRole('superadmin'))) {
                 $this->flashMessage('Nemáte dostatečná oprávnění pro tuto akci. Akce byla zalogována!', 'alert-danger');
