@@ -53,6 +53,11 @@ class AnimalsRepository extends EntityRepository
         $this->getEntityManager()->flush();
     }
 
+    public function countByAzyl($azyl):int
+    {
+        return $this->count(['azyl' => $azyl]);
+
+    }
     public function toArray($id): array
     {
         return $this->findOneBy(['id' => $id])->toArray();

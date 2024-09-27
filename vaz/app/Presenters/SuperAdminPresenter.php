@@ -11,10 +11,20 @@ class SuperAdminPresenter extends BasePresenter
 
     public function __construct()
     {
-        if ($this->getPresenter()->user->isLoggedIn() && $this->getPresenter()->user->isInRole('superadmin')) {
-            $this->getPresenter()->redirect('Home:adminLogin');
-        }
+
         parent::__construct();
+    }
+
+    public function startup():void
+    {
+        parent::startup();
+
+        bdump ($this->getPresenter()->getUser()->getRoles());
+        if (!$this->getPresenter()->user->isLoggedIn() && !$this->getPresenter()->getUser()->isInRole('superadmin')) {
+            $this->getPresenter()->redirect('SuperAdmin:SignIn');
+        }
+
+
     }
     public function renderDefault(): void
     {
@@ -49,6 +59,11 @@ class SuperAdminPresenter extends BasePresenter
     public function renderAdoptions(): void
     {
         $this->template->title = 'Adoptions';
+    }
+
+    public function renderSignIn(): void
+    {
+        $this->template->title = 'SignIn';
     }
     // Actions
 }

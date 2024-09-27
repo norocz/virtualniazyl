@@ -84,6 +84,15 @@ class AzylPresenter extends BasePresenter
     public function renderDefault(): void
     {
         $this->template->title = 'Azyl';
+
+        if ($this->getPresenter()->getUser()->getRoles()[0] === 'superadmin') {
+            $this->getTemplate()->countAnimals = 999;
+        } else {
+            $this->getTemplate()->countAnimals = $this->animalsRepository->countByAzyl($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']);
+        }
+
+
+
       //  $this->template->newUsersCount = $this->usersRepository->CountNewUsers();
       //  $this->template->usersCount = $this->usersRepository->CountUsers();
       //  $this->template->azylsCount = $this->usersRepository->CountAzyls();
