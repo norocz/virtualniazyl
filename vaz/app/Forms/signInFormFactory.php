@@ -27,7 +27,7 @@ public function create(): Form
              ->setHtmlAttribute('class', 'form-control')
              ->setRequired('Zadejte prosím heslo.');
 
-        $form->addCheckbox('remember', ' Zapamatovat si mě na tomto počítači')
+        $form->addCheckbox('remember', ' Zapamatovat si mě na tomto počítači (neodhlašovat)')
              ->setHtmlAttribute('class', 'form-check-input');
 
         $form->addSubmit('send', 'Přihlásit se')

@@ -253,6 +253,11 @@ final class HomePresenter extends Nette\Application\UI\Presenter
             $message->setType(MessageTypeEnum::TOADMIN_TYPE);
             $message->setReaded(false);
             $this->messagesRepository->save($message);
+            if ($values->remember) {
+                $this->user->setExpiration('14 days'); // Uživatel zůstane přihlášen 14 dní
+            } else {
+                $this->user->setExpiration('20 minutes', true); // Standardní 20 minutová expirace
+            }
 
             $this->getPresenter()->redirect('Home:default');
         } catch (AuthenticationException $e) {
