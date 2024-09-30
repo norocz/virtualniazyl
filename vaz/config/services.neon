@@ -19,12 +19,17 @@ services:
 
 	##Enum##
 	- App\Model\Orm\Enums\RoleTypeEnum
+	- App\Model\Orm\Enums\SexTypeEnum
+	- App\Model\Orm\Enums\MessageTypeEnum
+	- App\Model\Orm\Enums\AdoptionsTypeEnum
+	- App\Model\Orm\Enums\ActionTypeEnum
 	##Factory##
 	- App\Forms\SignInFormFactory
 	- App\Forms\userDetailsFormFactory
 	- App\Forms\animalFormFactory
 	- App\Forms\newsFormFactory
 	- App\Forms\AzylSetingsFormFactory
+	- App\Forms\speciesFormFactory
 	##Repository##
 	- App\Model\Orm\Repository\UsersRepository
 	- App\Model\Orm\Repository\MessagesRepository

@@ -8,13 +8,17 @@ use App\Components\Datagrids\AnimalsDatagridFactory;
 use App\Components\Datagrids\NewsDatagridFactory;
 use App\Forms\animalFormFactory;
 use App\Forms\azylSetingsFormFactory;
+use App\Forms\messagesFormFactory;
 use App\Forms\newsFormFactory;
 use App\Model\Orm\Entity\Animal;
+use App\Model\Orm\Entity\Messages;
 use App\Model\Orm\Entity\News;
 use App\Model\Orm\Entity\Photo;
+use App\Model\Orm\Enums\MessageTypeEnum;
 use App\Model\Orm\Enums\RoleTypeEnum;
 use App\Model\Orm\Repository\AnimalsRepository;
 use App\Model\Orm\Repository\AzylRepository;
+use App\Model\Orm\Repository\MessagesRepository;
 use App\Model\Orm\Repository\NewsRepository;
 use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\UsersRepository;
@@ -31,6 +35,7 @@ class AzylPresenter extends BasePresenter
     private AnimalFormFactory $animalFormFactory;
     private AzylSetingsFormFactory $azylSetingsFormFactory;
 
+
     public function __construct(AnimalsRepository      $animalsRepository,
                                 AnimalFormFactory      $animalFormFactory,
                                 AzylSetingsFormFactory $azylSetingsFormFactory,
@@ -42,16 +47,20 @@ class AzylPresenter extends BasePresenter
                                 public PhotosRepository $photosRepository,
                                 public SpeciesRepository $speciesRepository,
                                 public UsersRepository $usersRepository,
-                                public AzylRepository $azylRepository)
+                                public AzylRepository $azylRepository,
+                                private MessagesRepository $messagesRepository,
+                                private messagesFormFactory $messagesFormFactory)
     {
         $this->animalsRepository = $animalsRepository;
         $this->animalFormFactory = $animalFormFactory;
         $this->azylSetingsFormFactory = $azylSetingsFormFactory;
+        $this->messagesRepository = $messagesRepository;
         $this->speciesRepository = $speciesRepository;
         $this->newsRepository = $newsRepository;
         $this->newsFormFactory = $newsFormFactory;
         $this->newsDatagridFactory = $newsDatagridFactory;
         $this->azylRepository = $azylRepository;
+        $this->messagesFormFactory = $messagesFormFactory;
         parent::__construct();
     }
 
@@ -65,9 +74,13 @@ class AzylPresenter extends BasePresenter
                 $this->flashMessage('Nemáte dostatečná oprávnění pro tuto akci. Akce byla zalogována!', 'alert-danger');
                 $this->redirect('Home:default');
             } else {
-                parent::startup();
-                $menu = new Menu();
-                $this->getTemplate()->mainMenuItems = $menu->getMenu();
+                if (!is_null($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl'])) {
+                    parent::startup();
+                    $menu = new Menu();
+                    $this->getTemplate()->mainMenuItems = $menu->getMenu();
+                }else{
+                    $this->getPresenter()->redirect('SuperAdmin:SetAzyl');
+                }
             }
         }
     }
@@ -122,6 +135,68 @@ class AzylPresenter extends BasePresenter
         }
     }
 
+    public function actionMessages($id): void
+    {
+        $this->template->title = 'Zprávy';
+        $messages = $this->messagesRepository->getMessagesByReceiverId($this->getPresenter()->getUser()->getId());
+        foreach($messages as $message)
+        {
+            $chats[$message->getSender()->getId()] = $message->getSender()->getUsername();
+        }
+        $this->redrawControl('chats');
+        $this->redrawControl('messages');
+
+        $this->template->chats = $chats;
+    }
+
+    public function handleChat(int $id): void
+    {
+        $messages = $this->messagesRepository->getMessagesBySenderId($id);
+        $this->getTemplate()->messages = $messages;
+        $this->getTemplate()->reciver = $id;
+
+        $this->redrawControl('chats');
+        foreach ($messages as $message)
+        {
+            $message->setReaded(true);
+            $this->messagesRepository->save($message);
+        }
+        $this->redrawControl('messages');
+    }
+
+    public function handleDeleteMsg(int $id): void
+    {
+        $messages = $this->messagesRepository->getMessagesById($id);
+        $redirectId = $messages->getSender()->getId();
+        $messages->setDeletedAt(new DateTimeImmutable());
+        $this->messagesRepository->save($messages);
+
+        if($this->isAjax()){
+            $this->redrawControl('messages');
+        }
+        else {
+            $chat = "?do=chat";
+            $url = $this->link('Azyl:messages', $redirectId) . $chat;
+            $this->redirectUrl($url);
+
+        }
+
+    }
+
+    public function handleSendMessage($ajax): void
+    {
+        $this->getPresenter()->isAjax();
+        $message = New Messages();
+        $message->setSender($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()));
+        $message->setType(MessageTypeEnum::FROMUSER_TYPE);
+        $message->setReceiver($this->usersRepository->getUserById(intval($values->id)));
+        $message->setMessage($values->message);
+        $message->setCreatedAt(new DateTimeImmutable());
+        $message->setReaded(false);
+        $this->messagesRepository->save($message);
+        $this->redrawControl('messages');
+
+    }
     public function actionNews(): void
     {
         $this->template->title = 'News';
@@ -282,6 +357,34 @@ class AzylPresenter extends BasePresenter
         bdump($form, 'Form');
         return $form;
     }
+    public function createComponentMessagesForm(): Form
+    {
+        $form = $this->messagesFormFactory->create();
+        $form->onSuccess[] = [$this, 'messagesFormSucceeded'];
+        return $form;
+    }
+    public function messagesFormSucceeded(\Nette\Application\UI\Form $form, \stdClass $values) : void
+    {
+        $message = New Messages();
+        $message->setSender($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()));
+        $message->setType(MessageTypeEnum::FROMUSER_TYPE);
+        $message->setReceiver($this->usersRepository->getUserById(intval($values->id)));
+        $message->setMessage($values->message);
+        $message->setCreatedAt(new DateTimeImmutable());
+        $message->setReaded(false);
+        $this->messagesRepository->save($message);
+
+        if($this->isAjax()){
+            $this->redrawControl('messages');
+        }
+        else {
+            $chat = "?do=chat";
+            $url = $this->link('Azyl:messages', $values->id) . $chat;
+            $this->redirectUrl($url);
+
+        }
+        //$this->redirect('this');
+    }
 
     public function newsFormSucceeded(Form $form, \stdClass $values): void
     {
@@ -338,10 +441,9 @@ class AzylPresenter extends BasePresenter
 
     public function createComponentAnimalsAzylDatagrid(): DataGrid
     {
-        bdump($this->animalsRepository->findBy(['azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]));
-        //bdump($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getAnimals());
-        $grid = $this->animalsDatagridFactory->create();
-        $grid->setDataSource($this->animalsRepository->findBy(['azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]));
-        return $grid;
+            $grid = $this->animalsDatagridFactory->create();
+           $grid->setDataSource($this->animalsRepository->findBy(['azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]));
+           return $grid;
+
     }
 }

@@ -54,7 +54,7 @@
                 </div>
                 <div class="ms-3">
                     <h6 class="mb-0">{$user->getIdentity()->data['User']->userName}</h6>
-                    <span>{if $user->getIdentity()->data['User']->userName == 'noro'}The GOD{/if}</span>
+                    <span>{if $user->getIdentity()->getRoles()[0] === 'superadmin'}The GOD{/if}</span>
                 </div>
             </div>
             <div class="navbar-nav w-100">

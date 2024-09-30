@@ -21,6 +21,15 @@ class AzylRepository extends EntityRepository
             ->getResult();
     }
 
+    public function fetchPairs(): array
+    {
+        $results = [];
+        foreach ($this->findAll() as $azyls) {
+            $results[$azyls->getId()] = $azyls->getAzylName();
+        }
+        return $results;
+    }
+
     public function fetchLast(): ?array
     {
         return $this->createQueryBuilder('a')

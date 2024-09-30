@@ -10,10 +10,10 @@ use Doctrine\DBAL\Types\Type;
 class SexTypeEnum extends Type
 {
     public const SEX_TYPE_ENUM = 'sexTypeEnum';
-    public const MALE_ENUM = 'male',
-                 FEMALE_ENUM = 'female',
-                 UNKNOWN_ENUM = 'unknown',
-                 HERMAPHRODITE_ENUM = 'hermaphrodite';
+    public const MALE_ENUM = 'Sameček',
+                 FEMALE_ENUM = 'Samička',
+                 UNKNOWN_ENUM = 'Nevíme',
+                 HERMAPHRODITE_ENUM = 'Hermafrodit';
 
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform):string
     {

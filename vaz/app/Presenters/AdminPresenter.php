@@ -6,8 +6,10 @@ namespace App\Presenters;
 use App\Components\Datagrids\CitysDatagridFactory;
 use App\Components\Datagrids\PagesDatagridFactory;
 use App\Components\Datagrids\UsersDatagridFactory;
+use App\Components\Datagrids\SpeciesDatagridFactory;
 use App\Forms\newsFormFactory;
 use App\Forms\PageFormFactory;
+use App\Forms\SpeciesFormFactory;
 use App\Forms\PhotoUploadFormFactory;
 use App\Forms\RegisterFormFactory;
 use App\Forms\roleFormFactory;
@@ -52,7 +54,9 @@ class AdminPresenter extends BasePresenter
                                 public CitysDatagridFactory         $citysDatagridFactory,
                                 public PagesDatagridFactory         $pagesDatagridFactory,
                                 public readonly newsFormFactory     $newsFormFactory,
+                                public readonly speciesFormFactory  $speciesFormFactory,
                                 public readonly newsDatagridFactory $newsDatagridFactory,
+                                public readonly speciesDatagridFactory  $speciesDatagridFactory,
                                 public newsRepository               $newsRepository)
     {
         parent::__construct();
@@ -66,6 +70,8 @@ class AdminPresenter extends BasePresenter
         $this->citysDatagridFactory = $citysDatagridFactory;
         $this->pagesDatagridFactory = $pagesDatagridFactory;
         $this->newsRepository = $newsRepository;
+        //$this->speciesFormFactory = $speciesFormFactory;
+        //$this->speciesDatagridFactory = $speciesDatagridFactory;
 
     }
 
