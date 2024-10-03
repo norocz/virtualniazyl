@@ -144,6 +144,7 @@ class Users
         $this->legalTerms = false;
         $this->photos = null;
         $this->phone = '';
+        $this->messageAddress = null;
     }
 
     public function __toString(): string
