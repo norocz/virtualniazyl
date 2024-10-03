@@ -304,7 +304,7 @@ class Users
         $this->messageAddress = $messageAddress;
     }
 
-    public function getMessageAddress(): string
+    public function getMessageAddress(): ?string
     {
         return $this->messageAddress;
     }
