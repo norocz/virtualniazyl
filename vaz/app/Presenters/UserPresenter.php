@@ -26,6 +26,7 @@ use Contributte\Application\UI\BasePresenter;
 use DateTimeImmutable;
 use Nette\Application\UI\Form;
 use App\Model\Orm\Entity\Owner;
+use App\Services\MessagesService;
 
 
 class UserPresenter extends BasePresenter
@@ -46,13 +47,16 @@ class UserPresenter extends BasePresenter
                         private OwnersRepository                $ownerRepository,
                         private CityRepository                  $cityRepository,
                         private MessagesRepository              $messagesRepository,
-                        private messagesFormFactory              $messagesFormFactory)
+                        private messagesFormFactory              $messagesFormFactory,
+                        private messagesService                 $messagesService)
     {
         parent::__construct();
         $this->roleFormFactory = $roleFormFactory;
         $this->usersRepository = $usersRepository;
         $this->entityManager = $entityManager;
         $this->azylRepository = $azylRepository;
+        $this->messagesService = $messagesService;
+
         $this->messagesFormFactory = $messagesFormFactory;
     }
 
@@ -121,6 +125,57 @@ public function actionDefault(): void
     public function actionMessages($id): void
     {
         $this->template->title = 'Zprávy';
+        $messages =  $this->messagesService->getUserContacts($this->getUser()->getId());
+            foreach($messages as $message)
+                {
+                    $chats[$message->getSenderAddress()] = $message->getSender()->getUsername();
+                }
+        $this->template->chats = $chats;
+        $this->redrawControl('chats');
+        $this->redrawControl('messagesCount');
+        $this->redrawControl('messages');
+    }
+
+    public function handleChat(string $id): void
+    {
+        $messages = $this->messagesRepository->getMessagesBySenderReceiverAddress(senderAddress: $id, receiverAddress: $this->getPresenter()->getUser()->getIdentity()->getData()['User']->getMessageAddress());
+
+        $this->getTemplate()->messages = $messages;
+        $this->getTemplate()->receiver = $id;
+        $this->messagesService->markMessagesAsRead($id);
+        $this->redrawControl('messagesCount');
+        $this->redrawControl('chats');
+        $this->redrawControl('messages');
+    }
+
+    public function handleDeleteMsg(int $id): void
+    {
+        $redirectAddress = $this->messagesRepository->getMessagesById($id)->getReceiverAddress();
+        if($this->messagesService->deleteMessage($id,$this->getPresenter()))
+        {
+            $this->flashMessage('Vzkaz byl smazán.', 'success');
+        } else {
+
+            $this->flashMessage('Při mazání vzkazu nastala chyba.', 'danger');
+        }
+        if($this->isAjax()){
+            $this->redrawControl('messagesCount');
+            $this->redrawControl('chats');
+            $this->redrawControl('messages');
+        }
+        else {
+            $chat = "?do=chat";
+            $url = $this->link('User:messages', $redirectAddress) . $chat;
+            $this->redirectUrl($url);
+        }
+
+    }
+
+
+    /**
+    public function actionMessages($id): void
+    {
+        $this->template->title = 'Zprávy';
         $messages = $this->messagesRepository->getMessagesByReceiverId($this->getPresenter()->getUser()->getId());
         foreach($messages as $message)
         {
@@ -132,11 +187,11 @@ public function actionDefault(): void
         $this->template->chats = $chats;
     }
 
-    public function handleChat(int $id): void
+    public function handleChat(string $address): void
     {
-    $messages = $this->messagesRepository->getMessagesBySenderId($id);
+    $messages = $this->messagesRepository->getMessagesBySenderReceiverAddress(senderAddress: $address, receiverAddress: $this->getPresenter()->getUser()->getIdentity()->getData()['User']->getMessageAddress());
     $this->getTemplate()->messages = $messages;
-    $this->getTemplate()->reciver = $id;
+    $this->getTemplate()->receiver = $address;
 
     $this->redrawControl('chats');
         foreach ($messages as $message)
@@ -149,10 +204,17 @@ public function actionDefault(): void
 
     public function handleDeleteMsg(int $id): void
     {
-        $messages = $this->messagesRepository->getMessagesById($id);
-        $redirectId = $messages->getSender()->getId();
-        $messages->setDeletedAt(new DateTimeImmutable());
-        $this->messagesRepository->save($messages);
+        $message = $this->messagesRepository->getMessagesById($id);
+        if($message && $message->getReceiverAddress() === $this->getPresenter()->getUser()->getIdentity()->getData()['User']->getMessageAddress()) {
+
+            $redirectId = $message->getSender()->getId();
+            $message->setDeletedAt(new DateTimeImmutable());
+            $this->messagesRepository->save($message);
+            $this->flashMessage('Vzkaz byl smazán', 'info');
+        } else {
+
+            $this->flashMessage('Chyba mazání vzkazu', 'danger');
+        }
 
         if($this->isAjax()){
             $this->redrawControl('messages');
@@ -165,10 +227,13 @@ public function actionDefault(): void
         }
 
     }
-
-    public function handleSendMessage($ajax): void
+ **/
+    public function messagesFormSucceeded(Form $form, \stdClass $values) : void
     {
         $this->getPresenter()->isAjax();
+        $this->messagesService->messagesFormSucceeded($form, $values, $this->getPresenter());
+
+        /*
         $message = New Messages();
         $message->setSender($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()));
         $message->setType(MessageTypeEnum::FROMUSER_TYPE);
@@ -177,8 +242,36 @@ public function actionDefault(): void
         $message->setCreatedAt(new DateTimeImmutable());
         $message->setReaded(false);
         $this->messagesRepository->save($message);
-        $this->redrawControl('messages');
+        */
+        if($this->isAjax()){
+            $this->redrawControl('messages');
+        }
+        else {
+            $chat = "?do=chat";
+            $url = $this->link('User:messages', $values->id) . $chat;
+            $this->redirectUrl($url);
 
+        }
+
+    }
+    public function handleSendMessage(): void
+    {
+        $this->getPresenter()->isAjax();
+        $this->messagesService->messagesFormSucceeded();
+
+
+        /*
+        $this->getPresenter()->isAjax();
+        $message = New Messages();
+        $message->setSender($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()));
+        $message->setType(MessageTypeEnum::FROMUSER_TYPE);
+        $message->setReceiver($this->usersRepository->getUserById($values->id));
+        $message->setMessage($values->message);
+        $message->setCreatedAt(new DateTimeImmutable());
+        $message->setReaded(false);
+        $this->messagesRepository->save($message);
+        $this->redrawControl('messages');
+*/
     }
 
     public function renderAdoptions(): void
@@ -253,28 +346,7 @@ public function actionDefault(): void
         return $form;
     }
 
-    public function messagesFormSucceeded(Form $form, \stdClass $values) : void
-    {
-        $message = New Messages();
-        $message->setSender($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()));
-        $message->setType(MessageTypeEnum::FROMUSER_TYPE);
-        $message->setReceiver($this->usersRepository->getUserById(intval($values->id)));
-        $message->setMessage($values->message);
-        $message->setCreatedAt(new DateTimeImmutable());
-        $message->setReaded(false);
-        $this->messagesRepository->save($message);
 
-        if($this->isAjax()){
-        $this->redrawControl('messages');
-        }
-        else {
-            $chat = "?do=chat";
-            $url = $this->link('User:messages', $values->id) . $chat;
-            $this->redirectUrl($url);
-
-        }
-        //$this->redirect('this');
-    }
 
     public function ownerPhotoUploadFormSucceeded(Form $form, \stdClass $values): void
     {
@@ -299,8 +371,7 @@ public function actionDefault(): void
             $users->setUpdatedAt(new DateTimeImmutable());
             $users->setUpdatedBy($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()));
 
-            bdump($azyl,'azyl');
-            bdump($users,'users');
+
             $this->azylRepository->saveAzyl($azyl);
             $users->setAzyl($azyl->getId());
             $this->usersRepository->addUser($users);

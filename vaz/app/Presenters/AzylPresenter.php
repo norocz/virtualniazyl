@@ -206,7 +206,6 @@ class AzylPresenter extends BasePresenter
     {
         $this->template->title = 'Photos';
         $this->getTemplate()->basepath = '';
-        bdump($this->getTemplate()->photos = $this->photosRepository->fetchByAzylId($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()));
     }
 
     public function renderMessages(): void
@@ -241,9 +240,6 @@ class AzylPresenter extends BasePresenter
     {
         $formDefaults = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
         $form = $this->azylSetingsFormFactory->create();
-        bdump($formDefaults);
-
-        bdump($form);
         $form->onSuccess[] = [$this, 'azylSettingsFormSucceeded'];
 
         $form->onRender[] = fn() => $form->setDefaults($formDefaults->toArray());
@@ -273,11 +269,11 @@ class AzylPresenter extends BasePresenter
         //todo: ověření práv uživatele na úpravu zvířátka
         if ($id === null)
         {
-            bdump($values);
+
             
             $animal = New Animal();
             $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
-            bdump($azyl);
+
             $animal->setAzyl($azyl);
             $animal->setIsDeleted(false);
             $animal->setAdopted(false);
@@ -331,7 +327,7 @@ class AzylPresenter extends BasePresenter
         if ($this->getPresenter()->getParameter('id') !== null) {
             $news = $this->newsRepository->findOneBy(['id' => $this->getPresenter()->getParameter('id')]);
             if ($news) {
-                bdump($news);
+
                 $form->addHidden('newsid', $news->getId());
                 $form->setDefaults(
                     [
@@ -354,7 +350,7 @@ class AzylPresenter extends BasePresenter
             }
         }
         $form->onSuccess[] = [ $this, 'newsFormSucceeded'];
-        bdump($form, 'Form');
+
         return $form;
     }
     public function createComponentMessagesForm(): Form
@@ -399,7 +395,6 @@ class AzylPresenter extends BasePresenter
             $news->setCreatedAt(new DateTimeImmutable());
             $news->setDeleted(false);
 
-            bdump($news, 'Tady nemám do piči bejt');
             $this->newsRepository->save($news);
 
 
@@ -413,7 +408,7 @@ class AzylPresenter extends BasePresenter
         $id = $this->getPresenter()->getParameter('id');
         if ($id !== null)  {
             $news = $this->newsRepository->findOneBy(['id' => $id]);
-            bdump($news,'Před if');
+
             if ($news) {
 
                 $news->setTitle($values->title);
@@ -433,7 +428,7 @@ class AzylPresenter extends BasePresenter
 
     public function createComponentNewsDatagrid(): DataGrid
     {
-       // bdump($this->getPresenter()->getUser()->getIdentity()->getData()['User']->getId());
+
         $grid = $this->newsDatagridFactory->create($this->getPresenter()->getUser()->getIdentity()->getData()['User']->getId());
       //  $grid ->setDataSource($this->getPresenter()->getUser()->getIdentity()->getData()['User']->getNews());
         return $grid;

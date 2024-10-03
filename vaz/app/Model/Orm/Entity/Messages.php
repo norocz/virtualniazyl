@@ -29,9 +29,15 @@ class Messages
     #[ORM\JoinColumn(name: "sender_id", referencedColumnName: "id")]
     private Users $sender;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $senderAddress;
+
     #[ORM\ManyToOne(targetEntity: "Users", inversedBy: "receivedMessages")]
     #[ORM\JoinColumn(name: "receiver_id", referencedColumnName: "id")]
     private Users $receiver;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $receiverAddress;
 
     #[ORM\Column(type: 'boolean')]
     private bool $readed;
@@ -138,4 +144,28 @@ class Messages
     {
         $this->readedAt = $readedAt;
     }
+
+    public function getSenderAddress(): ?string
+    {
+        return $this->senderAddress;
+    }
+
+    public function setSenderAddress(?string $senderAddress): Messages
+    {
+        $this->senderAddress = $senderAddress;
+        return $this;
+    }
+
+    public function getReceiverAddress(): ?string
+    {
+        return $this->receiverAddress;
+    }
+
+    public function setReceiverAddress(?string $receiverAddress): Messages
+    {
+        $this->receiverAddress = $receiverAddress;
+        return $this;
+    }
+
+
 }

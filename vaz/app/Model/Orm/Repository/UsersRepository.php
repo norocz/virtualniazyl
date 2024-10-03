@@ -32,8 +32,7 @@ class UsersRepository extends EntityRepository
         $this->getEntityManager()->flush();
     }
 
-
-    public function findOneBy(array $criteria, ?array $orderBy = null) : ?Users
+    public function findOneBy(array $criteria, ?array $orderBy = null): ?Users
     {
         return parent::findOneBy($criteria, $orderBy);
     }
@@ -64,19 +63,24 @@ class UsersRepository extends EntityRepository
         $this->getEntityManager()->flush();
     }
 
-    public function getUserByEmail($email) : ?Users
+    public function getUserByEmail($email): ?Users
     {
         return $this->findOneBy(['email' => $email]);
     }
 
-    public function getUserByUserName($userName) : ?Users
+    public function getUserByUserName($userName): ?Users
     {
         return $this->findOneBy(['userName' => $userName]);
     }
 
-    public function getUserById(int $user) : ?Users
+    public function getUserById(int $user): ?Users
     {
         return $this->findOneBy(['id' => $user]);
+    }
+
+    public function getUserByMessageAddress(string $messageAddress): ?Users
+    {
+        return $this->findOneBy(['messageAddress' => $messageAddress]);
     }
 
     public function getUserByAzylId(int $azyl) : ?Users

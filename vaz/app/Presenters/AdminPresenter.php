@@ -19,6 +19,7 @@ use App\Model\Orm\Enums\RoleTypeEnum;
 use App\Model\Orm\Repository\PageRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use App\Model\Services\Menu;
+use App\Services\MessagesService;
 use Contributte\Application\UI\BasePresenter;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -57,7 +58,8 @@ class AdminPresenter extends BasePresenter
                                 public readonly speciesFormFactory  $speciesFormFactory,
                                 public readonly newsDatagridFactory $newsDatagridFactory,
                                 public readonly speciesDatagridFactory  $speciesDatagridFactory,
-                                public newsRepository               $newsRepository)
+                                public newsRepository               $newsRepository,
+                                public MessagesService              $messagesService)
     {
         parent::__construct();
         $this->roleFormFactory = $roleFormFactory;
@@ -70,6 +72,7 @@ class AdminPresenter extends BasePresenter
         $this->citysDatagridFactory = $citysDatagridFactory;
         $this->pagesDatagridFactory = $pagesDatagridFactory;
         $this->newsRepository = $newsRepository;
+        $this->messagesService = $messagesService;
         //$this->speciesFormFactory = $speciesFormFactory;
         //$this->speciesDatagridFactory = $speciesDatagridFactory;
 
@@ -100,6 +103,16 @@ class AdminPresenter extends BasePresenter
         $this->template->azylsCount = $this->usersRepository->CountAzyls();
     }
 
+    public function renderUpdateMessagesAddress(): void
+    {
+        $this->setView('default');
+        $this->getTemplate()->title = 'Aktualizace a migrace';
+        $this->template->newUsersCount = $this->usersRepository->CountNewUsers();
+        $this->template->usersCount = $this->usersRepository->CountUsers();
+        $this->template->azylsCount = $this->usersRepository->CountAzyls();
+        $this->messagesService->UpdateMessages();
+        $this->flashMessage('Aktualizace a migrace proběhly', 'alert-success');
+    }
     public function renderAnimals(): void
     {
         $this->template->title = 'Animals';
@@ -325,7 +338,6 @@ class AdminPresenter extends BasePresenter
             }
         } else {
 
-          //  bdump ($values);
             $news = new News();
             $author = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getIdentity()->getId());
             $news->setAuthor($author);

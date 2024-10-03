@@ -38,6 +38,10 @@ services:
 	- Nepada\Bridges\PhoneNumberInputDI\PhoneNumberInputExtension
 	- App\Presenters\UserPresenter
 
+	##Core Services##
+	- App\Services\UserAddressService
+	- App\Services\MessagesService
+
 search:
 	-	in: %appDir%
 		classes:

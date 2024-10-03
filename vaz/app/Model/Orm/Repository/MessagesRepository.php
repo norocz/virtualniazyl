@@ -51,16 +51,30 @@ class MessagesRepository extends EntityRepository
             ->getResult();
     }
 
-    public function getMessagesBySenderId(int $senderId): array
+    public function getMessagesBySender(int $senderId): array
     {
         return $this->createQueryBuilder('m')
-            ->andWhere('m.sender = :senderId')
+            ->andWhere('m.receiver = :receiverId')
             ->andWhere('m.deletedAt IS NULL OR m.deletedAt > :now')
-            ->setParameter('senderId', $senderId)
+            ->setParameter('receiverId', $senderId)
             ->setParameter('now', new \DateTimeImmutable())
             ->getQuery()
             ->getResult();
     }
+
+    public function getMessagesBySenderId(int $senderId, int $receiverId): array
+    {
+        return $this->createQueryBuilder('m')
+            ->where('(m.sender = :senderId AND m.receiver = :receiverId)')
+            ->orWhere('(m.sender = :receiverId AND m.receiver = :senderId)')
+            ->andWhere('m.deletedAt IS NULL OR m.deletedAt > :now')
+            ->setParameter('senderId', $senderId)
+            ->setParameter('receiverId', $receiverId)
+            ->setParameter('now', new \DateTimeImmutable())
+            ->getQuery()
+            ->getResult();
+    }
+
 
     public function getMessagesByReceiverIdAndSenderId(int $receiverId, int $senderId): array
     {
@@ -188,5 +202,31 @@ class MessagesRepository extends EntityRepository
     {
         $this->getEntityManager()->remove($messages);
         $this->getEntityManager()->flush();
+    }
+
+    public function getMessagesBySenderReceiverAddress(string $senderAddress, string $receiverAddress)
+    {
+        return $this->createQueryBuilder('m')
+            ->where('(m.senderAddress = :senderAddress AND m.receiverAddress = :receiverAddress)')
+            ->orWhere('(m.senderAddress = :receiverAddress AND m.receiverAddress = :senderAddress)')
+            ->andWhere('m.deletedAt IS NULL OR m.deletedAt > :now')
+            ->setParameter('senderAddress', $senderAddress)
+            ->setParameter('receiverAddress', $receiverAddress)
+            ->setParameter('now', new \DateTimeImmutable())
+            ->getQuery()
+            ->getResult();
+
+    }
+
+    public function getMessagesByReceiverAddress(string $id) //id je adresa
+    {
+        return $this->createQueryBuilder('m')
+            ->where('m.receiverAddress = :id')
+            ->andWhere('m.deletedAt IS NULL OR m.deletedAt > :now')
+            ->setParameter(':id', $id)
+            ->setParameter('now', new \DateTimeImmutable())
+            ->getQuery()
+            ->getResult();
+
     }
 }

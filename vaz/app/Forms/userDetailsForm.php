@@ -27,7 +27,6 @@ class userDetailsForm extends Form
     public function create(): Form
     {
         $form = new Form;
-        bdump('create');
         $form->addText('firstName', 'Jméno')
             ->setHtmlAttribute('class', 'form-control')
             ->setRequired('Zadejte jméno');

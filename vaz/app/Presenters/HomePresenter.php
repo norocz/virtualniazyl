@@ -89,7 +89,6 @@ final class HomePresenter extends Nette\Application\UI\Presenter
     {
         $news = $this->newsRepository->findBy(['deleted' => false, 'global' => true],  ['createdAt' => 'DESC'],20, $offset);
         $this->getTemplate()->title = 'Všechny Novinky';
-        bdump($this->getTemplate()->news = $news);
         $this->getTemplate()->newsCount = $this->newsRepository->count(['deleted' => false, 'global' => true]);
         $this->getTemplate()->offset = $offset;
     }
@@ -183,7 +182,6 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->getTemplate()->title = 'Registrace proběhla v pořádku';
         $this->getTemplate()->kytka = 'kytka'.rand(1,4).'.jpeg';
         $vrf = $this->getPresenter()->getParameter('vrf');
-        bdump($vrf,'VRF');
         if (!empty($vrf))
         {
             $user = $this->usersRepository->getUserByMailVerifyToken($vrf);
@@ -245,11 +243,14 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                 $this->getPresenter()->redirect('User:first');
             }
             $message = new Messages();
+            $admin = $this->usersRepository->getUserById(1);
             $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
-            $message->setSender($user);
+            $message->setSender($this->usersRepository->getUserByMessageAddress('sys'));
+            $message->setSenderAddress('sys');
             $message->setCreatedAt(new DateTimeImmutable());
             $message->setMessage('Přihlásil se uživatel:'.$user->getUserName());
-            $message->setReceiver($this->usersRepository->getUserById(1));
+            $message->setReceiver($admin);
+            $message->setReceiverAddress($admin->getMessageAddress());
             $message->setType(MessageTypeEnum::TOADMIN_TYPE);
             $message->setReaded(false);
             $this->messagesRepository->save($message);
@@ -281,14 +282,13 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         }
         else {
             try {
-               // bdump($values);
 
                 $now = new DateTimeImmutable();
                 $token = md5($values->email.$now->format('Y-m-d H:i:s'));
 
                 $user = new Users();
-                $user->setUserName($values->username);
-                $user->setEmail($values->email);
+                $user->setUserName(strval($values->username));
+                $user->setEmail(strval($values->email));
                 $user->setPassword($this->passwords->hash($values->password));
                 $user->setRole('user');
                 $user->setCreatedAt($now);
@@ -313,7 +313,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
 
                 $mail = new Message;
                 $mail->setFrom('Registrace Virtuální Azyl <registration@virtualniazyl.cz>')
-                    ->addTo($values->email)
+                    ->addTo(strval($values->email))
                     ->setSubject('Registrace na Virtuální Azyl')
                     ->setHtmlBody($html);
 

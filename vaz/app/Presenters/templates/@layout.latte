@@ -35,10 +35,23 @@
 
 
 <body>
+<style>
+	#cookieConsent {
+		position: fixed;
+		bottom: 0;
+		width: 50%;
+		z-index: 1000;
+	}
+
+</style>
 
 	{block firstmenu}
         <div class="bg-white p-1 p-lg-2">
             <div class="container">
+				<div id="cookieConsent" class="alert alert-info text-center" role="alert" style="display:none;">
+					Tento web používá cookies pri přihlašování uživatele. Nepoužívá cookies třetích stran (Google, Facebook a spol.)
+					<button type="button" class="btn btn-primary btn-sm" id="acceptCookies">Rozumím</button>
+				</div>
                 <div class="d-flex justify-content-end align-items-center">
 					<a class="ms-2 ms-md-3 submenu" href="{link Page:support}">
 						<span class="uil uil-bill"></span>
@@ -54,7 +67,9 @@
 					</a>
 					{if $user->isLoggedIn()}
 					<a class="ms-2 ms-md-3 submenu" href="{link User:messages}">
-						<span class="uil uil-mailbox"> {if $messagesCount > 0}<span class="rounded" style="vertical-align: super; horiz-align: center; font-size: smaller; background-color: red; color: white;">&nbsp;{$messagesCount}&nbsp;</span>{/if}</span>
+						{snippet messagesCount}
+							<span class="ajax uil uil-mailbox"> {if $messagesCount > 0}<span class="rounded" style="vertical-align: super; horiz-align: center; font-size: smaller; background-color: red; color: white;">&nbsp;{$messagesCount}&nbsp;</span>{/if}Kontakty</span>
+						{/snippet}
 					</a>
 
 					<a class="ms-2 ms-md-3 submenu" href="{link User:profil}">
@@ -192,6 +207,22 @@
 	<script src="https://polyfill.io/v3/polyfill.min.js?features=window.scroll"></script>
 	<script src="{$basePath}/vendors/list.js/list.min.js"></script>
 	<script src="{$basePath}/assets/js/theme.js"></script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			// Zkontrolovat, zda je uživatel přihlášený - tato proměnná bude přicházet z PHP (Nette)
+			var isLoggedIn = {$user->isLoggedIn() ? 'true' : 'false'};
 
+			// Pokud uživatel není přihlášený a souhlas není uložený, zobraz banner
+			if (!isLoggedIn && !localStorage.getItem('cookieConsent')) {
+				document.getElementById('cookieConsent').style.display = 'block';
+			}
+
+			// Při kliknutí na tlačítko uložit souhlas
+			document.getElementById('acceptCookies').addEventListener('click', function() {
+				localStorage.setItem('cookieConsent', true);
+				document.getElementById('cookieConsent').style.display = 'none';
+			});
+		});
+	</script>
 </body>
 </html>

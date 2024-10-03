@@ -72,6 +72,9 @@ class Users
     #[ORM\OneToMany(mappedBy: "receiver", targetEntity: "Messages")]
     private Collection $receivedMessages;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private string $messageAddress;
+
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $deleted;
 
@@ -294,6 +297,16 @@ class Users
     public function setUserName(string $userName): void
     {
         $this->userName = $userName;
+    }
+
+    public function setMessageAddress($messageAddress): void
+    {
+        $this->messageAddress = $messageAddress;
+    }
+
+    public function getMessageAddress(): string
+    {
+        return $this->messageAddress;
     }
 
     public function setReceivedMessages(Collection $receivedMessages): void

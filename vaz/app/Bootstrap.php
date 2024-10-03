@@ -20,6 +20,7 @@ class Bootstrap
 		$appDir = dirname(__DIR__);
 
 		$configurator->setDebugMode(true);
+        //TODO: Vyřešit podivné chování v šabloně pro novinky... když se smaže chache
 
 		$configurator->enableTracy($appDir . '/log');
 
