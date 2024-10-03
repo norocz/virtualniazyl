@@ -73,7 +73,7 @@ class Users
     private Collection $receivedMessages;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private string $messageAddress;
+    private ?string $messageAddress;
 
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $deleted;
