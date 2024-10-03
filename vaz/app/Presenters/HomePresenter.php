@@ -27,6 +27,7 @@ use Nette\Mail\SmtpMailer;
 use Nette\Security\AuthenticationException;
 use Nette\Security\Passwords;
 use App\Model\Services\Menu;
+use Defr\QRPlatba\QRPlatba;
 
 final class HomePresenter extends Nette\Application\UI\Presenter
 {
@@ -49,11 +50,13 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                                 public             AdoptionsRepository    $adoptionsRepository,
                                 public             PhotosRepository    $photosRepository,
                                 private MessagesRepository             $messagesRepository,
-                                private UserAddressService            $userAddressService)
+                                private UserAddressService            $userAddressService,
+                                private QRPlatba                    $QRPlatba)
     {
         parent::__construct();
         $this->entityManager = $entityManager;
         $this->usersRepository = $usersRepository;
+        $this->QRPlatba = $QRPlatba;
         $this->messagesRepository = $messagesRepository;
         $this->userAddressService  = $userAddressService;
 
@@ -70,7 +73,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
 
         }
 
-        $this->getTemplate()->userRepository = $this->usersRepository;
+        //$this->getTemplate()->userRepository = $this->usersRepository;
     }
 
     public function renderDefault(): void
@@ -92,6 +95,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
     {
         $news = $this->newsRepository->findBy(['deleted' => false, 'global' => true],  ['createdAt' => 'DESC'],20, $offset);
         $this->getTemplate()->title = 'Všechny Novinky';
+        $this->getTemplate()->news = $news;
         $this->getTemplate()->newsCount = $this->newsRepository->count(['deleted' => false, 'global' => true]);
         $this->getTemplate()->offset = $offset;
     }
@@ -117,6 +121,8 @@ final class HomePresenter extends Nette\Application\UI\Presenter
     }
     public function renderAzyl(int $id) : void
     {
+        $qrPlatba =New QRPlatba();
+
 
         $azylProfil = $this->azylRepository->findById($id);
 
@@ -127,6 +133,16 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->getTemplate()->azylUser = $azylUser;
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
         $this->getTemplate()->newsCount = $this->newsRepository->count(['deleted' => false, 'author' => $azylUser->getId()]);
+
+        $qrPlatba->setAccount($azylProfil->getBankAccount().'/'.$azylProfil->getBankCode())
+                    ->setMessage('Peníze pro '.$azylProfil->getAzylName())
+                    ->setVariableSymbol($azylProfil->getBankSpecificCode())
+                    ->setCurrency('CZK')
+                    ->setAmount((float)'101.11')
+                    ->setDueDate(new \DateTime('now'));
+
+
+        $this->getTemplate()->qrkodazyl = $qrPlatba->getQRCodeImage();
     }
 
     public function actionAzylAdoptions(int $id) : void

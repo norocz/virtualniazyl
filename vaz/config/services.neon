@@ -41,6 +41,7 @@ services:
 	##Core Services##
 	- App\Services\UserAddressService
 	- App\Services\MessagesService
+	- Defr\QRPlatba\QRPlatba
 
 search:
 	-	in: %appDir%
