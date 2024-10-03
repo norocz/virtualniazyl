@@ -16,6 +16,7 @@ use App\Model\Orm\Repository\MessagesRepository;
 use App\Model\Orm\Repository\NewsRepository;
 use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\UsersRepository;
+use App\Services\UserAddressService;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Nette;
@@ -47,12 +48,14 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                                 public readonly    AzylRepository         $azylRepository,
                                 public             AdoptionsRepository    $adoptionsRepository,
                                 public             PhotosRepository    $photosRepository,
-                                private MessagesRepository             $messagesRepository)
+                                private MessagesRepository             $messagesRepository,
+                                private UserAddressService            $userAddressService)
     {
         parent::__construct();
         $this->entityManager = $entityManager;
         $this->usersRepository = $usersRepository;
         $this->messagesRepository = $messagesRepository;
+        $this->userAddressService  = $userAddressService;
 
     }
 
@@ -189,6 +192,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
             {
                 $user->setMailverified(TRUE);
                 $user->setMailVerifyToken(NULL);
+                $user->setMessageAddress($this->userAddressService->generateCommunicationAddress($user->getId(), $user->getEmail(), $user->getUserName()));
                 $this->usersRepository->addUser($user);
                 $this->getPresenter()->flashMessage('Váš email byl ověřen. Můžete se přihlásit.', 'alert-success');
                 $this->getPresenter()->redirect('Home:signIn');
@@ -302,6 +306,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                 $user->setPhoneVerified(FALSE);
                 $user->setMailVerifyToken($token);
                 $this->usersRepository->addUser($user);
+
                 //Send registration email
 
 
