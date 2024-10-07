@@ -40,7 +40,7 @@ class Citys
         return $this->id;
     }
 
-    public function getCityname(): string
+    public function getCityName(): string
     {
         return $this->cityName;
     }

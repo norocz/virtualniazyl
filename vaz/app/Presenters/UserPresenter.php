@@ -24,9 +24,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Model\Services\Menu;
 use Contributte\Application\UI\BasePresenter;
 use DateTimeImmutable;
+use Nette;
 use Nette\Application\UI\Form;
 use App\Model\Orm\Entity\Owner;
 use App\Services\MessagesService;
+use Nette\Application\UI\InvalidLinkException;
 
 
 class UserPresenter extends BasePresenter
@@ -47,7 +49,7 @@ class UserPresenter extends BasePresenter
                         private OwnersRepository                $ownerRepository,
                         private CityRepository                  $cityRepository,
                         private MessagesRepository              $messagesRepository,
-                        private messagesFormFactory              $messagesFormFactory,
+                        private messagesFormFactory             $messagesFormFactory,
                         private messagesService                 $messagesService)
     {
         parent::__construct();
@@ -153,10 +155,10 @@ public function actionDefault(): void
         $redirectAddress = $this->messagesRepository->getMessagesById($id)->getReceiverAddress();
         if($this->messagesService->deleteMessage($id,$this->getPresenter()))
         {
-            $this->flashMessage('Vzkaz byl smazán.', 'success');
+            $this->flashMessage('Vzkaz byl smazán.', 'alert-success');
         } else {
 
-            $this->flashMessage('Při mazání vzkazu nastala chyba.', 'danger');
+            $this->flashMessage('Při mazání vzkazu nastala chyba.', 'alert-danger');
         }
         if($this->isAjax()){
             $this->redrawControl('messagesCount');
@@ -293,14 +295,6 @@ public function actionDefault(): void
         return $form;
     }
 
-    public function createComponentUserDetailsForm(): Form
-    {
-        $form = $this->userDetailsFormFactory->create($this->getPresenter());
-        $form->onSuccess[] = [$this, 'userDetailsFormSucceeded'];
-
-        return $form;
-    }
-
     public function userDetailsFormSucceeded(Form $form,  \stdClass $values) : void
     {
         $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
@@ -314,22 +308,29 @@ public function actionDefault(): void
         $this->getPresenter()->redirect('User:profil');
     }
 
-    public function createComponentUserUpdateForm(): Form
+    /**
+     * @throws InvalidLinkException
+     */
+    public function createComponentUserDetailForm(): Form
     {
-        $form = $this->registerFormFactory->create();
+        $form = $this->userDetailsFormFactory->create($this->getPresenter());
         $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
 
         $form->setDefaults($user->toArray());
 
-        $form->removeComponent($form['adoptionVerification']);
-        $form->removeComponent($form['legalTerms']);
-        $form->removeComponent($form['username']);
-        //TODO: Dodělat username jako text k formuláři
         $form['send']->setHtmlAttribute('class', 'btn btn-primary');
         $form['send']->setCaption('Uložit změny');
 
         $form->onSuccess[] = [$this, 'userUpdateFormSucceeded'];
         return $form;
+    }
+
+    public function createComponentUserUpdateForm(string $name): ?Nette\ComponentModel\IComponent
+    {
+       $form = $this->registerFormFactory->create();
+       $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
+       $form->setDefaults($user->toArray());
+       return $form;
     }
 
     public function createComponentOwnerPhotoUploadForm(): Form

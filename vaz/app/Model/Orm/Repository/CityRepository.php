@@ -21,7 +21,7 @@ class CityRepository extends EntityRepository
         $this->getEntityManager()->flush();
     }
 
-    public function updataCity(int $id, int $cityCode, string $cityName, string $region, string $cityOffice, string $country)
+    public function updateCity(int $id, int $cityCode, string $cityName, string $region, string $cityOffice, string $country)
     {
         $city = $this->findCityById($id);
         $city->setCityCode($cityCode);
@@ -56,13 +56,19 @@ class CityRepository extends EntityRepository
             ->getOneOrNullResult();
     }
 
-    public function findCityByRegion(string $region)
+    public function findCityByRegion(string $region):array
     {
-        return $this->createQueryBuilder('c')
+        $pole = $this->createQueryBuilder('c')
             ->where('c.region = :region')
             ->setParameter('region', $region)
+            ->orderBy('c.cityName', 'ASC')
             ->getQuery()
             ->getResult();
+        foreach ($pole as $city) {
+        $return[$city->getId()] = $city->getCityName();
+        }
+        return $return;
+
     }
 
     public function findCityByCityOffice(string $cityOffice)
@@ -84,24 +90,48 @@ class CityRepository extends EntityRepository
     }
 
     //TODO: DOplnit načtení zemí podle dat v DB - nejdřív je potřeba doplnit data do DB přidat tam slovensko a slovenské okresy.
-    public function fetchCountries()
+    public function fetchCountriesOld():array
     {
         return $this->createQueryBuilder('c')
-            ->select('c.country')
-            ->groupBy('c.country, c.countryCode')
+            ->select('c.*')
+            ->groupBy('c.country, c.country')
             ->getQuery()
             ->getResult();
     }
 
-    public function findRegionByCountry(mixed $country)
+    public function fetchCountries():array
     {
-        return $this->createQueryBuilder('c')
-            ->select('c.region')
-            ->where('c.country = :country')
-            ->setParameter('country', $country)
-            ->groupBy('c.region')
+        $pole = $this->createQueryBuilder('c')
+            ->select('c.country')
+            ->groupBy('c.country')
+            ->orderBy('c.country', 'ASC')
             ->getQuery()
             ->getResult();
+
+        foreach ($pole['0'] as $country) {
+
+            $kole[$country] = $country;
+        }
+
+
+        return $kole;
+
+    }
+
+    public function findRegionByCountry(mixed $country):array
+    {
+        $pole = $this->createQueryBuilder('c')
+            ->select('c.id, c.region')  // Vyber ID a název regionu
+            ->where('c.country = :country')
+            ->setParameter('country', $country)
+            ->groupBy('c.id, c.region') // Skupinování podle ID a názvu regionu
+            ->orderBy('c.region', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+
+        $pole = array_column($pole, 'region', 'region');
+        return $pole;
     }
 
 

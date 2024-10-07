@@ -30,7 +30,7 @@
 <div class="container">
     <div class="row">
         <h2>{$azylProfil['azylName']}</h2>
-        <div class="col-3 info">
+        <div class="col-md-12 col-xl-3 info">
             <div class="sidebar">
                 <div class="sidebar-container">
                     <div class="sidebar-header">
@@ -80,13 +80,15 @@
                         <div class="sidebar-footer">{$azylProfil['description']|noescape}</div>
                         <hr>
                         <span class="">Další informace:<br></span>
+                        {ifset $azylProfil['bankAccount']}
                         <span class=""><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bank" viewBox="0 0 16 16">
   <path d="m8 0 6.61 3h.89a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H15v7a.5.5 0 0 1 .485.38l.5 2a.498.498 0 0 1-.485.62H.5a.498.498 0 0 1-.485-.62l.5-2A.5.5 0 0 1 1 13V6H.5a.5.5 0 0 1-.5-.5v-2A.5.5 0 0 1 .5 3h.89zM3.777 3h8.447L8 1zM2 6v7h1V6zm2 0v7h2.5V6zm3.5 0v7h1V6zm2 0v7H12V6zM13 6v7h1V6zm2-1V4H1v1zm-.39 9H1.39l-.25 1h13.72z"/>
 </svg> {$azylProfil['bankAccount']}/{$azylProfil['bankCode']}</span>
 
-                        <div class = "qrcode">
+                        <div class = "sidebar-item-content qrcode centered">
                             {ifset $qrkodazyl}{$qrkodazyl|noescape}{/ifset}
                         </div>
+                {/ifset}
 
                     </div>
                 </div>
@@ -94,7 +96,7 @@
 
 
         </div>
-        <div class="col-4 news">
+        <div class="col-xl-4 col-md-12 news">
             <h3>Aktuality</h3>
             <div class="news" id="news">
 
@@ -122,7 +124,7 @@
 
 
         </div>
-        <div class="col-5 adoptions">
+        <div class="col-xl-5 col-md-12 adoptions">
             <h3>Adopce</h3>
 
         </div>

@@ -226,6 +226,32 @@ class AzylPresenter extends BasePresenter
     // Actions
 
     // Handle
+    public function handleNewsDelete(?int $id): void
+    {
+        $news = $this->newsRepository->findOneBy(['id' => $id]);
+        if ($news === null) {
+            $this->flashMessage('Novinka nebyla nalezena.', 'alert-warning');
+            if ($this->isAjax()) {
+                $this->redrawControl('flashes');
+                $this['actionsGrid']->reload();
+
+            } else {
+                $this->redirect('Admin:news');
+            }
+        } else {
+
+            $news->setDeleted(true);
+            $this->newsRepository->save($news);
+            $this->flashMessage('Novinka byla smazána.', 'alert-success');
+            if ($this->isAjax()) {
+                $this->redrawControl('flashes');
+                $this['actionsGrid']->reload();
+
+            } else {
+                $this->redirect('Admin:news');
+            }
+        }
+    }
 
     // Components
 
@@ -398,7 +424,7 @@ class AzylPresenter extends BasePresenter
             $this->newsRepository->save($news);
 
 
-            $this->flashMessage('Novinka byla uložena.', 'success');
+            $this->flashMessage('Novinka byla uložena.', 'alert-success');
             $this->redirect('Azyl:news');
 
     }
@@ -418,7 +444,7 @@ class AzylPresenter extends BasePresenter
                 $news->setUpdatedAt(new DateTimeImmutable());
                 $news->setImportant($values->important);
                 $this->newsRepository->save($news);
-                $this->flashMessage('Novinka byla aktualizována.', 'success');
+                $this->flashMessage('Novinka byla aktualizována.', 'alert-success');
                 $this->redirect('Azyl:news');
             }
         }

@@ -30,6 +30,8 @@ services:
 	- App\Forms\newsFormFactory
 	- App\Forms\AzylSetingsFormFactory
 	- App\Forms\speciesFormFactory
+
+
 	##Repository##
 	- App\Model\Orm\Repository\UsersRepository
 	- App\Model\Orm\Repository\MessagesRepository

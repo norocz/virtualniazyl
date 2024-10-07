@@ -131,6 +131,19 @@ class Users
    #[ORM\Column(type: 'integer', length: 255, nullable: true)]
     private ?int $azyl = null;
 
+   #[ORM\Column(type: 'string', length: 255, nullable: true)]
+   private ?string $personalPhoto = null;
+
+   #[ORM\Column(type: 'string', length: 2048, nullable: true)]
+   private ?string $review = null;
+
+   #[ORM\Column(type: 'integer', nullable: true)]
+   private ?int $rating = null;
+
+   #[ORM\OneToOne(targetEntity: "Users", inversedBy: "users")]
+   private ?Users $reviewer = null;
+
+
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
@@ -145,6 +158,10 @@ class Users
         $this->photos = null;
         $this->phone = '';
         $this->messageAddress = null;
+        $this->reviewer = null;
+        $this->azyl = null;
+        $this->personalPhoto = null;
+        $this->review = null;
     }
 
     public function __toString(): string
@@ -461,5 +478,52 @@ class Users
     {
         return $this->azyl;
     }
+
+    public function getReviewer(): ?Users
+    {
+        return $this->reviewer;
+    }
+
+    public function setReviewer(?Users $reviewer): Users
+    {
+        $this->reviewer = $reviewer;
+        return $this;
+    }
+
+    public function getRating(): ?int
+    {
+        return $this->rating;
+    }
+
+    public function setRating(?int $rating): Users
+    {
+        $this->rating = $rating;
+        return $this;
+    }
+
+    public function getReview(): ?string
+    {
+        return $this->review;
+    }
+
+    public function setReview(?string $review): Users
+    {
+        $this->review = $review;
+        return $this;
+    }
+
+    public function getPersonalPhoto(): ?string
+    {
+        return $this->personalPhoto;
+    }
+
+    public function setPersonalPhoto(?string $personalPhoto): Users
+    {
+        $this->personalPhoto = $personalPhoto;
+        return $this;
+    }
+
+
+
 
 }

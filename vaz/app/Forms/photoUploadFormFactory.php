@@ -12,7 +12,7 @@ class PhotoUploadFormFactory extends Form
     {
         $form = new Form;
 
-        $form->addMultiUpload('photos', ' ')
+        $form->addMultiUpload('photos', 'Vyberte fotografie: ')
             ->setHtmlAttribute('class', 'form-control inputfile')
             ->setRequired('Vyberte alespoň jednu fotku')
             ->setHtmlAttribute('accept', 'image/*')

@@ -116,10 +116,10 @@ class ChatControl extends Control
 
         if ($contact && $contact !== $this->currentUser) {
             $this->selectedContact = $contact;
-            $this->flashMessage("Chat started with {$contact->userName}", 'success');
+            $this->flashMessage("Chat started with {$contact->userName}", 'alert-success');
             $this->redrawControl('chat-detail');
         } else {
-            $this->flashMessage('User not found or invalid.', 'error');
+            $this->flashMessage('User not found or invalid.', 'alert-warning');
         }
     }
 }

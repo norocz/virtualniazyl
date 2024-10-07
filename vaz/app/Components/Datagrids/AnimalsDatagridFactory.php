@@ -53,7 +53,8 @@ class AnimalsDatagridFactory extends DataGrid
         $grid->addAction('delete', '', 'delete!', ['id' => 'id'])
             ->setIcon('trash')
             ->setTitle('Smazat')
-            ->setClass('btn btn-xs btn-danger');
+            ->setConfirmation(new \Ublaboo\DataGrid\Column\Action\Confirmation\StringConfirmation('Opravdu chcete smazat záznam?'))
+            ->setClass('btn btn-sm btn-danger');
 
 
         return $grid;

@@ -33,9 +33,9 @@ class JsonPresenter extends Presenter
         $this->sendJson($states);
     }
 
-    public function actionRegion(): void
+    public function actionRegion($country): void
     {
-        $regions = $this->cityRepository->fetchRegions();
+        $regions = $this->cityRepository->findRegionByCountry($country);
         $this->sendJson($regions);
     }
 }

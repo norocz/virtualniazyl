@@ -153,7 +153,7 @@ class AdminPresenter extends BasePresenter
         if ($id !== null) {
             $news = $this->newsRepository->findOneBy(['id' => $id]);
             if($news === null) {
-                $this->flashMessage('Novinka nebyla nalezena.', 'danger');
+                $this->flashMessage('Novinka nebyla nalezena.', 'alert-danger');
                 $this->redirect('Admin:news');
             }
             $this->getTemplate()->title = 'Editace novinky'. $news->getTitle();
@@ -169,7 +169,7 @@ class AdminPresenter extends BasePresenter
         if ($id !== null) {
             $page = $this->pageRepository->find($id);
             if ($page === null) {
-                $this->flashMessage('Stránka nebyla nalezena.', 'danger');
+                $this->flashMessage('Stránka nebyla nalezena.', 'alert-danger');
                 $this->redirect('Admin:pages');
             }
 
@@ -197,6 +197,33 @@ class AdminPresenter extends BasePresenter
 
     // Handle
 
+    public function handleNewsDelete(?int $id): void
+    {
+        $news = $this->newsRepository->findOneBy(['id' => $id]);
+        if ($news === null) {
+            $this->flashMessage('Novinka nebyla nalezena.', 'alert-warning');
+            if ($this->isAjax()) {
+                $this->redrawControl('flashes');
+                $this['actionsGrid']->reload();
+
+            } else {
+                $this->redirect('Admin:news');
+            }
+        } else {
+
+            $news->setDeleted(true);
+            $this->newsRepository->save($news);
+            $this->flashMessage('Novinka byla smazána.', 'alert-success');
+            if ($this->isAjax()) {
+                $this->redrawControl('flashes');
+                $this['actionsGrid']->reload();
+
+            } else {
+                $this->redirect('Admin:news');
+            }
+        }
+    }
+
 
     // Components
     public function createComponentPageForm(): Form
@@ -222,7 +249,7 @@ class AdminPresenter extends BasePresenter
                 $page->setGlobal($values->global);
                 $page->setUpdatedAt(new DateTimeImmutable());
                 $this->pageRepository->save($page);
-                $this->flashMessage('Stránka byla aktualizována.', 'success');
+                $this->flashMessage('Stránka byla aktualizována.', 'alert-success');
                 $this->redirect('Admin:pages');
             }
         } else {
@@ -237,7 +264,7 @@ class AdminPresenter extends BasePresenter
             $page->setImportant($values->important);
             $page->setGlobal($values->global);
             $this->pageRepository->save($page);
-            $this->flashMessage('Stránka byla uložena.', 'success');
+            $this->flashMessage('Stránka byla uložena.', 'alert-success');
             $this->redirect('Admin:pages');
         }
     }
@@ -299,7 +326,7 @@ class AdminPresenter extends BasePresenter
                 $species->setBreed($values->breed);
                 $species->setAzyl($values->azyl);
                 $this->speciesRepository->save($species);
-                $this->flashMessage('Druh byl aktualizován.', 'success');
+                $this->flashMessage('Druh byl aktualizován.', 'alert-success');
                 $this->redirect('Admin:species');
             }
         } else {
@@ -308,7 +335,7 @@ class AdminPresenter extends BasePresenter
             $species->setBreed($values->breed);
             $species->setAzyl($values->azyl);
             $this->speciesRepository->save($species);
-            $this->flashMessage('Druh byl uložen.', 'success');
+            $this->flashMessage('Druh byl uložen.', 'alert-success');
             $this->redirect('Admin:species');
         }
     }
@@ -333,7 +360,7 @@ class AdminPresenter extends BasePresenter
                 $news->setDeleted(false);
                 $news->setImportant($values->important);
                 $this->newsRepository->save($news);
-                $this->flashMessage('Novinka byla aktualizována.', 'success');
+                $this->flashMessage('Novinka byla aktualizována.', 'alert-success');
                 $this->redirect('Admin:news');
             }
         } else {
@@ -348,10 +375,8 @@ class AdminPresenter extends BasePresenter
             $news->setImportant($values->important);
             $news->setCreatedAt(new DateTimeImmutable());
             $news->setDeleted(false);
-            $news->setImportant(false);
-           // $this->entityManager->persist($author);
             $this->newsRepository->save($news);
-            $this->flashMessage('Novinka byla uložena.', 'success');
+            $this->flashMessage('Novinka byla uložena.', 'alert-success');
             $this->redirect('Admin:news');
         }
     }

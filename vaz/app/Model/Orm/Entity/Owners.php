@@ -25,7 +25,7 @@ class Owner
     #[ORM\Column(type: 'string', length: 255)]
     private string $phoneNumber;
 
-    #[ORM\OneToOne(targetEntity: Users::class, mappedBy: 'owner')]
+    #[ORM\OneToOne(mappedBy: 'owner', targetEntity: Users::class)]
     private Users $user;
 
     public function getId(): int

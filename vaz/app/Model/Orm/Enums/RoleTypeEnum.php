@@ -19,7 +19,8 @@ class RoleTypeEnum extends Type
                  ROLE_AZYLADMIN = 'azyladmin',
                  ROLE_ADOPTER = 'adopter',
                  ROLE_ADOPTERADMIN = 'adopteradmin',
-                 ROLE_OWNER = 'owner';
+                 ROLE_OWNER = 'owner',
+                 ROLE_REVIEWER = 'reviewer';
 
 
 
@@ -59,7 +60,8 @@ class RoleTypeEnum extends Type
             self::ROLE_AZYLADMIN,
             self::ROLE_ADOPTER,
             self::ROLE_ADOPTERADMIN,
-            self::ROLE_OWNER
+            self::ROLE_OWNER,
+            self::ROLE_REVIEWER
         ];
     }
 
