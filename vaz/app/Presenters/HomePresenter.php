@@ -123,7 +123,6 @@ final class HomePresenter extends Nette\Application\UI\Presenter
     {
         $qrPlatba =New QRPlatba();
 
-
         $azylProfil = $this->azylRepository->findById($id);
 
         $azylUser = $this->usersRepository->getUserByAzylId($id);

@@ -72,6 +72,9 @@ class Users
     #[ORM\OneToMany(mappedBy: "receiver", targetEntity: "Messages")]
     private Collection $receivedMessages;
 
+    #[ORM\OneToMany(mappedBy: "ratings", targetEntity: "UsersRatings")]
+    private Collection $ratings;
+
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $messageAddress;
 
@@ -140,8 +143,14 @@ class Users
    #[ORM\Column(type: 'integer', nullable: true)]
    private ?int $rating = null;
 
-   #[ORM\OneToOne(targetEntity: "Users", inversedBy: "users")]
+   #[ORM\OneToOne(inversedBy: "users", targetEntity: "Users")]
    private ?Users $reviewer = null;
+
+   #[ORM\OneToMany(mappedBy: "user", targetEntity: "UsersRatings")]
+   private ?Collection $userRatings = null;
+
+   #[ORM\OneToMany(mappedBy: "reviewer", targetEntity: "UsersRatings")]
+   private ?Collection $reviewerRatings = null;
 
 
     public function __construct()
@@ -162,6 +171,9 @@ class Users
         $this->azyl = null;
         $this->personalPhoto = null;
         $this->review = null;
+        $this->rating = null;
+        $this->reviewerRatings = null;
+        $this->userRatings = null;
     }
 
     public function __toString(): string
@@ -522,6 +534,40 @@ class Users
         $this->personalPhoto = $personalPhoto;
         return $this;
     }
+
+    public function getReviewerRatings(): ?Collection
+    {
+        return $this->reviewerRatings;
+    }
+
+    public function setReviewerRatings(?Collection $reviewerRatings): Users
+    {
+        $this->reviewerRatings = $reviewerRatings;
+        return $this;
+    }
+
+    public function getUserRatings(): ?Collection
+    {
+        return $this->userRatings;
+    }
+
+    public function setUserRatings(?Collection $userRatings): Users
+    {
+        $this->userRatings = $userRatings;
+        return $this;
+    }
+
+    public function getRatings(): Collection
+    {
+        return $this->ratings;
+    }
+
+    public function setRatings(Collection $ratings): Users
+    {
+        $this->ratings = $ratings;
+        return $this;
+    }
+
 
 
 

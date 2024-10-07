@@ -79,16 +79,17 @@ class AdminPresenter extends BasePresenter
     }
 
     public function startup()
-    {
-        $userData = $this->getPresenter()->getUser()->getIdentity()->getData();
+    { parent::startup();
         if (!$this->getPresenter()->getUser()->isLoggedIn()) {
-            $this->redirect('Home:singIn');
+            $this->redirect('Home:SignIn');
+
         } else {
+           $userData = $this->getPresenter()->getUser()->getIdentity()->getData();
             if (!$this->getPresenter()->getUser()->isInRole('admin') && !$this->getPresenter()->getUser()->isInRole('superadmin')) {
                 $this->flashMessage('Nemáte dostatečná oprávnění pro tuto akci. Akce byla zalogována!', 'alert-danger');
                 $this->redirect('Home:default');
             } else {
-                parent::startup();
+
                 $menu = new Menu();
                 $this->getTemplate()->mainMenuItems = $menu->getMenu();
             }

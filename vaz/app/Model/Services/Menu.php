@@ -8,16 +8,15 @@ class Menu
     public function getMenu(): array
     {
         return [
-            ['logged' => false, 'role' => '','title' => 'Domovská stránka - Home page', 'name' => 'Domovská stránka', 'link' => 'Home:default', 'alwaysAvailable' => true],
+            ['logged' => false, 'role' => '','title' => 'Úvod - Home page', 'name' => 'Úvod', 'link' => 'Home:default', 'alwaysAvailable' => true],
             ['logged' => false, 'role' => '','title' => 'O nás - About', 'name' => 'O Nás', 'link' => 'Page:onas', 'alwaysAvailable' => true],
             ['logged' => false, 'role' => '','title' => 'Seznam azylů - list of azyls', 'name' => 'Azyly', 'link' => 'Home:azyls', 'alwaysAvailable' => true],
             ['logged' => false, 'role' => '','title' => 'Seznam zvířat k adopci - List of animals for adoption', 'name' => 'Zvířátka k adopci', 'link' => 'Home:adoptions', 'alwaysAvailable' => true],
             ['logged' => true, 'role' => 'admin','title' => 'Administrace', 'name' => 'Administrace', 'link' => 'Admin:default', 'alwaysAvailable' => false],
-            ['logged' => true, 'role' => 'azyl','title' => 'Správa azylu - Azyl administration', 'name' => 'Správa Azylu', 'link' => 'Azyl:default', 'alwaysAvailable' => false],
+            ['logged' => true, 'role' => 'azyl','title' => 'Můj azyl - Azyl administration', 'name' => 'Můj azyl', 'link' => 'Azyl:default', 'alwaysAvailable' => false],
             ['logged' => true, 'role' => '','title' => 'Profil uživatele', 'name' => 'Profil', 'link' => 'User:default', 'alwaysAvailable' => false],
             ['logged' => true, 'role' => 'superadmin','title' => 'Pretorian administration', 'name' => 'Administrace', 'link' => 'Admin:default', 'alwaysAvailable' => false],
-            ['logged' => true, 'role' => 'superadmin','title' => 'Pretorian azyl admin', 'name' => 'Správa Azylu', 'link' => 'Azyl:default', 'alwaysAvailable' => false],
-            ['logged' => true, 'role' => 'superadmin','title' => 'Pretorian user admin', 'name' => 'Profil', 'link' => 'User:default', 'alwaysAvailable' => false],
+            ['logged' => true, 'role' => 'superadmin','title' => 'Pretorian azyl admin', 'name' => 'Můj azyů', 'link' => 'Azyl:default', 'alwaysAvailable' => false],
             ['logged' => true, 'role' => 'superadmin','title' => 'Pretorian home page', 'name' => 'π', 'link' => 'SuperAdmin:default', 'alwaysAvailable' => false]
         ];
     }

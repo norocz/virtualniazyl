@@ -66,7 +66,7 @@ class AzylPresenter extends BasePresenter
 
     public function startup(): void
     {
-
+        parent::startup();
         if (!$this->getPresenter()->getUser()->isLoggedIn()) {
             $this->redirect('Home:SignIn');
         } else {
@@ -75,7 +75,7 @@ class AzylPresenter extends BasePresenter
                 $this->redirect('Home:default');
             } else {
                 if (!is_null($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl'])) {
-                    parent::startup();
+
                     $menu = new Menu();
                     $this->getTemplate()->mainMenuItems = $menu->getMenu();
                 }else{

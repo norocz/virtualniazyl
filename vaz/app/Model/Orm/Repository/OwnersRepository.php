@@ -33,6 +33,12 @@ class OwnersRepository extends EntityRepository
         return parent::findOneBy($criteria, $orderBy);
     }
 
+    public function findOneByUser(Users $user): ?Owner
+    {
+        return parent::findOneBy(['user' => $user]);
+
+    }
+
     public function remove(Owner|Users $owner): void
     {
         $this->getEntityManager()->remove($owner);

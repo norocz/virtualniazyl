@@ -45,6 +45,9 @@ class Photo
     #[ORM\JoinColumn(name: "owner_id", referencedColumnName: "id")]
     private Owner $owner;
 
+    #[ORM\ManyToOne (targetEntity: "UsersRatings", inversedBy: "photos")]
+    private UsersRatings $userRatings;
+
     #[ORM\ManyToOne(targetEntity: "Azyl", inversedBy: "photos")]
     #[ORM\JoinColumn(name: "azyl_id", referencedColumnName: "id")]
     private Azyl $azyl;
