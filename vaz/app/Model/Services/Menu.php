@@ -16,7 +16,7 @@ class Menu
             ['logged' => true, 'role' => 'azyl','title' => 'Můj azyl - Azyl administration', 'name' => 'Můj azyl', 'link' => 'Azyl:default', 'alwaysAvailable' => false],
             ['logged' => true, 'role' => '','title' => 'Profil uživatele', 'name' => 'Profil', 'link' => 'User:default', 'alwaysAvailable' => false],
             ['logged' => true, 'role' => 'superadmin','title' => 'Pretorian administration', 'name' => 'Administrace', 'link' => 'Admin:default', 'alwaysAvailable' => false],
-            ['logged' => true, 'role' => 'superadmin','title' => 'Pretorian azyl admin', 'name' => 'Můj azyů', 'link' => 'Azyl:default', 'alwaysAvailable' => false],
+            ['logged' => true, 'role' => 'superadmin','title' => 'Pretorian azyl admin', 'name' => 'Můj azyl', 'link' => 'Azyl:default', 'alwaysAvailable' => false],
             ['logged' => true, 'role' => 'superadmin','title' => 'Pretorian home page', 'name' => 'π', 'link' => 'SuperAdmin:default', 'alwaysAvailable' => false]
         ];
     }

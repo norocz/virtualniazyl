@@ -18,8 +18,10 @@ class Bootstrap
 	{
 		$configurator = new Configurator;
 		$appDir = dirname(__DIR__);
+
         $debugMode = getenv('NETTE_DEBUG') === '1';
-		$configurator->setDebugMode($debugMode);
+
+        $configurator->setDebugMode($debugMode);
         //TODO: Vyřešit podivné chování v šabloně pro novinky... když se smaže chache
 
 		$configurator->enableTracy($appDir . '/log');
