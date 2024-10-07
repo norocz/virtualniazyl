@@ -10,6 +10,7 @@ latte:
 
 session:
 	expiration: 14 days
+	autoStart: true
 
 di:
 	export:
