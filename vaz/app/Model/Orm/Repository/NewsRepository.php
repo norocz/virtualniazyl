@@ -24,6 +24,11 @@ class NewsRepository extends EntityRepository
         return $this->findBy(['deleted' => false, 'author' => $id], ['visibleFrom' => 'DESC']);
     }
 
+    public function findAllVisibleAzyl($id): array
+    {
+        return $this->findBy(['deleted' => false, 'azyl' => $id], ['visibleFrom' => 'DESC']);
+    }
+
     public function findImportant(): array
     {
         return $this->findBy(['important' => true, 'deleted' => false], ['visibleFrom' => 'DESC']);

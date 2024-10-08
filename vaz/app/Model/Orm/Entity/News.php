@@ -40,6 +40,10 @@ class News
     #[ORM\JoinColumn(nullable: true)]
     private ?Users $author;
 
+    #[ORM\ManyToOne(targetEntity: Azyl::class, inversedBy: 'news')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Azyl $azyl;
+
     #[ORM\Column(type: 'boolean')]
     private $deleted;
 
@@ -60,6 +64,7 @@ class News
             'global' => $this->global,
             'important' => $this->important,
             'author' => $this->author,
+            'azyl' => $this->azyl,
             'deleted' => $this->deleted
         ];
 
@@ -189,4 +194,17 @@ class News
     {
         return $this->id;
     }
+
+    public function getAzyl(): ?Azyl
+    {
+        return $this->azyl;
+    }
+
+    public function setAzyl(?Azyl $azyl): News
+    {
+        $this->azyl = $azyl;
+        return $this;
+    }
+
+
 }

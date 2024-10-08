@@ -91,9 +91,10 @@ class AdminPresenter extends BasePresenter
             } else {
 
                 $menu = new Menu();
-                $this->getTemplate()->mainMenuItems = $menu->getMenu();
+
             }
         }
+        $this->getTemplate()->mainMenuItems = $menu->getMenu();
     }
 
     public function renderDefault(): void

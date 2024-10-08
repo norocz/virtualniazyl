@@ -36,7 +36,10 @@ class Azyl
     private ?string $phoneNumber;
 
     #[ORM\OneToMany(mappedBy: "azyl", targetEntity: Animal::class)]
-    private Collection $animals;
+    private ?Collection $animals;
+
+    #[ORM\OneToMany(mappedBy: "azyl", targetEntity: News::class)]
+    private ?Collection $news = null;
 
     #[ORM\OneToOne(targetEntity: Photo::class)]
     #[ORM\Column(nullable: true)]
@@ -51,6 +54,13 @@ class Azyl
         $this->bankCode = null;
         $this->bankSpecificCode = null;
         $this->phoneNumber = null;
+        $this->animals = null;
+        $this->news = null;
+    }
+
+    public function __toString(): string
+    {
+        return (string)$this->id;  // nebo jiný identifikátor entity Azyl
     }
 
     public function toArray(): array
@@ -154,6 +164,18 @@ class Azyl
         $this->mainPhoto = $mainPhoto;
         return $this;
     }
+
+    public function getNews(): ?Collection
+    {
+        return $this->news;
+    }
+
+    public function setNews(?Collection $news): Azyl
+    {
+        $this->news = $news;
+        return $this;
+    }
+
 
 
 

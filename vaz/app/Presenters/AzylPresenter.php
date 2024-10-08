@@ -236,7 +236,7 @@ class AzylPresenter extends BasePresenter
                 $this['actionsGrid']->reload();
 
             } else {
-                $this->redirect('Admin:news');
+                $this->redirect('Azyl:news');
             }
         } else {
 
@@ -248,7 +248,7 @@ class AzylPresenter extends BasePresenter
                 $this['actionsGrid']->reload();
 
             } else {
-                $this->redirect('Admin:news');
+                $this->redirect('Azyl:news');
             }
         }
     }
@@ -412,7 +412,10 @@ class AzylPresenter extends BasePresenter
     {
 
             $news = new News();
-            $news->setAuthor($this->usersRepository->getUserById($this->getPresenter()->getUser()->getIdentity()->getId()));
+            $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getIdentity()->getId());
+
+            $azyl = $this->azylRepository->findOneBy(['id' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]);
+            $news->setAuthor($user);
             $news->setTitle($values->title);
             $news->setContent($values->content);
             $news->setGlobal($values->global);
@@ -420,6 +423,7 @@ class AzylPresenter extends BasePresenter
             $news->setImportant($values->important);
             $news->setCreatedAt(new DateTimeImmutable());
             $news->setDeleted(false);
+            $news->setAzyl($azyl);
 
             $this->newsRepository->save($news);
 
@@ -455,15 +459,15 @@ class AzylPresenter extends BasePresenter
     public function createComponentNewsDatagrid(): DataGrid
     {
 
-        $grid = $this->newsDatagridFactory->create($this->getPresenter()->getUser()->getIdentity()->getData()['User']->getId());
-      //  $grid ->setDataSource($this->getPresenter()->getUser()->getIdentity()->getData()['User']->getNews());
+        $grid = $this->newsDatagridFactory->create();
+        $grid ->setDataSource($this->newsRepository->findAllVisibleAzyl(['azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]));
         return $grid;
     }
 
     public function createComponentAnimalsAzylDatagrid(): DataGrid
     {
-            $grid = $this->animalsDatagridFactory->create();
-           $grid->setDataSource($this->animalsRepository->findBy(['azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]));
+           $grid = $this->animalsDatagridFactory->create();
+           $grid->setDataSource($this->animalsRepository->findBy(['azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']]));
            return $grid;
 
     }

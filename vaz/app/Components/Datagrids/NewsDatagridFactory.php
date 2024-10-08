@@ -20,7 +20,7 @@ class NewsDatagridFactory extends DataGrid
         $this->newsRepository = $newsRepository;
     }
 
-    public function create($id): DataGrid
+    public function create(): DataGrid
     {
         $grid = new DataGrid;
 
@@ -47,7 +47,7 @@ class NewsDatagridFactory extends DataGrid
             'Inserted' => 'Vloženo'
         ]);
         $grid->setTranslator($translator);
-        $grid->setDataSource($this->newsRepository->findAllVisibleUser($id));
+      //  $grid->setDataSource($this->newsRepository->findAllVisibleUser($id));
         $grid->addColumnText('id', 'ID')
             ->setSortable()
             ->setDefaultHide()
