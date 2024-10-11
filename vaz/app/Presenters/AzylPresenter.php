@@ -67,7 +67,7 @@ class AzylPresenter extends BasePresenter
     public function startup(): void
     {
         parent::startup();
-        if (!$this->getPresenter()->getUser()->isLoggedIn()) {
+        if (!$this->getPresenter()->getUser()->loggedIn) {
             $this->redirect('Home:SignIn');
         } else {
             if (!($this->getPresenter()->getUser()->isInRole('azyl') || $this->getPresenter()->getUser()->isInRole('superadmin'))) {

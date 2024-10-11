@@ -385,7 +385,8 @@ class AdminPresenter extends BasePresenter
 
     public function createComponentNewsDatagrid(): DataGrid
     {
-        $grid = $this->newsDatagridFactory->create($this->getPresenter()->getUser()->id);
+        $grid = $this->newsDatagridFactory->create();
+        $grid->setDataSource($this->newsRepository->findAllVisible($this->getPresenter()->getUser()->id));
         return $grid;
     }
 
