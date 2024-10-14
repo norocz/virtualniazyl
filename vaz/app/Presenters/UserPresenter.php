@@ -261,7 +261,7 @@ public function actionDefault(): void
         $this->getPresenter()->isAjax();
         $this->messagesService->messagesFormSucceeded();
 
-
+    }
         /*
         $this->getPresenter()->isAjax();
         $message = New Messages();
@@ -274,7 +274,7 @@ public function actionDefault(): void
         $this->messagesRepository->save($message);
         $this->redrawControl('messages');
 */
-    }
+
 
     public function renderAdoptions(): void
     {

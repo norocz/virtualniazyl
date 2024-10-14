@@ -65,12 +65,12 @@
                             </div>
 
                                 {/foreach}
-                                <form n:name=messagesForm class="ajax form row col-auto" data-reciver="{$reciver}">
+                                <form n:name=messagesForm class="ajax form row col-auto" data-reciver="{$receiver}">
                                     <div class="msg-text-array col-lg-9">
                                         <label n:name=message><textarea class="font-monospace form-control ajax chat-textarray" cols="55" rows="2" n:name=message autofocus></textarea></label>
                                     </div>
                                     <div class="msg-text-array col-lg-3">
-                                        <input n:name=id value="{$reciver}">
+                                        <input n:name=address value="{$receiver}">
                                         <input class="align-center ajax chat-send btn btn-secondary" n:name=send>
                                     </div>
 

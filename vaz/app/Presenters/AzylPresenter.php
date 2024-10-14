@@ -24,6 +24,7 @@ use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use App\Model\Services\Menu;
 use App\Repository\SpeciesRepository;
+use App\Services\MessagesService;
 use Contributte\Application\UI\BasePresenter;
 use DateTimeImmutable;
 use Nette\Forms\Form;
@@ -49,7 +50,8 @@ class AzylPresenter extends BasePresenter
                                 public UsersRepository $usersRepository,
                                 public AzylRepository $azylRepository,
                                 private MessagesRepository $messagesRepository,
-                                private messagesFormFactory $messagesFormFactory)
+                                private messagesFormFactory $messagesFormFactory,
+                                private messagesService $messagesService)
     {
         $this->animalsRepository = $animalsRepository;
         $this->animalFormFactory = $animalFormFactory;
@@ -61,6 +63,7 @@ class AzylPresenter extends BasePresenter
         $this->newsDatagridFactory = $newsDatagridFactory;
         $this->azylRepository = $azylRepository;
         $this->messagesFormFactory = $messagesFormFactory;
+        $this->messagesService = $messagesService;
         parent::__construct();
     }
 
@@ -138,54 +141,58 @@ class AzylPresenter extends BasePresenter
     public function actionMessages($id): void
     {
         $this->template->title = 'Zprávy';
-        $messages = $this->messagesRepository->getMessagesByReceiverId($this->getPresenter()->getUser()->getId());
+        $messages =  $this->messagesService->getUserContacts($this->getUser()->getId());
         foreach($messages as $message)
         {
-            $chats[$message->getSender()->getId()] = $message->getSender()->getUsername();
+            $chats[$message->getSenderAddress()] = $message->getSender()->getUsername();
         }
-        $this->redrawControl('chats');
-        $this->redrawControl('messages');
-
         $this->template->chats = $chats;
+        $this->redrawControl('chats');
+        $this->redrawControl('messagesCount');
+        $this->redrawControl('messages');
     }
 
-    public function handleChat(int $id): void
+    public function handleChat(string $id): void
     {
-        $messages = $this->messagesRepository->getMessagesBySenderId($id);
-        $this->getTemplate()->messages = $messages;
-        $this->getTemplate()->reciver = $id;
+        $messages = $this->messagesRepository->getMessagesBySenderReceiverAddress(senderAddress: $id, receiverAddress: $this->getPresenter()->getUser()->getIdentity()->getData()['User']->getMessageAddress());
 
+        $this->getTemplate()->messages = $messages;
+        $this->getTemplate()->receiver = $id;
+        $this->messagesService->markMessagesAsRead($id);
+        $this->redrawControl('messagesCount');
         $this->redrawControl('chats');
-        foreach ($messages as $message)
-        {
-            $message->setReaded(true);
-            $this->messagesRepository->save($message);
-        }
         $this->redrawControl('messages');
     }
 
     public function handleDeleteMsg(int $id): void
     {
-        $messages = $this->messagesRepository->getMessagesById($id);
-        $redirectId = $messages->getSender()->getId();
-        $messages->setDeletedAt(new DateTimeImmutable());
-        $this->messagesRepository->save($messages);
+        $redirectAddress = $this->messagesRepository->getMessagesById($id)->getReceiverAddress();
+        if($this->messagesService->deleteMessage($id,$this->getPresenter()))
+        {
+            $this->flashMessage('Vzkaz byl smazán.', 'alert-success');
+        } else {
 
+            $this->flashMessage('Při mazání vzkazu nastala chyba.', 'alert-danger');
+        }
         if($this->isAjax()){
+            $this->redrawControl('messagesCount');
+            $this->redrawControl('chats');
             $this->redrawControl('messages');
         }
         else {
             $chat = "?do=chat";
-            $url = $this->link('Azyl:messages', $redirectId) . $chat;
+            $url = $this->link('User:messages', $redirectAddress) . $chat;
             $this->redirectUrl($url);
-
         }
 
     }
 
-    public function handleSendMessage($ajax): void
+    public function messagesFormSucceeded(\Nette\Application\UI\Form $form, \stdClass $values) : void
     {
         $this->getPresenter()->isAjax();
+        $this->messagesService->messagesFormSucceeded($form, $values, $this->getPresenter());
+
+        /*
         $message = New Messages();
         $message->setSender($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()));
         $message->setType(MessageTypeEnum::FROMUSER_TYPE);
@@ -194,7 +201,16 @@ class AzylPresenter extends BasePresenter
         $message->setCreatedAt(new DateTimeImmutable());
         $message->setReaded(false);
         $this->messagesRepository->save($message);
-        $this->redrawControl('messages');
+        */
+        if($this->isAjax()){
+            $this->redrawControl('messages');
+        }
+        else {
+            $chat = "?do=chat";
+            $url = $this->link('this', $values->id) . $chat;
+            $this->redirectUrl($url);
+
+        }
 
     }
     public function actionNews(): void
@@ -384,28 +400,6 @@ class AzylPresenter extends BasePresenter
         $form = $this->messagesFormFactory->create();
         $form->onSuccess[] = [$this, 'messagesFormSucceeded'];
         return $form;
-    }
-    public function messagesFormSucceeded(\Nette\Application\UI\Form $form, \stdClass $values) : void
-    {
-        $message = New Messages();
-        $message->setSender($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()));
-        $message->setType(MessageTypeEnum::FROMUSER_TYPE);
-        $message->setReceiver($this->usersRepository->getUserById(intval($values->id)));
-        $message->setMessage($values->message);
-        $message->setCreatedAt(new DateTimeImmutable());
-        $message->setReaded(false);
-        $this->messagesRepository->save($message);
-
-        if($this->isAjax()){
-            $this->redrawControl('messages');
-        }
-        else {
-            $chat = "?do=chat";
-            $url = $this->link('Azyl:messages', $values->id) . $chat;
-            $this->redirectUrl($url);
-
-        }
-        //$this->redirect('this');
     }
 
     public function newsFormSucceeded(Form $form, \stdClass $values): void
