@@ -19,6 +19,7 @@ use App\Model\Orm\Enums\RoleTypeEnum;
 use App\Model\Orm\Repository\PageRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use App\Model\Services\Menu;
+use App\Repository\SpeciesRepository;
 use App\Services\MessagesService;
 use Contributte\Application\UI\BasePresenter;
 use DateTimeImmutable;
@@ -29,6 +30,7 @@ use Ublaboo\DataGrid\Exception\DataGridException;
 use App\Components\Datagrids\NewsDatagridFactory;
 use App\Model\Orm\Entity\News;
 use App\Model\Orm\Repository\NewsRepository;
+use App\Model\Orm\Entity\Species;
 
 
 
@@ -59,7 +61,8 @@ class AdminPresenter extends BasePresenter
                                 public readonly newsDatagridFactory $newsDatagridFactory,
                                 public readonly speciesDatagridFactory  $speciesDatagridFactory,
                                 public newsRepository               $newsRepository,
-                                public MessagesService              $messagesService)
+                                public MessagesService              $messagesService,
+                                public SpeciesRepository            $speciesRepository)
     {
         parent::__construct();
         $this->roleFormFactory = $roleFormFactory;
@@ -73,6 +76,7 @@ class AdminPresenter extends BasePresenter
         $this->pagesDatagridFactory = $pagesDatagridFactory;
         $this->newsRepository = $newsRepository;
         $this->messagesService = $messagesService;
+        $this->speciesRepository = $speciesRepository;
         //$this->speciesFormFactory = $speciesFormFactory;
         //$this->speciesDatagridFactory = $speciesDatagridFactory;
 
@@ -321,6 +325,7 @@ class AdminPresenter extends BasePresenter
 
     public function speciesFormSucceeded(Form $form, \stdClass $values): void
     {
+        bdump($values);
         if ($this->getPresenter()->getParameter('id') !== null) {
             $species = $this->speciesRepository->findOneBy(['id' => $this->getPresenter()->getParameter('id')]);
             if ($species) {
@@ -333,9 +338,9 @@ class AdminPresenter extends BasePresenter
             }
         } else {
             $species = new Species();
-            $species->setSpecies($values->species);
-            $species->setBreed($values->breed);
-            $species->setAzyl($values->azyl);
+            $species->setName($values->name);
+            $species->setSex($values->sex);
+            $species->setDescription($values->description);
             $this->speciesRepository->save($species);
             $this->flashMessage('Druh byl uložen.', 'alert-success');
             $this->redirect('Admin:species');

@@ -28,6 +28,7 @@ use App\Services\MessagesService;
 use Contributte\Application\UI\BasePresenter;
 use DateTimeImmutable;
 use Nette\Forms\Form;
+use Symfony\Component\Yaml\Yaml;
 use Ublaboo\DataGrid\DataGrid;
 
 class AzylPresenter extends BasePresenter
@@ -132,6 +133,10 @@ class AzylPresenter extends BasePresenter
             }
             else
             {   $this->getTemplate()->photos = $animal->getPhotos();
+                if($animal->getAdoption())
+                {
+                    $this->getTemplate()->adoptions = $animal->getAdoption();
+                }
                 $this->getTemplate()->title = 'Azyl - Editace zvířátka';
                 $this['animalForm']->setDefaults($animal);
             }
@@ -150,6 +155,11 @@ class AzylPresenter extends BasePresenter
         $this->redrawControl('chats');
         $this->redrawControl('messagesCount');
         $this->redrawControl('messages');
+    }
+
+    public function actionAdoptions(?int $id): void
+    {
+
     }
 
     public function handleChat(string $id): void
@@ -275,6 +285,23 @@ class AzylPresenter extends BasePresenter
     {
         $form = $this->animalFormFactory->create();
         $form->onSuccess[] = [$this, 'animalFormSucceeded'];
+        if ($this->getPresenter()->getParameter('id') !== null){
+            $animal = $this->animalsRepository->findById(intval($this->getPresenter()->getParameter('id')));
+            bdump($animal);
+            bdump('Tady jsem v podmnínce');
+            $form->setDefaults([
+               'name' => $animal->getName(),
+                'description' => $animal->getDescription(),
+                'species' => $animal->getSpecies()->getId(),
+                    'birthDate' => $animal->getBirthdate()->format('d-m-Y'),
+                    'breed' => $animal->getBreed(),
+                    'toAdoption' => $animal->isToAdoption()]
+                    );
+
+
+        }
+
+        bdump($form);
         return $form;
     }
 
@@ -307,11 +334,11 @@ class AzylPresenter extends BasePresenter
 
     public function animalFormSucceeded(Form $form, $values): void
     {
+        bdump($values);
         $id = $this->getParameter('id');
         //todo: ověření práv uživatele na úpravu zvířátka
-        if ($id === null)
+        if (is_null($id))
         {
-
             
             $animal = New Animal();
             $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
@@ -328,11 +355,12 @@ class AzylPresenter extends BasePresenter
             $this->animalsRepository->persist($animal);
             foreach ($values->photos as $photo)
             {
+
                 $photoUpload = New Photo();
-                $photoUpload -> setAzyl($azyl);
-                $photoUpload -> setDate(new DateTimeImmutable('now'));
-                $photoUpload->uploadAzylPhoto($photo);
+                $photoUpload->setAzyl($azyl);
+                $photoUpload->setDate(new DateTimeImmutable('now'));
                 $photoUpload->setAnimal($animal);
+                $photoUpload->uploadAzylPhoto($photo);
                 $this->photosRepository->save($photoUpload);
             }
             $this->animalsRepository->flush($animal);
@@ -340,23 +368,27 @@ class AzylPresenter extends BasePresenter
         }
         else
         {
-            $animal = $this->animalsRepository->findById($id);
 
+            $animal = $this->animalsRepository->findById(intval($id));
             $animal->setName($values->name);
             $animal->setDescription($values->description);
-            $animal->setSpecies($values->species);
+            $animal->setSpecies($this->speciesRepository->findOneById(intval($values->species)));
             $animal->setBirthDate($values->birthDate);
             $animal->setBreed($values->breed);
             $animal->setToAdoption($values->toAdoption);
             foreach ($values->photos as $photo)
             {
+                $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
                 $photoUpload = New Photo();
-                $photoUpload->uploadAzylPhoto($photo);
                 $photoUpload->setAnimal($animal);
+                $photoUpload->setDate(new DateTimeImmutable('now'));
+                bdump($azyl,'AZYL');
+                $photoUpload->setAzyl($azyl);
+                $photoUpload->uploadAzylPhoto($photo);
                 $this->photosRepository->save($photoUpload);
             }
 
-            $this->animalsRepository->saveAnimal($values);
+            $this->animalsRepository->saveAnimal($animal);
             $this->flashMessage('Zvířátko bylo úspěšně upraveno.', 'alert-success');
         }
         $this->redirect('this');

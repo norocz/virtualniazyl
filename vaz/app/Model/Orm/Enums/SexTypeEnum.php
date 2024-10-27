@@ -38,10 +38,20 @@ class SexTypeEnum extends Type
     public static function getSexTypes(): array
     {
         return [
-            self::FEMALE_ENUM,
-            self::MALE_ENUM,
-            self::UNKNOWN_ENUM,
-            self::HERMAPHRODITE_ENUM
+            'MALE_ENUM' => self::MALE_ENUM,
+            'FEMALE_ENUM' => self::FEMALE_ENUM,
+            'UNKNOWN_ENUM' => self::UNKNOWN_ENUM,
+            'HERMAPHRODITE_ENUM' => self::HERMAPHRODITE_ENUM,
+        ];
+    }
+
+    public static function getSexTypesForm(): array
+    {
+        return [
+            self::MALE_ENUM => self::MALE_ENUM,
+            self::FEMALE_ENUM => self::FEMALE_ENUM,
+            self::UNKNOWN_ENUM => self::UNKNOWN_ENUM,
+            self::HERMAPHRODITE_ENUM => self::HERMAPHRODITE_ENUM,
         ];
     }
 }

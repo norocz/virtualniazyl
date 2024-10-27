@@ -51,7 +51,7 @@ class SpeciesRepository extends EntityRepository
 
     }
 
-    public function saveSpecies(Species $species): void
+    public function save(Species $species): void
     {
         $this->getEntityManager()->persist($species);
         $this->getEntityManager()->flush();

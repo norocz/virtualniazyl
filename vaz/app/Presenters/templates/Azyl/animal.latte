@@ -2,6 +2,11 @@
 <div class = "container">
 <div class="row">
 <div class = "col-lg-6">
+<style>
+    #photos {
+        min-height: 200px;
+    }
+</style>
 
     {control animalForm}
 </div>
@@ -16,9 +21,9 @@
         {foreach $photos as $photo}
 
             <div class="card" style="width: 9rem;">
-                <img src="{$photo['path'].$photo['name']}" class="card-img-top" alt="{$photo['originalname']}">
+                <img src="{$photo->getPath().$photo->getName()}" class="card-img-top" alt="{$photo->getOriginalname()}">
                 <div class="card-body">
-                    <h5 class="card-title">{$photo['originalname']}</h5>
+                    <span class="card-text">{$photo->getOriginalname()|truncate:10}</span>
                  </div>
             </div>
 
@@ -28,7 +33,36 @@
 
 
     </div>
-</div>
+
+
+
+    <div class="col-lg-6">
+        <h3>Běžící adopce zvířátka</h3>
+        <p>Tady je seznam adopcí, ať už jsou ukončené, nebo jsou ještě nezakončené.</p>
+        <div id="adoptions" class="d-flex flex-row flex-wrap">
+            {ifset $adoptions}
+                {if $adoptions == null || $adoptions == []}
+                    <p>Žádné adopce</p>
+                {else}
+                    {foreach $adoptions as $adoption}
+
+                        <div class="card" style="width: 9rem;">
+                            <div class="card-header">{$adoption->getOwner()->getName()} </div>
+                            <div class="card-body">
+                                <span class="card-text">{$adoption->getCreatedAt()|date:'H:i d.m.Y'}</span>
+                                <a class="btn btn-sm" href="{link azyl:adoptions $adoption->getId()}">K adopci</a>
+                            </div>
+                        </div>
+
+                    {/foreach}
+                {/if}
+            {/ifset}
+
+
+        </div>
+    </div>
+
+    </div>
 </div>
 </div>
 

@@ -13,23 +13,79 @@
     <div class="bg">
         <div class="content">
             <div class="row">
-                <div class="col-5  flex-column">
-                    <h3>Info o adopci</h3>
+                <h2>Info o adopci</h2>
+                <div class="col-xl-5 col-sm-12 flex-column">
+                    <h4>Azyl</h4>
                     <div class="adopce" id="adopce">
 
 
                         <div class="card azyl-card text-dark bg-light">
-                            <h5 class="card-header">{$azyl->getAzylName()}</h5>
+                            <h5 class="card-header">{$adopce->getAzyl()->getAzylName()}</h5>
                             <div class="card-body">
-                                <p class="card-text"> {$azyl->getDescription()|noescape}</p>
+                                <p class="card-text">{$adopce->getAzyl()->getDescription()|noescape}</p>
 
-                                <a href="{link Home:azyl, $azyl->getId()}" class="btn btn-sm">Stránka azylu</a>
+                                <a href="{link Home:azyl $adopce->getAzyl()->getId()}" class="btn btn-sm">Stránka azylu</a>
                             </div>
+                        </div>
+                    </div>
 
+                </div>
+                <div class="col-xl-7 col-sm-12 flex-column">
+                    <div class="animal-info">
+                        {var $now = new DateTimeImmutable()}
+                                        {var $interval = date_diff($vek = $adopce->getBirthdate(), $now)}
+                      <h3>  {$adopce->getSpecies()->getName()} jménem {$adopce->getName()}</h3>
+                        <h5>Věk: {$interval->y}, plemeno: {$adopce->getBreed()}</h5>
+                        <p>{$adopce->getDescription()|noescape}</p>
+                    </div>
+
+                    {if $adopce->getPhotos() != null }
+                        <div class="animal-photos d-flex flex-row flex-wrap">
+                        {foreach $adopce->getPhotos() as $photo}
+                            <div class="card" style="width: 9rem; margin: 0.5rem;">
+                                <img src="{$photo->getPath().$photo->getName()}" class="card-img-top" alt="{$photo->getOriginalname()}">
+                                <div class="card-body">
+                                    <span class="card-text">{$photo->getOriginalname()|truncate:10}</span>
+                                </div>
+                            </div>
+                        {/foreach}
+                        </div>
+                    {/if}
+                </div>
+
+                <div class="adoption-form">
+                   <form n:name=adoptionForm class=form>
+                         <div class="form-group">
+                            <input n:name="info" class="checkbox form-inline">
+                            <label n:name="info">Souhlas s prověřením informací <a href="{link page:provereni}">(detaily)</a></label>
+
+                            <div class="invalid-feedback">{$form['info']->getOption('error')}</div>
                         </div>
 
+                        <div class="form-group">
+                            <input n:name="souhlas" class="checkbox form-inline">
+                            <label n:name="souhlas">Souhlas se zpracováním údajů <a href="{link page:souhlas}">(detaily)</a></label>
 
-                    </div>
+                            <div class="invalid-feedback">{$form['souhlas']->getOption('error')}</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label n:name="description">Napište o sobě něco:</label>
+                            <textarea n:name="description" rows="5" cols="80" class="form-control form-textarea"></textarea>
+                            <div class="invalid-feedback">{$form['description']->getOption('error')}</div>
+                        </div>
+
+                        <div class="form-group">
+                            <button n:name="sendAdoption" class="btn btn-primary">Nabídnout domov 🥹 </button>
+                        </div>
+                   </form>
+                </div>
+
+
+
+
+
+
                 </div>
             </div>
         </div>

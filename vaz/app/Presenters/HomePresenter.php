@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Presenters;
 
+use App\Forms\adoptionFormFactory;
 use App\Forms\registerFormFactory;
 use App\Forms\SignInFormFactory;
 use App\Model\Orm\Entity\Azyl;
@@ -11,6 +12,7 @@ use App\Model\Orm\Entity\Messages;
 use App\Model\Orm\Entity\Users;
 use App\Model\Orm\Enums\MessageTypeEnum;
 use App\Model\Orm\Repository\AdoptionsRepository;
+use App\Model\Orm\Repository\AnimalsRepository;
 use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\MessagesRepository;
 use App\Model\Orm\Repository\NewsRepository;
@@ -51,7 +53,9 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                                 public             PhotosRepository    $photosRepository,
                                 private MessagesRepository             $messagesRepository,
                                 private UserAddressService            $userAddressService,
-                                private QRPlatba                    $QRPlatba)
+                                private QRPlatba                    $QRPlatba,
+                                private AnimalsRepository           $animalsRepository,
+                                private adoptionFormFactory         $adoptionFormFactory)
     {
         parent::__construct();
         $this->entityManager = $entityManager;
@@ -59,6 +63,8 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->QRPlatba = $QRPlatba;
         $this->messagesRepository = $messagesRepository;
         $this->userAddressService  = $userAddressService;
+        $this->animalsRepository = $animalsRepository;
+        $this->adoptionFormFactory = $adoptionFormFactory;
 
     }
 
@@ -80,7 +86,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
     {
 
         $news = $this->newsRepository->findBy(['global' => true, 'deleted' => false],  ['createdAt' => 'DESC'],8);
-        $adoptions = $this->adoptionsRepository->findBy(['deleted' => false],  ['createdAt' => 'DESC'],8);
+        $adoptions = $this->animalsRepository->findBy(['toAdoption' => true, 'isDeleted' => false],  ['id' => 'DESC'],8);
 
         $this->getTemplate()->title = 'Domácí stránka';
         $this->getTemplate()->adoptions = $adoptions;
@@ -113,10 +119,10 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->getTemplate()->adoptions = $this->adoptionsRepository->findBy(['deleted' => false],  ['createdAt' => 'DESC']);
     }
 
-    public function renderAdopce($id): void
+    public function renderAdopce(int $id): void
     {
-        $adopce = $this->adoptionsRepository->findById($id);
-        $this->getTemplate()->title = 'Adopce - ' . $adopce->getAnimalName();
+        $adopce = $this->animalsRepository->findById(intval($id));
+        $this->getTemplate()->title = 'Adopce - ' . $adopce->getName();
         $this->getTemplate()->adopce = $adopce;
     }
     public function renderAzyl(int $id) : void
@@ -291,6 +297,18 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $form = (new registerFormFactory($this->usersRepository, $this->entityManager))->create();
         $form->onSuccess[] = [$this, 'formRegisterSucceeded'];
         return $form;
+    }
+
+    public function createComponentAdoptionForm(): Form
+    {
+        $form = (new AdoptionFormFactory())->create();
+        $form->onSuccess[] = [$this, 'formAdoptionSucceeded'];
+        return $form;
+    }
+
+    public function formAdoptionSucceeded(Form $form, \stdClass $user): void
+    {
+
     }
 
     public function formRegisterSucceeded(Form $form, \stdClass $values):void

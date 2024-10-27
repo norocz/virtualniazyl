@@ -30,7 +30,7 @@ class speciesFormFactory extends Form
         $form->addText('description', 'Popis')
             ->setHtmlAttribute('placeholder', 'Například  ')
             ->setHtmlAttribute('class', 'form-control');
-        $form->addSelect('sex', 'Pohlaví', $this->sexTypeEnum->getSexTypes())
+        $form->addSelect('sex', 'Pohlaví', $this->sexTypeEnum->getSexTypesForm())
             ->setHtmlAttribute('class', 'form-control')
             ->setRequired('Zadejte pohlaví');
         $form->addSubmit('send', 'Vložit');

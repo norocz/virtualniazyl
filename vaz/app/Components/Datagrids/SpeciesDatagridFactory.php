@@ -4,17 +4,20 @@ declare(strict_types=1);
 
 namespace App\Components\Datagrids;
 
+use App\Model\Orm\Enums\SexTypeEnum;
 use App\Repository\SpeciesRepository;
 use Ublaboo\DataGrid\DataGrid;
 
 class SpeciesDatagridFactory extends DataGrid
 {
     private SpeciesRepository $speciesRepository;
+    private SexTypeEnum $sexTypeEnum;
 
-    public function __construct(SpeciesRepository $speciesRepository)
+    public function __construct(SpeciesRepository $speciesRepository, SexTypeEnum $sexTypeEnum)
     {
         parent::__construct();
         $this->speciesRepository = $speciesRepository;
+        $this->sexTypeEnum = $sexTypeEnum;
     }
 
     public function create(): DataGrid
@@ -23,14 +26,12 @@ class SpeciesDatagridFactory extends DataGrid
         $grid->setRememberState(false);
         $grid->setDataSource($this->speciesRepository->findAll());
 
-        $grid->addColumnText('species', 'Druh')
+        $grid->addColumnText('name', 'Druh')
             ->setFilterText();
-        $grid->addColumnText('breed', 'Plemeno')
+        $grid->addColumnText('description', 'Popis')
             ->setFilterText();
-        $grid->addColumnText('azyl', 'Azyl')
-             ->setRenderer(function ($item) {return $item->getAzyl()->getAzylName();
-             }
-             );
+        $grid->addColumnText('sex', 'Pohlaví')
+        ->setFilterSelect($this->sexTypeEnum->getSexTypesForm());
 
         return $grid;
     }

@@ -61,13 +61,17 @@
                         {foreach $adoptions as $adoption}
                             <div class="adoptions-border">
                                 <div class = "card adoptions-card" style="width: 21rem;">
-                                    <img class="card-img-top" src="{$basePath}/assets/vazdata/img/pic/{$adoption['photo']}" alt="Happy dino" />
-                                    <h5 class="card-header">{$adoption['name']}</h5>
+                                    <img class="card-img-top" src="{$basePath}/{str_replace('../..','',$adoption->getPhotos()[0]->getPath()).$adoption->getPhotos()[0]->getName()}" alt="Happy dino" />
+                                    <h5 class="card-header">{$adoption->getName()}</h5>
                                     <div class="card-body">
-                                        <h5 class="card-title">Plemeno: {$adoption['breed']} Věk: {$adoption['age']}</h5>
-                                        <p class="card-text">{$adoption['description']}</p>
-                                        <a href="#" class="btn btn-sm btn-primary">Chci adoptovat!</a>
-                                        <a href="#" class="btn btn-sm btn-primary">Stránka azylu</a>
+                                        {var $now = new DateTimeImmutable()}
+                                        {var $interval = date_diff($vek = $adoption->getBirthdate(), $now)}
+
+                                        <h5 class="card-title">Plemeno: {$adoption->getBreed()} Věk: {$interval->y} </h5>
+                                        <p class="card-text">{$adoption->getDescription()}</p>
+
+                                            <a href="{link Home:adopce $adoption->getId()}" class="btn btn-sm btn-primary">Chci adoptovat!</a>
+                                        <a href="{link Home:azyl $adoption->getAzyl()->getId()}" class="btn btn-sm btn-primary">Stránka azylu</a>
                                     </div>
                                </div>
                             </div>

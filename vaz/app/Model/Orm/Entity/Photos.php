@@ -3,13 +3,14 @@
 
 namespace App\Model\Orm\Entity;
 
+use App\Model\Orm\Repository\PhotoRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Nette\Http\FileUpload;
 use Nette\IOException;
 use Nette\Utils\Random;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: PhotoRepository::class)]
 #[ORM\Table(name: 'photos')]
 class Photo
 {
@@ -34,29 +35,41 @@ class Photo
     private bool $deleted = false;
 
     #[ORM\ManyToOne(targetEntity: "Animal", inversedBy: "photos")]
-    #[ORM\JoinColumn(name: "animal_id", referencedColumnName: "id")]
-    private Animal $animal;
+    #[ORM\JoinColumn(name: "animal_id", referencedColumnName: "id" )]
+    #[ORM\Column(nullable: true)]
+    private ?Animal $animal;
 
     #[ORM\ManyToOne(targetEntity: "Users", inversedBy: "photos")]
     #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id")]
-    private Users $user;
+    private ?Users $user;
 
     #[ORM\ManyToOne(targetEntity: "Owner", inversedBy: "photos")]
     #[ORM\JoinColumn(name: "owner_id", referencedColumnName: "id")]
-    private Owner $owner;
+    #[ORM\Column(nullable: true)]
+    private ?Owner $owner;
 
     #[ORM\ManyToOne (targetEntity: "UsersRatings", inversedBy: "photos")]
     private UsersRatings $userRatings;
 
     #[ORM\ManyToOne(targetEntity: "Azyl", inversedBy: "photos")]
     #[ORM\JoinColumn(name: "azyl_id", referencedColumnName: "id")]
-    private Azyl $azyl;
+    #[ORM\Column(nullable: true)]
+    private ?Azyl $azyl;
 
 
 
     const REAL_UPLOAD_PATH = '../../upload/photos/';
     const WWW_UPLOAD_PATH = '/upload/photos/';
     const UPLOAD_PATH = '/../../../../www' . self::WWW_UPLOAD_PATH;
+
+    /**
+     * @param Azyl $azyl
+     */
+    public function __construct()
+    {
+        $this->azyl = null;
+    }
+
 
     public function uploadAzylPhoto(FileUpload $fileUpload) : void
     {
@@ -72,6 +85,8 @@ class Photo
 
         $pathPart = self::REAL_UPLOAD_PATH."azyl/" .$this->getAzyl()->id.'/';
         $path = __DIR__ . self::UPLOAD_PATH . "azyl/" .$this->getAzyl()->id.'/';
+
+        bdump($path);
         $this->setPath($pathPart);
 
         if (!file_exists($path)) {
@@ -180,10 +195,10 @@ class Photo
         return $this->originalName;
     }
 
-    public function setOriginalName(string $originalName): Photo
+    public function setOriginalName(string $originalName): void
     {
         $this->originalName = $originalName;
-        return $this;
+
     }
 
     public function getAnimal(): Animal
@@ -191,10 +206,10 @@ class Photo
         return $this->animal;
     }
 
-    public function setAnimal(Animal $animal): Photo
+    public function setAnimal(Animal $animal): void
     {
         $this->animal = $animal;
-        return $this;
+
     }
 
     public function getUser(): Users
@@ -202,10 +217,9 @@ class Photo
         return $this->user;
     }
 
-    public function setUser(Users $user): Photo
+    public function setUser(Users $user): Users
     {
-        $this->user = $user;
-        return $this;
+        return $this->user = $user;
     }
 
     public function getOwner(): Owner
@@ -213,21 +227,20 @@ class Photo
         return $this->owner;
     }
 
-    public function setOwner(Owner $owner): Photo
+    public function setOwner(Owner $owner): Owner
     {
-        $this->owner = $owner;
-        return $this;
+        return $this->owner = $owner;
     }
 
-    public function getAzyl(): Azyl
+    public function getAzyl(): ?Azyl
     {
         return $this->azyl;
     }
 
-    public function setAzyl(Azyl $azyl): Photo
+    public function setAzyl(Azyl $azyl): void
     {
         $this->azyl = $azyl;
-        return $this;
+
     }
 
     public function toArray(): array

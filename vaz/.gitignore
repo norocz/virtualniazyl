@@ -2,3 +2,4 @@ config/local.neon
 /temp/
 /log/
 /vendor/
+/www/upload/
