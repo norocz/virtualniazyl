@@ -37,11 +37,10 @@ class News
     private DateTimeImmutable $visibleFrom;
 
     #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'news')]
-    #[ORM\JoinColumn(nullable: true)]
     private ?Users $author;
 
     #[ORM\ManyToOne(targetEntity: Azyl::class, inversedBy: 'news')]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\Column(nullable: true)]
     private ?Azyl $azyl;
 
     #[ORM\Column(type: 'boolean')]

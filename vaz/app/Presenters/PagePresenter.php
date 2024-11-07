@@ -9,7 +9,7 @@ use App\Model\Services\Menu;
 use Contributte\Application\UI\BasePresenter;
 use App\Model\Orm\Repository\MessagesRepository;
 
-#[AllowDynamicProperties] class PagePresenter extends BasePresenter
+class PagePresenter extends BasePresenter
 {
     public PageRepository $PageRepository;
 

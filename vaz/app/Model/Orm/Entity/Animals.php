@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Model\Orm\Entity;
 
+use App\Model\Orm\Enums\AdoptionsTypeEnum;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
@@ -24,18 +25,24 @@ class Animal
     private Species $species;
 
     #[ORM\Column(type: 'float', length: 5, scale: 2, nullable: true)]
-    private ?int $age;
+    private ?float $age;
 
     #[ORM\Column(type: 'string', length: 255)]
     private string $breed;
 
-    #[ORM\OneToMany(targetEntity: "Photo", mappedBy: "animal")]
+    #[ORM\OneToMany(mappedBy: "animal", targetEntity: "Photo")]
     #[ORM\JoinColumn(name: "animal_id", referencedColumnName: "id")]
     private ?Collection $photos;
 
-    #[ORM\OneToMany(targetEntity: "Adoption", mappedBy: "animal")]
+    #[ORM\OneToMany(mappedBy: "animal", targetEntity: "Adoption")]
     #[ORM\JoinColumn(name: "animal_id", referencedColumnName: "id")]
     private ?Collection $adoption;
+
+    #[ORM\OneToMany(mappedBy: 'animal', targetEntity: Adoption::class)]
+    private Collection $adoptions;
+
+    #[ORM\Column(type: AdoptionsTypeEnum::ADOPTION_TYPE_ENUM, length: 255)]
+    private string $adoptionType;
 
     #[ORM\Column(type: 'string', length: 255)]
     private string $name;
@@ -101,10 +108,10 @@ class Animal
         return $this->breed;
     }
 
-    public function setBreed(string $breed): Animal
+    public function setBreed(string $breed): void
     {
         $this->breed = $breed;
-        return $this;
+
     }
 
     public function getPhotos(): ?Collection
@@ -112,10 +119,9 @@ class Animal
         return $this->photos;
     }
 
-    public function setPhotos(Photo $photos): Animal
+    public function setPhotos(?Photo $photos): void
     {
         $this->photos = $photos;
-        return $this;
     }
 
     public function getAdoption(): ?Collection
@@ -123,10 +129,9 @@ class Animal
         return $this->adoption;
     }
 
-    public function setAdoption(Adoption $adoption): Animal
+    public function setAdoption(?Adoption $adoption): void
     {
         $this->adoption = $adoption;
-        return $this;
     }
 
     public function getName(): string
@@ -194,6 +199,19 @@ class Animal
         $this->isDeleted = $isDeleted;
         return $this;
     }
+
+    public function getAdoptionType(): string
+    {
+        return $this->adoptionType;
+    }
+
+    public function setAdoptionType(string $adoptionType): Animal
+    {
+        $this->adoptionType = $adoptionType;
+        return $this;
+    }
+
+
 
     public function toArray(): array
     {

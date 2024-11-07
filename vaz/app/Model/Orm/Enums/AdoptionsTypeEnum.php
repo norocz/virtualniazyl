@@ -11,6 +11,7 @@ class AdoptionsTypeEnum extends Type
 {
     public const ADOPTION_TYPE_ENUM = 'adoptionsTypeEnum';
     public const VIRTUAL_ADOPTION_TYPE = 'Virtuální adopce',
+                 TEMP_ADOPTION_TYPE = 'Dočasná péče',
                  PREADOPT_ADOPTION_TYPE = 'Předadopce',
                  FULL_ADOPTION_TYPE = 'Plná adopce';
 
@@ -45,7 +46,18 @@ class AdoptionsTypeEnum extends Type
         return [
             self::VIRTUAL_ADOPTION_TYPE,
             self::PREADOPT_ADOPTION_TYPE,
-            self::FULL_ADOPTION_TYPE
+            self::FULL_ADOPTION_TYPE,
+            self::TEMP_ADOPTION_TYPE
+        ];
+    }
+
+        public function getAdoptionsTypesForm(): array
+    {
+        return [
+            self::VIRTUAL_ADOPTION_TYPE => self::VIRTUAL_ADOPTION_TYPE,
+            self::PREADOPT_ADOPTION_TYPE => self::PREADOPT_ADOPTION_TYPE,
+            self::FULL_ADOPTION_TYPE => self::FULL_ADOPTION_TYPE,
+            self::TEMP_ADOPTION_TYPE => self::TEMP_ADOPTION_TYPE
         ];
     }
 }

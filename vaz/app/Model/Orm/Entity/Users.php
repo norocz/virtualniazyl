@@ -5,7 +5,6 @@ namespace App\Model\Orm\Entity;
 
 use App\Model\Orm\Enums\RoleTypeEnum;
 use DateTimeImmutable;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use libphonenumber\PhoneNumber;
@@ -43,7 +42,7 @@ class Users
     private string $phone;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $mailVerifyToken;
+    private ?string $mailVerifyToken = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $createdAt;
@@ -63,17 +62,16 @@ class Users
     private bool $verified;
 
     #[ORM\OneToMany(mappedBy: "user", targetEntity: "Photo")]
-    #[ORM\Column(type: 'integer', nullable: true)]
-    public ?int $photos;
+    public ?Collection $photos;
+
+    #[ORM\OneToMany(mappedBy: "user", targetEntity: Adoption::class)]
+    private ?Collection $adoptions;
 
     #[ORM\OneToMany(mappedBy: "sender", targetEntity: "Messages")]
     public Collection $sentMessages;
 
     #[ORM\OneToMany(mappedBy: "receiver", targetEntity: "Messages")]
     private Collection $receivedMessages;
-
-    #[ORM\OneToMany(mappedBy: "ratings", targetEntity: "UsersRatings")]
-    private Collection $ratings;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $messageAddress;
@@ -94,8 +92,7 @@ class Users
     private ?Collection $news;
 
     #[ORM\OneToMany(mappedBy: "author", targetEntity: "Pages")]
-    #[ORM\Column(type: 'integer', nullable: true)]
-    public ?int $pages;
+    public ?Collection $pages;
 
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $adoptionVerification;
@@ -119,23 +116,18 @@ class Users
     #[ORM\Column(type: 'string', length: 6, nullable: true)]
     private ?string $zipCode;
 
-    #[ORM\OneToMany(targetEntity: "Adoption", mappedBy: "owner")]
-    private Collection $adoptionsAsOwner;
+    #[ORM\OneToMany(mappedBy: "owner", targetEntity: Adoption::class)]
+    private ?Collection $adoptionsAsOwner;
 
-    #[ORM\OneToMany(targetEntity: "Adoption", mappedBy: "azyl")]
-    private Collection $adoptionsAsAzyl;
-
-    #[ORM\OneToMany(targetEntity: "AdoptionAction", mappedBy: "actinonsAsOwner")]
-    private Collection $actionsAsOwner;
-
-    #[ORM\OneToMany(targetEntity: "AdoptionAction", mappedBy: "actionsAsAzyl")]
-    private Collection $actionsAsAzyl;
+    #[ORM\OneToMany(mappedBy: "azyl", targetEntity: Adoption::class)]
+    private ?Collection $adoptionsAsAzyl;
 
    #[ORM\Column(type: 'integer', length: 255, nullable: true)]
     private ?int $azyl = null;
 
-   #[ORM\Column(type: 'string', length: 255, nullable: true)]
-   private ?string $personalPhoto = null;
+   #[ORM\OneToOne(targetEntity: Photo::class)]
+   #[ORM\Column(nullable: true)]
+   private ?Photo $personalPhoto;
 
    #[ORM\Column(type: 'string', length: 2048, nullable: true)]
    private ?string $review = null;
@@ -151,6 +143,9 @@ class Users
 
    #[ORM\OneToMany(mappedBy: "reviewer", targetEntity: "UsersRatings")]
    private ?Collection $reviewerRatings = null;
+
+    #[ORM\OneToMany(mappedBy: 'reviewer', targetEntity: UsersRatings::class)]
+    private ?Collection $ratings;
 
 
     public function __construct()
@@ -210,12 +205,12 @@ class Users
         $this->verified = $verified;
     }
 
-    public function getUsers(): Collection
+    public function getUsers(): ?Collection
     {
         return $this->getUsers();
     }
 
-    public function getNews(): Collection
+    public function getNews(): ?Collection
     {
         return $this->news;
     }
@@ -436,39 +431,6 @@ class Users
     {
         $this->photos = $photos;
     }
-    public function getAdoptionsAsAzyl(): Collection
-    {
-        return $this->adoptionsAsAzyl;
-    }
-
-    public function getAdoptionsAsOwner(): Collection
-    {
-        return $this->adoptionsAsOwner;
-    }
-
-    public function setAdoptionsAsAzyl(Collection $adoptionsAsAzyl): Users
-    {
-        $this->adoptionsAsAzyl = $adoptionsAsAzyl;
-        return $this;
-    }
-
-    public function setAdoptionsAsOwner(Collection $adoptionsAsOwner): Users
-    {
-        $this->adoptionsAsOwner = $adoptionsAsOwner;
-        return $this;
-    }
-
-
-    public function getActionsAsAzyl(): Collection
-    {
-        return $this->actionsAsAzyl;
-    }
-
-    public function getActionsAsOwner(): Collection
-    {
-        return $this->actionsAsOwner;
-    }
-
 
     public function toArray()
     {
@@ -524,7 +486,7 @@ class Users
         return $this;
     }
 
-    public function getPersonalPhoto(): ?string
+    public function getPersonalPhoto(): Photo
     {
         return $this->personalPhoto;
     }

@@ -15,7 +15,9 @@ class ActionTypeEnum extends Type
                  CONTACT_ADOPTION = 'Kontakt',
                  PHONE_CALL_ADOPTION = 'Telefonát',
                  PERSONAL_VISIT_ADOPTION = 'Osobní kontakt',
-                 VERIFICATION_ADOPTION = 'Ověření';
+                 VERIFICATION_ADOPTION = 'Ověření',
+                 POSITIVE_ADOPTION_END = 'Adopce se zdařila',
+                 NEGATIVE_ADOPTION_END = 'Adopce se nezdařila';
 
     public function getName(): string
     {
@@ -31,7 +33,9 @@ class ActionTypeEnum extends Type
             self::CONTACT_ADOPTION,
             self::PHONE_CALL_ADOPTION,
             self::PERSONAL_VISIT_ADOPTION,
-            self::VERIFICATION_ADOPTION
+            self::VERIFICATION_ADOPTION,
+            self::POSITIVE_ADOPTION_END,
+            self::NEGATIVE_ADOPTION_END
         ];
         $quotedActions = array_map(fn($action) => $platform->quoteStringLiteral($action), $actions);
         return 'ENUM(' . implode(', ', $quotedActions) . ')';
@@ -59,7 +63,24 @@ class ActionTypeEnum extends Type
             self::CONTACT_ADOPTION,
             self::PHONE_CALL_ADOPTION,
             self::PERSONAL_VISIT_ADOPTION,
-            self::VERIFICATION_ADOPTION
+            self::VERIFICATION_ADOPTION,
+            self::POSITIVE_ADOPTION_END,
+            self::NEGATIVE_ADOPTION_END
+        ];
+    }
+
+    public static function getActionTypesForm(): array
+    {
+        return [
+            self::START_ADOPTION => self::START_ADOPTION,
+            self::END_ADOPTION => self::END_ADOPTION,
+            self::BREAK_ADOPTION => self::BREAK_ADOPTION,
+            self::CONTACT_ADOPTION => self::CONTACT_ADOPTION,
+            self::PHONE_CALL_ADOPTION => self::PHONE_CALL_ADOPTION,
+            self::PERSONAL_VISIT_ADOPTION => self::PERSONAL_VISIT_ADOPTION,
+            self::VERIFICATION_ADOPTION => self::VERIFICATION_ADOPTION,
+            self::POSITIVE_ADOPTION_END => self::POSITIVE_ADOPTION_END,
+            self::NEGATIVE_ADOPTION_END => self::NEGATIVE_ADOPTION_END
         ];
     }
 }

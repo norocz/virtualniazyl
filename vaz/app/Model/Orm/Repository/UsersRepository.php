@@ -93,12 +93,12 @@ class UsersRepository extends EntityRepository
 
     }
 
-    public function getUserByMailVerifyToken(mixed $vrf)
+    public function getUserByMailVerifyToken(mixed $vrf): ?Users
     {
         return $this->findOneBy(['mailVerifyToken' => $vrf]);
     }
 
-    public function CountNewUsers() //count users type user
+    public function CountNewUsers(): ?int //count users type user
     {
         return $this->createQueryBuilder('u')
             ->select('count(u.id)')
@@ -108,7 +108,7 @@ class UsersRepository extends EntityRepository
             ->getSingleScalarResult();
     }
 
-    public function CountAzyls() //count users type user
+    public function CountAzyls() : ?int //count users type user
     {
         return $this->createQueryBuilder('u')
             ->select('count(u.id)')
@@ -118,7 +118,7 @@ class UsersRepository extends EntityRepository
             ->getSingleScalarResult();
     }
 
-    public function CountUsers() //count users type user
+    public function CountUsers(): ?int //count users type user
     {
         return $this->createQueryBuilder('u')
             ->select('count(u.id)')

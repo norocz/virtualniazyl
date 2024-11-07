@@ -228,10 +228,11 @@ class AzylPresenter extends BasePresenter
         $this->template->title = 'News';
     }
 
-    public function renderPhotos(): void
+    public function renderPhotos(): void //TODO: Zobrazení Fotek azylu
     {
         $this->template->title = 'Photos';
         $this->getTemplate()->basepath = '';
+      //  $this->getTemplate()->photos = $this->
     }
 
     public function renderMessages(): void
@@ -295,7 +296,8 @@ class AzylPresenter extends BasePresenter
                 'species' => $animal->getSpecies()->getId(),
                     'birthDate' => $animal->getBirthdate()->format('d-m-Y'),
                     'breed' => $animal->getBreed(),
-                    'toAdoption' => $animal->isToAdoption()]
+                    'toAdoption' => $animal->isToAdoption(),
+                    'adoptionType' => $animal->getAdoptionType()]
                     );
 
 
@@ -347,6 +349,7 @@ class AzylPresenter extends BasePresenter
             $animal->setIsDeleted(false);
             $animal->setAdopted(false);
             $animal->setToAdoption($values->toAdoption);
+            $animal->setAdoptionType($values->adoptionType);
             $animal->setName($values->name);
             $animal->setDescription($values->description);
             $animal->setSpecies($this->speciesRepository->findOneById($values->species));
@@ -365,6 +368,7 @@ class AzylPresenter extends BasePresenter
             }
             $this->animalsRepository->flush($animal);
             $this->flashMessage('Zvířátko bylo úspěšně přidáno.', 'alert-success');
+            $this->redirect('azyl:animals');
         }
         else
         {
@@ -376,6 +380,7 @@ class AzylPresenter extends BasePresenter
             $animal->setBirthDate($values->birthDate);
             $animal->setBreed($values->breed);
             $animal->setToAdoption($values->toAdoption);
+            $animal->setAdoptionType($values->adoptionType);
             foreach ($values->photos as $photo)
             {
                 $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());

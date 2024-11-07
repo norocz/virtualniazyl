@@ -13,23 +13,33 @@
     <div class="bg">
         <div class="content">
             <div class="row">
-                <div class="col-xl-5 col-md-12 flex-column">
+                <div class="col-xl-12 col-sm-12 flex-column">
                     <h3>Adopce</h3>
-                    <div class="adoptions" id="adoptions">
+                                            <div class="adoptions d-flex flex-row flex-wrap" id="adoptions">
 
-                        {foreach $adoptions as $adoption}
+                            {foreach $adoptions as $adoption}
+                                <div class="adoptions-border">
+                                    <div class = "card adoptions-card" style="width: 20rem;">
+                                        {if !is_null($adoption->getPhotos()[0])}
+                                        <img class="card-img-top" src="{$basePath}/{str_replace('../..','',$adoption->getPhotos()[0]->getPath()).$adoption->getPhotos()[0]->getName()}" alt="Happy dino" />
+                                        {else}
+                                        <img class="card-img-top" src="{$basePath}/assets/vazdata/img/pic/love1.jpeg" alt="Happy dino" />
+                                        {/if}
+                                        <h5 class="card-header">{$adoption->getName()}</h5>
+                                        <div class="card-body">
+                                            {var $now = new DateTimeImmutable()}
+                                        {var $interval = date_diff($vek = $adoption->getBirthdate(), $now)}
 
-                        <div class="card adoptions-card text-dark bg-light">
-                            <h5 class="card-header">{$adoption->getAzylName()}</h5>
-                            <div class="card-body">
-                                <p class="card-text"> {$adoption->getDescription()|noescape}</p>
+                                            <h5 class="card-title">Plemeno: {$adoption->getBreed()} Věk: {$interval->y} </h5>
+                                            <p class="card-text">{$adoption->getDescription()}</p>
 
-                                <a href="{link Home:adopce, $adoption->getId()}" class="btn btn-sm">Detaily adopce</a>
-                                <a href="{link Home:azyl, $adoption->azyl->getId()}" class="btn btn-sm">Azyl</a>
-                            </div>
+                                            <a href="{link Home:adopce $adoption->getId()}" class="btn btn-sm btn-outline-primary">Chci adoptovat!</a>
+                                            <a href="{link Home:azyl $adoption->getAzyl()->getId()}" class="btn btn-sm btn-outline-info">{$adoption->getAzyl()->getAzylName()}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {/foreach}
 
-                        </div>
-                        {/foreach}
 
                     </div>
                 </div>

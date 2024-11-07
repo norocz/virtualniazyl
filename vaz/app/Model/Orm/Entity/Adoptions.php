@@ -3,6 +3,10 @@ declare(strict_types=1);
 
 namespace App\Model\Orm\Entity;
 
+use App\Model\Orm\Enums\ActionTypeEnum;
+use App\Model\Orm\Enums\AdoptionsTypeEnum;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\ManyToOne;
 use DateTimeImmutable;
@@ -17,17 +21,25 @@ class Adoption
     #[ORM\GeneratedValue(strategy: 'AUTO')]
     private int $id;
 
-    #[ORM\ManyToOne(targetEntity: "Users", inversedBy: "adoptionsAsOwner")]
-    #[ORM\JoinColumn(name: "owner_id", referencedColumnName: "id")]
-    private Users $owner;
+    #[ORM\Column(type: 'string', length: 255)]
+    private string $adoptionKey;
 
-    #[ORM\ManyToOne(targetEntity: "Users", inversedBy: "adoptionsAsAzyl")]
-    #[ORM\JoinColumn(name: "azyl_id", referencedColumnName: "id")]
-    private Users $azyl;
+    #[ORM\Column(type: 'string', length: 2048)]
+    private string $description;
 
-    #[ManyToOne(targetEntity: "Animal", inversedBy: "adoptions")]
-    #[ORM\JoinColumn(name: "animal_id", referencedColumnName: "id")]
+    #[ORM\Column(type: 'string')]
+    private ?string $setings;
+
+    #[ORM\ManyToOne(targetEntity: Animal::class, inversedBy: 'adoptions')]
     private Animal $animal;
+   
+    #[ManyToOne(targetEntity: "Azyl", inversedBy: "adoptions")]
+    #[ORM\JoinColumn(name: "azyl_id", referencedColumnName: "id")]
+    private Azyl $azyl;
+
+    #[ManyToOne(targetEntity: "Users", inversedBy: "adoptions")]
+    #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id")]
+    private Users $user;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $createdAt;
@@ -44,9 +56,77 @@ class Adoption
     #[ORM\Column(type: 'boolean')]
     private bool $canceled;
 
-    #[ORM\OneToMany(targetEntity: "AdoptionAction", mappedBy: "adoption")]
-    #[ORM\JoinColumn(name: "adoption_id", referencedColumnName: "id")]
-    private AdoptionAction $adoptionActions;
+    #[ORM\Column(type: AdoptionsTypeEnum::ADOPTION_TYPE_ENUM, length: 255)]
+    private string $adoptionType;
+
+    #[ORM\Column(type: ActionTypeEnum::ACTION_TYPE_ENUM, length: 255)]
+    private string $actionType;
+
+    public function setAdoptionKey(string $adoptionKey): Adoption
+    {
+        $this->adoptionKeykey = $adoptionKey;
+        return $this;
+    }
+
+    public function getAdoptionKey(): string
+    {
+        return $this->adoptionKey;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): Adoption
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+    public function getSetings(): ?string
+    {
+        return $this->setings;
+    }
+
+    public function setSetings(?string $setings): Adoption
+    {
+        $this->setings = $setings;
+        return $this;
+    }
+
+    public function getUser(): Users
+    {
+        return $this->user;
+    }
+
+    public function setUser(Users $user): Adoption
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+    public function getAdoptionType(): string
+    {
+        return $this->adoptionType;
+    }
+
+    public function setAdoptionType(string $adoptionType): Adoption
+    {
+        $this->adoptionType = $adoptionType;
+        return $this;
+    }
+
+    public function getActionType(): string
+    {
+        return $this->actionType;
+    }
+
+    public function setActionType(string $actionType): Adoption
+    {
+        $this->actionType = $actionType;
+        return $this;
+    }
 
     public function getOwner(): Users
     {
@@ -64,7 +144,7 @@ class Adoption
         return $this->azyl;
     }
 
-    public function setAzyl(Users $azyl): Adoption
+    public function setAzyl(Azyl $azyl): Adoption
     {
         $this->azyl = $azyl;
         return $this;
@@ -151,9 +231,5 @@ class Adoption
     {
         return $this->id;
     }
-
-
-
-
 
 }

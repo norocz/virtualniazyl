@@ -3,10 +3,7 @@ declare(strict_types=1);
 
 namespace App\Model\Orm\Entity;
 
-
-use App\Model\Orm\Enums\RoleTypeEnum;
 use DateTimeImmutable;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -25,7 +22,7 @@ class UsersRatings
     private string $review;
 
     #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'reviews')]
-    private string $reviewer;
+    private Users $reviewer;
 
     #[ORM\Column(type: 'float', nullable: true)]
     private float $rating;
@@ -37,48 +34,31 @@ class UsersRatings
     private Collection $photos;
 
     #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'userRatings')]
-    private Collection $user;
+    private Users $user;
 
-    /**
-     * @param int $id
-     * @param string $review
-     * @param string $reviewer
-     * @param float $rating
-     * @param DateTimeImmutable $createdAt
-     * @param Collection $photos
-     * @param Collection $user
-     */
-    public function __construct(int $id, string $review, string $reviewer, float $rating, DateTimeImmutable $createdAt, Collection $photos, Collection $user)
-    {
-        $this->id = $id;
-        $this->review = $review;
-        $this->reviewer = $reviewer;
-        $this->rating = $rating;
-        $this->createdAt = $createdAt;
-        $this->photos = $photos;
-        $this->user = $user;
-    }
+    #[ORM\ManyToOne(targetEntity: Azyl::class, inversedBy: 'reviewerRatings')]
+    private Azyl $azyl;
 
-    public function getReview(): string
+       public function getReview(): string
     {
         return $this->review;
     }
 
-    public function setReview(string $review): UserRatings
+    public function setReview(string $review): UsersRatings
     {
         $this->review = $review;
         return $this;
     }
 
-    public function getReviewer(): string
+    public function getReviewer(): Users
     {
         return $this->reviewer;
     }
 
-    public function setReviewer(string $reviewer): UserRatings
+    public function setReviewer(Users $reviewer): void
     {
         $this->reviewer = $reviewer;
-        return $this;
+
     }
 
     public function getRating(): float
@@ -86,10 +66,9 @@ class UsersRatings
         return $this->rating;
     }
 
-    public function setRating(float $rating): UserRatings
+    public function setRating(float $rating): void
     {
         $this->rating = $rating;
-        return $this;
     }
 
     public function getCreatedAt(): DateTimeImmutable
@@ -97,10 +76,9 @@ class UsersRatings
         return $this->createdAt;
     }
 
-    public function setCreatedAt(DateTimeImmutable $createdAt): UserRatings
+    public function setCreatedAt(DateTimeImmutable $createdAt):void
     {
         $this->createdAt = $createdAt;
-        return $this;
     }
 
     public function getPhotos(): Collection
@@ -108,10 +86,9 @@ class UsersRatings
         return $this->photos;
     }
 
-    public function setPhotos(Collection $photos): UserRatings
+    public function setPhotos(Collection $photos): void
     {
         $this->photos = $photos;
-        return $this;
     }
 
     public function getUser(): Collection
@@ -119,10 +96,9 @@ class UsersRatings
         return $this->user;
     }
 
-    public function setUser(Collection $user): UserRatings
+    public function setUser(Collection $user): void
     {
         $this->user = $user;
-        return $this;
     }
 
 

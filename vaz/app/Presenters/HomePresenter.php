@@ -7,9 +7,12 @@ namespace App\Presenters;
 use App\Forms\adoptionFormFactory;
 use App\Forms\registerFormFactory;
 use App\Forms\SignInFormFactory;
+use App\Model\Orm\Entity\Adoption;
+use App\Model\Orm\Entity\AdoptionAction;
 use App\Model\Orm\Entity\Azyl;
 use App\Model\Orm\Entity\Messages;
 use App\Model\Orm\Entity\Users;
+use App\Model\Orm\Enums\ActionTypeEnum;
 use App\Model\Orm\Enums\MessageTypeEnum;
 use App\Model\Orm\Repository\AdoptionsRepository;
 use App\Model\Orm\Repository\AnimalsRepository;
@@ -18,12 +21,15 @@ use App\Model\Orm\Repository\MessagesRepository;
 use App\Model\Orm\Repository\NewsRepository;
 use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\UsersRepository;
+use App\Services\AdoptionKeyService;
 use App\Services\UserAddressService;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use JetBrains\PhpStorm\NoReturn;
 use Nette;
 use Nette\Bridges\ApplicationLatte\TemplateFactory;
 use Nette\Forms\Form;
+use Nette\Utils\DateTime;
 use Nette\Mail\Message;
 use Nette\Mail\SmtpMailer;
 use Nette\Security\AuthenticationException;
@@ -55,7 +61,8 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                                 private UserAddressService            $userAddressService,
                                 private QRPlatba                    $QRPlatba,
                                 private AnimalsRepository           $animalsRepository,
-                                private adoptionFormFactory         $adoptionFormFactory)
+                                private adoptionFormFactory         $adoptionFormFactory,
+                                private adoptionAction              $adoptionAction)
     {
         parent::__construct();
         $this->entityManager = $entityManager;
@@ -65,6 +72,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->userAddressService  = $userAddressService;
         $this->animalsRepository = $animalsRepository;
         $this->adoptionFormFactory = $adoptionFormFactory;
+        $this->adoptionAction = $adoptionAction;
 
     }
 
@@ -85,7 +93,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
     public function renderDefault(): void
     {
 
-        $news = $this->newsRepository->findBy(['global' => true, 'deleted' => false],  ['createdAt' => 'DESC'],8);
+        $news = $this->newsRepository->findVisibleNews();
         $adoptions = $this->animalsRepository->findBy(['toAdoption' => true, 'isDeleted' => false],  ['id' => 'DESC'],8);
 
         $this->getTemplate()->title = 'Domácí stránka';
@@ -113,10 +121,10 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->getTemplate()->azyls = $this->azylRepository->fetchLast();
     }
 
-    public function renderAdoptions(): void
+    public function renderAdoptions($offset = 0): void
     {
         $this->getTemplate()->title = 'Všechny adopce';
-        $this->getTemplate()->adoptions = $this->adoptionsRepository->findBy(['deleted' => false],  ['createdAt' => 'DESC']);
+        $this->getTemplate()->adoptions = $this->animalsRepository->findBy(['isDeleted' => false, 'toAdoption' => true],  ['id' => 'DESC'], 20, $offset);
     }
 
     public function renderAdopce(int $id): void
@@ -124,20 +132,37 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $adopce = $this->animalsRepository->findById(intval($id));
         $this->getTemplate()->title = 'Adopce - ' . $adopce->getName();
         $this->getTemplate()->adopce = $adopce;
+
+        $aks = new AdoptionKeyService();
+        $adoptionKey = $aks->createKey($this->getUser()->getId(), $adopce->getId(), $adopce->getAzyl()->getId());
+
+        $adoptions = $adopce->getAdoption();
+
+        if ($adoptions !== null) {
+            foreach ($adoptions as $adoption) {
+                if ($adoption['adoptionKey'] === $adoptionKey) {
+                    $this->getTemplate()->status = true;
+                } else {
+                    $this->getTemplate()->status = false;
+                }
+
+            }
+        }
+
     }
     public function renderAzyl(int $id) : void
     {
         $qrPlatba =New QRPlatba();
 
         $azylProfil = $this->azylRepository->findById($id);
-
+        $now = new DateTimeImmutable();
+        $azylNews = $azylProfil->getAzylNews();
         $azylUser = $this->usersRepository->getUserByAzylId($id);
         $this->getTemplate()->azylProfil = $azylProfil->toArray();
-        $this->getTemplate()->azylAdoptions = $this->adoptionsRepository->findBy(['id' => $azylProfil->getId()], ['createdAt' => 'DESC']);
-        $this->getTemplate()->azylNews = $this->newsRepository->findBy(['author'=> $azylUser->id], ['createdAt' => 'DESC']);
+        $this->getTemplate()->azylNews = $azylNews;
         $this->getTemplate()->azylUser = $azylUser;
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
-        $this->getTemplate()->newsCount = $this->newsRepository->count(['deleted' => false, 'author' => $azylUser->getId()]);
+        $this->getTemplate()->adoptions = $this->animalsRepository->findBy(['azyl' => $azylProfil, 'toAdoption' => true], ['id' => 'DESC']);
 
         $qrPlatba->setAccount($azylProfil->getBankAccount().'/'.$azylProfil->getBankCode())
                     ->setMessage('Peníze pro '.$azylProfil->getAzylName())
@@ -306,8 +331,28 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         return $form;
     }
 
-    public function formAdoptionSucceeded(Form $form, \stdClass $user): void
+    #[NoReturn] public function formAdoptionSucceeded(Form $form, \stdClass $values): void
     {
+       $animal = $this->animalsRepository->findById(intval($this->getPresenter()->getParameter('id')));
+
+       $aks = new AdoptionKeyService();
+       $key = $aks -> createKey($this->getUser()->getId(), $animal->getId(),$animal->getAzyl()->getId());
+
+       $adoption  = new Adoption();
+       $adoption -> setDescription($values->description);
+       $adoption -> setAnimal($animal);
+       $adoption -> setAdoptionKey($key);
+       $adoption -> setCreatedAt(new DateTimeImmutable());
+       $adoption -> setUpdatedAt(new DateTimeImmutable());
+       $adoption -> setAdoptionType($animal->getAdoptionType());
+       $adoption -> setActionType(ActionTypeEnum::START_ADOPTION);
+       $adoption -> setAzyl($animal->getAzyl());
+
+       $this->adoptionsRepository->saveAdoption($adoption);
+
+       $this->getPresenter()->flashMessage('Žádost o adopci byla odeslána!', 'alert-success');
+       $this->getPresenter()->redirect('this');
+
 
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Model\Orm\Repository;
 
 use App\Model\Orm\Entity\News;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 
@@ -24,6 +25,22 @@ class NewsRepository extends EntityRepository
         return $this->findBy(['deleted' => false, 'author' => $id], ['visibleFrom' => 'DESC']);
     }
 
+    public function findVisibleNews(int $limit=8): array
+    {
+        $qb = $this->createQueryBuilder('n');
+        $qb->where('n.global = :global')
+            ->andWhere('n.deleted = :deleted')
+            ->andWhere('n.visibleFrom <= :now')
+            ->setParameters([
+                'global' => true,
+                'deleted' => false,
+                'now' => new DateTimeImmutable()
+            ])
+            ->orderBy('n.visibleFrom', 'DESC')
+            ->setMaxResults($limit);
+
+        return $qb->getQuery()->getResult();
+    }
     public function findAllVisibleAzyl($id): array
     {
         return $this->findBy(['deleted' => false, 'azyl' => $id], ['visibleFrom' => 'DESC']);

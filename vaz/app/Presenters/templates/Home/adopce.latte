@@ -24,7 +24,7 @@
                             <div class="card-body">
                                 <p class="card-text">{$adopce->getAzyl()->getDescription()|noescape}</p>
 
-                                <a href="{link Home:azyl $adopce->getAzyl()->getId()}" class="btn btn-sm">Stránka azylu</a>
+                                <a href="{link Home:azyl $adopce->getAzyl()->getId()}" class="btn btn-outline-primary btn-sm">Stránka azylu</a>
                             </div>
                         </div>
                     </div>
@@ -53,8 +53,16 @@
                     {/if}
                 </div>
 
-                <div class="adoption-form">
+                <div class="adoption-form col-xl-12 col-sm-12 flex-column">
+                  {if $user->isLoggedIn()}
                    <form n:name=adoptionForm class=form>
+                       <div class="row">
+                       <div class="col-9 col-xl-9 col-sm-12">
+                           <div class="form-group">
+                               <label n:name="description">Napište o sobě něco:</label>
+                               <textarea n:name="description" rows="5" cols="80" class="form-control form-textarea"></textarea>
+                               <div class="invalid-feedback">{$form['description']->getOption('error')}</div>
+                           </div>
                          <div class="form-group">
                             <input n:name="info" class="checkbox form-inline">
                             <label n:name="info">Souhlas s prověřením informací <a href="{link page:provereni}">(detaily)</a></label>
@@ -69,17 +77,22 @@
                             <div class="invalid-feedback">{$form['souhlas']->getOption('error')}</div>
                         </div>
 
-                        <div class="form-group">
-                            <label n:name="description">Napište o sobě něco:</label>
-                            <textarea n:name="description" rows="5" cols="80" class="form-control form-textarea"></textarea>
-                            <div class="invalid-feedback">{$form['description']->getOption('error')}</div>
-                        </div>
 
+                       </div>
+                           <div class="col-3 col-xl-3 col-sm-12 align-content-xxl-end">
                         <div class="form-group">
-                            <button n:name="sendAdoption" class="btn btn-primary">Nabídnout domov 🥹 </button>
+                            <button n:name="sendAdoption" class="btn btn-outline-primary ajax">Nabídnout domov 🥹</button>
                         </div>
+                       </div>
+
                    </form>
+                    {else}
+                    <div class="adopce-message alert alert-warning align-center">
+                        <span class="big-message"><h3>Nejste přihlášený!</h3> <a class="btn btn-outline-success" href="{link home:signIn}">Přihlaste se</a> nebo se <a class="btn btn-outline-secondary" href="{link home:registration}">registrujte</a> a pak se přihlaste. Díky!</span>
+                    </div>
+                    {/if}
                 </div>
+            </div>
 
 
 

@@ -3,14 +3,14 @@ declare(strict_types=1);
 
 namespace App\Model\Orm\Entity;
 
-
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'azyls')]
-
+#[\AllowDynamicProperties] //todo: tohle se musí vyřešit otázka je proč se to tu objevilo.
 class Azyl
 {
     #[ORM\Id]
@@ -38,6 +38,9 @@ class Azyl
     #[ORM\OneToMany(mappedBy: "azyl", targetEntity: Animal::class)]
     private ?Collection $animals;
 
+    #[ORM\OneToMany(mappedBy: "azyl", targetEntity: Adoption::class)]
+    private ?Collection $adoptions;
+
     #[ORM\OneToMany(mappedBy: "azyl", targetEntity: News::class)]
     private ?Collection $news = null;
 
@@ -45,24 +48,24 @@ class Azyl
     #[ORM\Column(nullable: true)]
     private ?Photo $mainPhoto;
 
-    public function __construct()
-    {
-        $this->animals = new ArrayCollection();
-        $this->azylName = 'Jmeno azylu';
-        $this->description = null;
-        $this->bankAccount = null;
-        $this->bankCode = null;
-        $this->bankSpecificCode = null;
-        $this->phoneNumber = null;
-        $this->animals = null;
-        $this->news = null;
-    }
+    #[ORM\OneToMany(mappedBy: "azyl", targetEntity: "Photo")]
+    public ?Collection $photos;
+
+    #[ORM\OneToMany(mappedBy: 'reviewer', targetEntity: UsersRatings::class)]
+    private ?Collection $reviewerRatings;
 
     public function __toString(): string
     {
         return (string)$this->id;  // nebo jiný identifikátor entity Azyl
     }
-
+    public function __construct()
+    {
+        $this->animals = new ArrayCollection();
+        $this->adoptions = new ArrayCollection();
+        $this->news = new ArrayCollection();
+        $this->photos = new ArrayCollection();
+        $this->reviewerRatings = new ArrayCollection();
+    }
     public function toArray(): array
     {
         return ['azylName' => $this->azylName
@@ -74,6 +77,10 @@ class Azyl
             ;
     }
 
+    public function getReviewerRatings(): Collection
+    {
+        return $this->reviewerRatings;
+    }
 
     public function getAzylName(): ?string
     {
@@ -176,9 +183,11 @@ class Azyl
         return $this;
     }
 
-
-
-
+    public function getAzylNews(): ?Collection
+    {
+        return $this->news->matching(Criteria::create()
+            ->where(Criteria::expr()->eq("deleted", false))
+            ->andWhere(Criteria::expr()->lte("visibleFrom", new \DateTimeImmutable('now')))
+            ->orderBy(["createdAt" => Criteria::DESC]));
+    }
 }
-
-

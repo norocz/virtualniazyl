@@ -26,7 +26,6 @@
 
 </style>
 
-{dump $azylProfil}
 <div class="container">
     <div class="row">
         <h2>{$azylProfil['azylName']}</h2>
@@ -80,7 +79,7 @@
                         <div class="sidebar-footer">{$azylProfil['description']|noescape}</div>
                         <hr>
                         <span class="">Další informace:<br></span>
-                        {ifset $azylProfil['bankAccount']}
+                        {if $azylProfil['bankAccount'] != null}
                         <span class=""><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bank" viewBox="0 0 16 16">
   <path d="m8 0 6.61 3h.89a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H15v7a.5.5 0 0 1 .485.38l.5 2a.498.498 0 0 1-.485.62H.5a.498.498 0 0 1-.485-.62l.5-2A.5.5 0 0 1 1 13V6H.5a.5.5 0 0 1-.5-.5v-2A.5.5 0 0 1 .5 3h.89zM3.777 3h8.447L8 1zM2 6v7h1V6zm2 0v7h2.5V6zm3.5 0v7h1V6zm2 0v7H12V6zM13 6v7h1V6zm2-1V4H1v1zm-.39 9H1.39l-.25 1h13.72z"/>
 </svg> {$azylProfil['bankAccount']}/{$azylProfil['bankCode']}</span>
@@ -88,7 +87,7 @@
                         <div class = "sidebar-item-content qrcode centered">
                             {ifset $qrkodazyl}{$qrkodazyl|noescape}{/ifset}
                         </div>
-                {/ifset}
+                {/if}
 
                     </div>
                 </div>
@@ -99,7 +98,7 @@
         <div class="col-xl-4 col-md-12 news">
             <h3>Aktuality</h3>
             <div class="news" id="news">
-
+                {dump $azylNews}
                 {foreach $azylNews as $new}
 
                 {if $new->getImportant() === true}
@@ -115,8 +114,8 @@
                         </div>
                     </div>
                     {/foreach}
-                    {if $newsCount !== 0}
-                    <a n:href = "Home:azylnews $azyl->id" class="btn btn-sm btn-primary">Více novinek...</a>
+                    {if $azylNews != null}
+                    <a n:href = "Home:azylnews $azyl->id" class="btn btn-sm btn-outline-primary">Více novinek...</a>
                     {else}
                     <p>Žádné novinky</p>
                     {/if}
@@ -126,6 +125,30 @@
         </div>
         <div class="col-xl-5 col-md-12 adoptions">
             <h3>Adopce</h3>
+            <div class="adoptions d-flex flex-row flex-wrap" id="adoptions">
+
+                {foreach $adoptions as $adoption}
+                    <div class="adoptions-border">
+                        <div class = "card adoptions-card" style="width: 15rem;">
+                            {if !is_null($adoption->getPhotos()[0])}
+                                <img class="card-img-top" src="{$basePath}/{str_replace('../..','',$adoption->getPhotos()[0]->getPath()).$adoption->getPhotos()[0]->getName()}" alt="Happy dino" />
+                            {else}
+                                <img class="card-img-top" src="{$basePath}/assets/vazdata/img/pic/love1.jpeg" alt="Happy dino" />
+                            {/if}
+                            <h5 class="card-header">{$adoption->getName()}</h5>
+                            <div class="card-body">
+                                {var $now = new DateTimeImmutable()}
+                                        {var $interval = date_diff($vek = $adoption->getBirthdate(), $now)}
+
+                                <h5 class="card-title">Plemeno: {$adoption->getBreed()} Věk: {$interval->y} </h5>
+                                <p class="card-text">{$adoption->getDescription()}</p>
+
+                                <a href="{link Home:adopce $adoption->getId()}" class="btn btn-sm btn-outline-primary">Chci adoptovat!</a>
+                            </div>
+                        </div>
+                    </div>
+                {/foreach}
+            </div>
 
         </div>
 

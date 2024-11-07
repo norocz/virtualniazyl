@@ -3,14 +3,14 @@
 
 namespace App\Model\Orm\Entity;
 
-use App\Model\Orm\Repository\PhotoRepository;
+use App\Model\Orm\Repository\PhotosRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Nette\Http\FileUpload;
 use Nette\IOException;
 use Nette\Utils\Random;
 
-#[ORM\Entity(repositoryClass: PhotoRepository::class)]
+#[ORM\Entity(repositoryClass: PhotosRepository::class)]
 #[ORM\Table(name: 'photos')]
 class Photo
 {
@@ -35,25 +35,23 @@ class Photo
     private bool $deleted = false;
 
     #[ORM\ManyToOne(targetEntity: "Animal", inversedBy: "photos")]
-    #[ORM\JoinColumn(name: "animal_id", referencedColumnName: "id" )]
-    #[ORM\Column(nullable: true)]
+    #[ORM\JoinColumn(name: "animal_id", referencedColumnName: "id", nullable: true)]
     private ?Animal $animal;
+
 
     #[ORM\ManyToOne(targetEntity: "Users", inversedBy: "photos")]
     #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id")]
     private ?Users $user;
 
     #[ORM\ManyToOne(targetEntity: "Owner", inversedBy: "photos")]
-    #[ORM\JoinColumn(name: "owner_id", referencedColumnName: "id")]
-    #[ORM\Column(nullable: true)]
+    #[ORM\JoinColumn(name: "owner_id", referencedColumnName: "id",nullable: true)]
     private ?Owner $owner;
 
     #[ORM\ManyToOne (targetEntity: "UsersRatings", inversedBy: "photos")]
     private UsersRatings $userRatings;
 
     #[ORM\ManyToOne(targetEntity: "Azyl", inversedBy: "photos")]
-    #[ORM\JoinColumn(name: "azyl_id", referencedColumnName: "id")]
-    #[ORM\Column(nullable: true)]
+    #[ORM\JoinColumn(name: "azyl_id", referencedColumnName: "id", nullable: true)]
     private ?Azyl $azyl;
 
 

@@ -43,13 +43,13 @@ class AdoptionAction
     #[ORM\Column(type:ActionTypeEnum::ACTION_TYPE_ENUM, length: 255)]
     private ActionTypeEnum $actionTypeEnum;
 
-    #[ORM\ManyToOne(targetEntity: "Users", inversedBy: "actionsAsOwner")]
+    #[ORM\ManyToOne(targetEntity: "Users")]
     #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id")]
     private Users $owner;
 
-    #[ORM\ManyToOne(targetEntity: "Users", inversedBy: "actionsAsAzyl")]
-    #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id")]
-    private Users $azyl;
+    #[ORM\ManyToOne(targetEntity: "Azyl")]
+    #[ORM\JoinColumn(name: "azyl_id", referencedColumnName: "id")]
+    private Azyl $azyl;
     #[ORM\ManyToOne(targetEntity: "Animal")]
     #[ORM\JoinColumn(name: "animal_id", referencedColumnName: "id", nullable: true)]
     private Animal $animal;

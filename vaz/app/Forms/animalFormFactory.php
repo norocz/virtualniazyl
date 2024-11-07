@@ -5,22 +5,27 @@ namespace App\Forms;
 
 use App\Repository\SpeciesRepository;
 use Nette\Application\UI\Form;
+use App\Model\Orm\Enums\AdoptionsTypeEnum;
 
 
 class animalFormFactory extends Form
 {
     private SpeciesRepository $speciesRepository;
+    private AdoptionsTypeEnum $adoptionTypeEnum;
 
-    public function __construct(SpeciesRepository $speciesRepository)
+    public function __construct(SpeciesRepository $speciesRepository, AdoptionsTypeEnum $adoptionTypeEnum)
     {
         parent::__construct();
         $this->speciesRepository = $speciesRepository;
+        $this->adoptionTypeEnum = $adoptionTypeEnum;
+
     }
     public function create(): Form
     {
         //$species = ['pes' => 'Pes', 'kočka' => 'Kočka', 'pták' => 'Pták', 'hlodavec' => 'Hlodavec', 'plaz' => 'Plaz', 'ryba' => 'Ryba', 'jiné' => 'Jiné'];
 
         $species = $this->speciesRepository->fetchPairs();
+        $adoptionType = $this->adoptionTypeEnum->getAdoptionsTypesForm();
 
         $form = new Form;
         $form->addText('name', 'Jméno:')
@@ -42,8 +47,15 @@ class animalFormFactory extends Form
             ->setHtmlAttribute('class', 'form-control');
         $form->addMultiUpload('photos', 'Fotografie:')
             ->setHtmlAttribute('class', 'form-control');
-        $form->addCheckbox('toAdoption', ': k adopci')
-            ->setHtmlAttribute('class', 'form-check-input');
+        $form->addCheckbox('toAdoption', 'K adopci')
+            ->setHtmlAttribute('class', 'form-check-input')
+            ->setHtmlAttribute('id', 'toAdoptionCheckbox'); // Přidání ID pro JavaScript
+
+        $form->addSelect('adoptionType', 'Typ adopce:', $adoptionType)
+            ->setHtmlAttribute('class', 'form-control')
+            ->setHtmlAttribute('id', 'adoptionTypeSelect')
+            ->setHtmlAttribute('disabled', true);
+
 
         $form->addSubmit('send', 'Uložit')
             ->setHtmlAttribute('class', 'btn btn-primary');

@@ -24,6 +24,7 @@
                       {if $newsCount !== 0}
                         {foreach $news as $new}
                         {var $newsUser = $new->getAuthor()}
+                        {var $newsAzyl = $new->getAzyl()}
                         {if $new->getImportant() === true}
                                    <div class = "card news-card text-dark bg-warning">
                         {else}
@@ -32,18 +33,19 @@
                                     <h5 class="card-header">{$new->getTitle()}</h5>
                                     <div class="card-body">
                                         <p class="card-text"> {$new->getContent()|noescape}</p>
-                                        <p class="author-name card-text"><small class="text-muted">Autor: {$newsUser->getUserName()}</small>
-                                        <br><small class="text-muted">Vytvořeno: {$new->getCreatedAt()->format('d.m.Y. H:m:s')}</small>
+                                         <small class="text-muted">Vytvořeno: {$new->getCreatedAt()->format('d.m.Y. H:m:s')}</small>
 
                                         </p>
-                                        {if $newsUser->getRole() === 'azyl'}
-                                        <a href="{link Home:azyl, $newsUser->getAzyl()}" class="btn btn-sm btn-primary">Stránka azylu</a>
+                                        {if $newsAzyl != null}
+                                        <a href="{link Home:azyl, $newsAzyl->getId()}" class="btn btn-sm btn-outline-info">{$newsAzyl->getAzylName()}]</a>
+                                            {else}
+                                            <small class="text-muted">Autor: Admin</small>
                                         {/if}
                                     </div>
                                 </div>
                         {/foreach}
                                        {if $newsCount !== 0}
-                                       <a n:href = "Home:news" class="btn btn-sm btn-primary">Více novinek...</a>
+                                       <a n:href = "Home:news" class="btn btn-sm btn-outline-primary">Více novinek...</a>
                                        {else}
                                         <p>Žádné novinky</p>
                                        {/if}
@@ -60,8 +62,12 @@
 
                         {foreach $adoptions as $adoption}
                             <div class="adoptions-border">
-                                <div class = "card adoptions-card" style="width: 21rem;">
-                                    <img class="card-img-top" src="{$basePath}/{str_replace('../..','',$adoption->getPhotos()[0]->getPath()).$adoption->getPhotos()[0]->getName()}" alt="Happy dino" />
+                                <div class = "card adoptions-card" style="width: 23rem;">
+                                    {if !is_null($adoption->getPhotos()[0])}
+                                        <img class="card-img-top" src="{$basePath}/{str_replace('../..','',$adoption->getPhotos()[0]->getPath()).$adoption->getPhotos()[0]->getName()}" alt="Happy dino" />
+                                    {else}
+                                        <img class="card-img-top" src="{$basePath}/assets/vazdata/img/pic/love1.jpeg" alt="Happy dino" />
+                                    {/if}
                                     <h5 class="card-header">{$adoption->getName()}</h5>
                                     <div class="card-body">
                                         {var $now = new DateTimeImmutable()}
@@ -70,13 +76,14 @@
                                         <h5 class="card-title">Plemeno: {$adoption->getBreed()} Věk: {$interval->y} </h5>
                                         <p class="card-text">{$adoption->getDescription()}</p>
 
-                                            <a href="{link Home:adopce $adoption->getId()}" class="btn btn-sm btn-primary">Chci adoptovat!</a>
-                                        <a href="{link Home:azyl $adoption->getAzyl()->getId()}" class="btn btn-sm btn-primary">Stránka azylu</a>
+                                            <a href="{link Home:adopce $adoption->getId()}" class="btn btn-sm btn-outline-primary">Chci adoptovat!</a>
+                                        <a href="{link Home:azyl $adoption->getAzyl()->getId()}" class="btn btn-sm btn-outline-info">{$adoption->getAzyl()->getAzylName()}</a>
                                     </div>
                                </div>
                             </div>
                         {/foreach}
                     </div>
+                    <a n:href = "Home:adoptions" class="btn btn-sm btn-outline-primary">Více adopcí...</a>
                 </div>
             </div>
         </div>

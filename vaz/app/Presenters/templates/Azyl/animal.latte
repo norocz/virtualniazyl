@@ -50,7 +50,7 @@
                             <div class="card-header">{$adoption->getOwner()->getName()} </div>
                             <div class="card-body">
                                 <span class="card-text">{$adoption->getCreatedAt()|date:'H:i d.m.Y'}</span>
-                                <a class="btn btn-sm" href="{link azyl:adoptions $adoption->getId()}">K adopci</a>
+                                <a class="btn btn-outline-info btn-sm" href="{link azyl:adoptions $adoption->getId()}">K adopci</a>
                             </div>
                         </div>
 
@@ -70,4 +70,9 @@
 {/block}
 
 {block scripts}
+    <script>
+        document.getElementById('toAdoptionCheckbox').addEventListener('change', function() {
+            document.getElementById('adoptionTypeSelect').disabled = !this.checked;
+        });
+    </script>
 {/block}

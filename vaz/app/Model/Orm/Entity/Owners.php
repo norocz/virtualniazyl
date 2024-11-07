@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Model\Orm\Entity;
 
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -25,8 +26,15 @@ class Owner
     #[ORM\Column(type: 'string', length: 255)]
     private string $phoneNumber;
 
+    #[ORM\OneToMany(mappedBy: "owner", targetEntity: "Photo")]
+    private Collection $photos;
+
     #[ORM\OneToOne(mappedBy: 'owner', targetEntity: Users::class)]
     private Users $user;
+
+    #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'adoptionsAsOwner')]
+    private Users $owner;
+
 
     public function getId(): int
     {

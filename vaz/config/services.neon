@@ -16,6 +16,7 @@ services:
 	- App\Model\Orm\Entity\Help
 	- App\Model\Orm\Entity\HelpForm
 	- App\Model\Orm\Entity\Citys
+	- App\Model\Orm\Entity\UsersRatings
 
 	##Enum##
 	- App\Model\Orm\Enums\RoleTypeEnum
@@ -43,6 +44,7 @@ services:
 	##Core Services##
 	- App\Services\UserAddressService
 	- App\Services\MessagesService
+	- App\Services\AdoptionKeyService
 	- Defr\QRPlatba\QRPlatba
 
 search:
