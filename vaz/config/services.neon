@@ -65,6 +65,7 @@ extensions:
     nettrine.dbal.console: Nettrine\DBAL\DI\DbalConsoleExtension
 
     # ORM
+
     nettrine.orm: Nettrine\ORM\DI\OrmExtension
     nettrine.orm.cache: Nettrine\ORM\DI\OrmCacheExtension
     nettrine.orm.console: Nettrine\ORM\DI\OrmConsoleExtension

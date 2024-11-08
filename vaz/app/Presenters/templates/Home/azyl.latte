@@ -142,8 +142,11 @@
 
                                 <h5 class="card-title">Plemeno: {$adoption->getBreed()} Věk: {$interval->y} </h5>
                                 <p class="card-text">{$adoption->getDescription()}</p>
-
+                                {if $user->isLoggedIn()}
                                 <a href="{link Home:adopce $adoption->getId()}" class="btn btn-sm btn-outline-primary">Chci adoptovat!</a>
+                                {else}
+                                <a href="{link Home:SignIn}" class="btn btn-sm btn-outline-primary">Přihlášení</a>
+                                {/if}
                             </div>
                         </div>
                     </div>

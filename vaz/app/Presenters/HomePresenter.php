@@ -133,22 +133,28 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->getTemplate()->title = 'Adopce - ' . $adopce->getName();
         $this->getTemplate()->adopce = $adopce;
 
-        $aks = new AdoptionKeyService();
-        $adoptionKey = $aks->createKey($this->getUser()->getId(), $adopce->getId(), $adopce->getAzyl()->getId());
+        if ($this->getUser()->isLoggedIn())
+        {
+            $aks = new AdoptionKeyService();
+            $adoptionKey = $aks->createKey($this->getUser()->getId(), $adopce->getId(), $adopce->getAzyl()->getId());
 
-        $adoptions = $adopce->getAdoption();
+            $adoptions = $adopce->getAdoption();
 
-        if ($adoptions !== null) {
-            foreach ($adoptions as $adoption) {
-                if ($adoption['adoptionKey'] === $adoptionKey) {
-                    $this->getTemplate()->status = true;
-                } else {
-                    $this->getTemplate()->status = false;
+            if ($adoptions !== null) {
+                foreach ($adoptions as $adoption) {
+                    if ($adoption['adoptionKey'] === $adoptionKey) {
+                        $this->getTemplate()->status = true;
+                    } else {
+                        $this->getTemplate()->status = false;
+                    }
+
                 }
-
             }
-        }
+        } else {
 
+            $this->flashMessage('Pro adoptování je potřeba se přihlásit!','alert-danger');
+           // $this->redirect('Home:SignIn');
+        }
     }
     public function renderAzyl(int $id) : void
     {
