@@ -502,7 +502,7 @@ class AzylPresenter extends BasePresenter
         $grid = $this->newsDatagridFactory->create();
         $azyl = $this->azylRepository->findOneBy(['id' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]);
         bdump($azyl->getNews(), 'Grid před get News');
-        $grid ->setDataSource($this->newsRepository->findAll());
+        $grid ->setDataSource($azyl->getNews());
         return $grid;
     }
 
