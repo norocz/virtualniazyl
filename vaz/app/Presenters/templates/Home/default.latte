@@ -64,7 +64,7 @@
                             <div class="adoptions-border">
                                 <div class = "card adoptions-card" style="width: 23rem;">
                                     {if !is_null($adoption->getPhotos()[0])}
-                                        <img class="card-img-top" src="{$basePath}/{str_replace('../..','',$adoption->getPhotos()[0]->getPath()).$adoption->getPhotos()[0]->getName()}" alt="Happy dino" />
+                                        <img class="card-img-top" src="{$basePath}{str_replace('../..','',$adoption->getPhotos()[0]->getPath()).$adoption->getPhotos()[0]->getName()}" alt="Happy dino" />
                                     {else}
                                         <img class="card-img-top" src="{$basePath}/assets/vazdata/img/pic/love1.jpeg" alt="Happy dino" />
                                     {/if}
