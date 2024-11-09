@@ -177,12 +177,6 @@ class Azyl
         return $this->news;
     }
 
-    public function setNews(?Collection $news): Azyl
-    {
-        $this->news = $news;
-        return $this;
-    }
-
     public function getAzylNews(): ?Collection
     {
         return $this->news->matching(Criteria::create()

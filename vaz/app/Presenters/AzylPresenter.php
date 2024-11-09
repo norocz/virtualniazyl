@@ -387,7 +387,7 @@ class AzylPresenter extends BasePresenter
                 $photoUpload = New Photo();
                 $photoUpload->setAnimal($animal);
                 $photoUpload->setDate(new DateTimeImmutable('now'));
-                bdump($azyl,'AZYL');
+                //bdump($azyl,'AZYL');
                 $photoUpload->setAzyl($azyl);
                 $photoUpload->uploadAzylPhoto($photo);
                 $this->photosRepository->save($photoUpload);
@@ -405,6 +405,7 @@ class AzylPresenter extends BasePresenter
 
         if ($this->getPresenter()->getParameter('id') !== null) {
             $news = $this->newsRepository->findOneBy(['id' => $this->getPresenter()->getParameter('id')]);
+            bdump($news);
             if ($news) {
 
                 $form->addHidden('newsid', $news->getId());
@@ -415,6 +416,7 @@ class AzylPresenter extends BasePresenter
                         'global' => $news->getGlobal(),
                         'visibleFrom' => $news->getVisibleFrom(),
                         'important' => $news->getImportant(),
+
 
                     ]);
 
@@ -427,10 +429,12 @@ class AzylPresenter extends BasePresenter
                 $this->flashMessage('Novinka nebyla nalezena.', 'alert-danger');
                 $this->redirect('Azyl:news');
             }
-        }
+        } else {
+
         $form->onSuccess[] = [ $this, 'newsFormSucceeded'];
 
         return $form;
+        }
     }
     public function createComponentMessagesForm(): Form
     {
@@ -446,6 +450,7 @@ class AzylPresenter extends BasePresenter
             $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getIdentity()->getId());
 
             $azyl = $this->azylRepository->findOneBy(['id' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]);
+            bdump($azyl,'New news');
             $news->setAuthor($user);
             $news->setTitle($values->title);
             $news->setContent($values->content);
@@ -471,14 +476,18 @@ class AzylPresenter extends BasePresenter
             $news = $this->newsRepository->findOneBy(['id' => $id]);
 
             if ($news) {
-
+                $azyl = $this->azylRepository->findOneBy(['id' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]);
+                bdump($azyl. 'News update');
                 $news->setTitle($values->title);
                 $news->setContent($values->content);
                 $news->setGlobal($values->global);
                 $news->setVisibleFrom($values->visibleFrom);
                 $news->setUpdatedAt(new DateTimeImmutable());
                 $news->setImportant($values->important);
+                $news->setAzyl($azyl);
+
                 $this->newsRepository->save($news);
+
                 $this->flashMessage('Novinka byla aktualizována.', 'alert-success');
                 $this->redirect('Azyl:news');
             }
@@ -491,7 +500,9 @@ class AzylPresenter extends BasePresenter
     {
 
         $grid = $this->newsDatagridFactory->create();
-        $grid ->setDataSource($this->newsRepository->findAllVisibleAzyl(['azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]));
+        $azyl = $this->azylRepository->findOneBy(['id' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]);
+        bdump($azyl->getNews(), 'Grid před get News');
+        $grid ->setDataSource($this->newsRepository->findAll());
         return $grid;
     }
 

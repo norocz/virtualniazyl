@@ -40,16 +40,15 @@ class News
     private ?Users $author;
 
     #[ORM\ManyToOne(targetEntity: Azyl::class, inversedBy: 'news')]
-    #[ORM\Column(nullable: true)]
     private ?Azyl $azyl;
 
     #[ORM\Column(type: 'boolean')]
-    private $deleted;
+    private bool $deleted;
 
     #[ORM\Column(type: 'boolean')]
-    private $global;
+    private bool $global;
     #[ORM\Column(type: 'boolean')]
-    private $important;
+    private bool $important;
 
     public function toArray(): array //return array of all fields
     {
@@ -129,61 +128,40 @@ class News
         return $this->author;
     }
 
-    public function setAuthor($author): News
+    public function setAuthor(Users $author): News
     {
         $this->author = $author;
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getDeleted()
+    public function getDeleted():bool
     {
         return $this->deleted;
     }
 
-    /**
-     * @param mixed $deleted
-     * @return News
-     */
-    public function setDeleted($deleted)
+    public function setDeleted(bool $deleted):static
     {
         $this->deleted = $deleted;
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getGlobal()
+    public function getGlobal():bool
     {
         return $this->global;
     }
 
-    /**
-     * @param mixed $global
-     * @return News
-     */
-    public function setGlobal($global)
+    public function setGlobal(bool $global): static
     {
         $this->global = $global;
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getImportant()
+    public function getImportant():bool
     {
         return $this->important;
     }
 
-    /**
-     * @param mixed $important
-     * @return News
-     */
-    public function setImportant($important)
+    public function setImportant(bool $important): static
     {
         $this->important = $important;
         return $this;

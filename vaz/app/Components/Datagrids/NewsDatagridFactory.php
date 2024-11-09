@@ -8,6 +8,8 @@ use App\Model\Orm\Repository\NewsRepository;
 use Ublaboo\DataGrid\Column\Action\Confirmation\CallbackConfirmation;
 use Ublaboo\DataGrid\Column\Action\Confirmation\StringConfirmation;
 use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridColumnStatusException;
+use Ublaboo\DataGrid\Exception\DataGridException;
 use Ublaboo\DataGrid\Localization\SimpleTranslator;
 
 class NewsDatagridFactory extends DataGrid
@@ -20,6 +22,10 @@ class NewsDatagridFactory extends DataGrid
         $this->newsRepository = $newsRepository;
     }
 
+    /**
+     * @throws DataGridColumnStatusException
+     * @throws DataGridException
+     */
     public function create(): DataGrid
     {
         $grid = new DataGrid;
@@ -123,7 +129,7 @@ class NewsDatagridFactory extends DataGrid
             ->setConfirmation(new CallbackConfirmation(
                                 function($item) {return 'Opravdu chcete smazat novinku'.$item->getTitle().'??';}
             ));
-bdump($grid);
+//bdump($grid);
         return $grid;
     }
 

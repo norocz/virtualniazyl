@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Model\Orm\Repository;
 
+use App\Model\Orm\Entity\Azyl;
 use App\Model\Orm\Entity\News;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -41,9 +42,9 @@ class NewsRepository extends EntityRepository
 
         return $qb->getQuery()->getResult();
     }
-    public function findAllVisibleAzyl($id): array
+    public function findAllVisibleAzyl(Azyl $azyl): array
     {
-        return $this->findBy(['deleted' => false, 'azyl' => $id], ['visibleFrom' => 'DESC']);
+        return $this->findBy(['deleted' => false, 'azyl' => $azyl], ['visibleFrom' => 'DESC']);
     }
 
     public function findImportant(): array
