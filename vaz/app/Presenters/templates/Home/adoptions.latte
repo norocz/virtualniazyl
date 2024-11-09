@@ -21,7 +21,7 @@
                                 <div class="adoptions-border">
                                     <div class = "card adoptions-card" style="width: 20rem;">
                                         {if !is_null($adoption->getPhotos()[0])}
-                                            <img class="card-img-top" src="{$basePath}{$adoption->getPhotos()[0]->getPath().$adoption->getPhotos()[0]->getName()}" alt="{$adoption->getPhotos()[0]->getName()}" />
+                                            <img class="card-img-top" src="{$basePath}/{$adoption->getPhotos()[0]->getPath().$adoption->getPhotos()[0]->getName()}" alt="{$adoption->getPhotos()[0]->getName()}" />
                                         {else}
                                             <img class="card-img-top" src="{$basePath}/assets/vazdata/img/pic/love1.jpeg" alt="Happy dino" />
                                         {/if}
@@ -30,7 +30,8 @@
                                             {var $now = new DateTimeImmutable()}
                                         {var $interval = date_diff($vek = $adoption->getBirthdate(), $now)}
 
-                                            <h5 class="card-title">Plemeno: {$adoption->getBreed()} Věk: {$interval->y} </h5>
+                                            <h5 class="card-title">Plemeno: {$adoption->getBreed()} </h5>
+                                            Věk: {$interval->y}
                                             <p class="card-text">{$adoption->getDescription()}</p>
 
                                             {if $user->isLoggedIn()}
