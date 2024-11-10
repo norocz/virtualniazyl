@@ -22,6 +22,7 @@ use App\Model\Orm\Repository\NewsRepository;
 use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use App\Services\AdoptionKeyService;
+use App\Services\LogingService;
 use App\Services\UserAddressService;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -62,7 +63,8 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                                 private QRPlatba                    $QRPlatba,
                                 private AnimalsRepository           $animalsRepository,
                                 private adoptionFormFactory         $adoptionFormFactory,
-                                private adoptionAction              $adoptionAction)
+                                private adoptionAction              $adoptionAction,
+                                private logingService               $logingService)
     {
         parent::__construct();
         $this->entityManager = $entityManager;
@@ -73,6 +75,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->animalsRepository = $animalsRepository;
         $this->adoptionFormFactory = $adoptionFormFactory;
         $this->adoptionAction = $adoptionAction;
+        $this->logingService = $logingService;
 
     }
 

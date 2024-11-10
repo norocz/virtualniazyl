@@ -46,6 +46,7 @@ services:
 	- App\Services\MessagesService
 	- App\Services\AdoptionKeyService
 	- Defr\QRPlatba\QRPlatba
+	- App\Services\LogingService
 
 search:
 	-	in: %appDir%

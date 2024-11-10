@@ -76,6 +76,13 @@
                         </div>
                         <hr>
                         <span class="sidebar-brand">{$azylProfil['azylName']} </span>
+                        <div class="photo sidebar">
+                            {ifset $azylProfil['mainPhoto']}
+                                <img src="{$azylProfil['mainPhoto']}" alt="{$azylProfil['azylName']}" class="img-fluid">
+                            {else}
+                                <img src="{$basePath}/assets/vazdata/img/pic/defaultPhoto.jpeg" alt="{$azylProfil['azylName']}" class="img-fluid">
+                            {/ifset}
+                        </div>
                         <div class="sidebar-footer">{$azylProfil['description']|noescape}</div>
                         <hr>
                         <span class="">Další informace:<br></span>
@@ -98,7 +105,6 @@
         <div class="col-xl-4 col-md-12 news">
             <h3>Aktuality</h3>
             <div class="news" id="news">
-                {dump $azylNews}
                 {foreach $azylNews as $new}
 
                 {if $new->getImportant() === true}

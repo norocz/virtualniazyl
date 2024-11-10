@@ -6,6 +6,7 @@ namespace App\Components\Datagrids;
 use App\Model\Orm\Enums\RoleTypeEnum;
 use App\Model\Orm\Repository\UsersRepository;
 use Ublaboo\DataGrid\Column\Action\Confirmation\StringConfirmation;
+use Ublaboo\DataGrid\Exception\DataGridColumnStatusException;
 use Ublaboo\DataGrid\InlineEdit\InlineEdit;
 use Ublaboo\DataGrid\DataGrid;
 use Ublaboo\DataGrid\Exception\DataGridException;
@@ -24,6 +25,7 @@ private RoleTypeEnum $roleTypeEnum;
 
     /**
      * @throws DataGridException
+     * @throws DataGridColumnStatusException
      */
     public function create(): DataGrid
     {
@@ -102,18 +104,18 @@ private RoleTypeEnum $roleTypeEnum;
             ->endOption()
             ->onChange[] = function ($id, $value) {$user = $this->usersRepository->getUserById($id); $user->setMailverified($value); $this->usersRepository->addUser($user);};
         $grid->addColumnStatus('phoneverified', 'Telefon ověřen')
-            ->setRenderer(function ($item) {return $item->isPhoneVerified() ? 'Ano' : 'Ne';})
-            ->setSortable()
-            ->setCaret(true)
+           // ->setRenderer(function ($item) {return $item->isPhoneVerified() ? 'Ano' : 'Ne';})
+           // ->setSortable()
+            ->setCaret(false)
             ->addOption(true, 'Ano')
-            ->setClass('btn-sm btn-warning')
-            ->setIcon('fa fa-warning')
-            ->endOption()
+                ->setClass('btn-sm btn-warning')
+                ->setIcon('fa fa-warning')
+                    ->endOption()
             ->addOption(false,'Ne')
-            ->setClass('btn-sm btn-success')
-            ->setIcon('fa fa-times')
-            ->setConfirmation(new StringConfirmation('Chcete nastavit stav ne?'))
-            ->endOption()
+                ->setClass('btn-sm btn-success')
+                ->setIcon('fa fa-times')
+                ->setConfirmation(new StringConfirmation('Chcete nastavit stav ne?'))
+                    ->endOption()
             ->onChange[] = function ($id, $value) {$user = $this->usersRepository->getUserById($id); $user->setPhoneVerified($value); $this->usersRepository->addUser($user);};
 
         $grid->addColumnDateTime('created_at', 'Registrace')
