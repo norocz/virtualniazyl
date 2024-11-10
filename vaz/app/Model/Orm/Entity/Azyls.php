@@ -112,7 +112,7 @@ class Azyl
         return $this;
     }
 
-    public function getBankAccount(): string
+    public function getBankAccount(): ?string
     {
         return $this->bankAccount;
     }

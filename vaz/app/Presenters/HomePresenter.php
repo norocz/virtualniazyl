@@ -173,13 +173,14 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
         $this->getTemplate()->adoptions = $this->animalsRepository->findBy(['azyl' => $azylProfil, 'toAdoption' => true], ['id' => 'DESC']);
 
+        if (!is_null($azylProfil->getBankAccount())){
         $qrPlatba->setAccount($azylProfil->getBankAccount().'/'.$azylProfil->getBankCode())
                     ->setMessage('Peníze pro '.$azylProfil->getAzylName())
                     ->setVariableSymbol($azylProfil->getBankSpecificCode())
                     ->setCurrency('CZK')
                     ->setAmount((float)'101.11')
                     ->setDueDate(new \DateTime('now'));
-
+            }
 
         $this->getTemplate()->qrkodazyl = $qrPlatba->getQRCodeImage();
     }
