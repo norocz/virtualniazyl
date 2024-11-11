@@ -41,6 +41,17 @@ class Animal
     #[ORM\OneToMany(mappedBy: 'animal', targetEntity: Adoption::class)]
     private Collection $adoptions;
 
+    public function getAdoptions(): Collection
+    {
+        return $this->adoptions;
+    }
+
+    public function setAdoptions(Collection $adoptions): Animal
+    {
+        $this->adoptions = $adoptions;
+        return $this;
+    }
+
     #[ORM\Column(type: AdoptionsTypeEnum::ADOPTION_TYPE_ENUM, length: 255)]
     private string $adoptionType;
 

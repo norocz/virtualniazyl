@@ -61,10 +61,12 @@ class Adoption
 
     #[ORM\Column(type: ActionTypeEnum::ACTION_TYPE_ENUM, length: 255)]
     private string $actionType;
+    #[ORM\Column(type: 'string', length: 255)]
+    private string $adoptionkey;
 
     public function setAdoptionKey(string $adoptionKey): Adoption
     {
-        $this->adoptionKeykey = $adoptionKey;
+        $this->adoptionKey = $adoptionKey;
         return $this;
     }
 

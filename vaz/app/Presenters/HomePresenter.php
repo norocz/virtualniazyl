@@ -139,20 +139,19 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         if ($this->getUser()->isLoggedIn())
         {
             $aks = new AdoptionKeyService();
-            $adoptionKey = $aks->createKey($this->getUser()->getId(), $adopce->getId(), $adopce->getAzyl()->getId());
-
+            $aks->createKey($this->getUser()->getId(), $adopce->getId(), $adopce->getAzyl()->getId());
+            $adoptionKey = $aks->getKey();
             $adoptions = $adopce->getAdoption();
+            $test = $this->adoptionsRepository->findOneBy(['adoptionKey' => $adoptionKey]);
 
-            if ($adoptions !== null) {
-                foreach ($adoptions as $adoption) {
-                    if ($adoption['adoptionKey'] === $adoptionKey) {
+
+                    if ($test) {
                         $this->getTemplate()->status = true;
                     } else {
                         $this->getTemplate()->status = false;
                     }
 
-                }
-            }
+
         } else {
 
             $this->flashMessage('Pro adoptování je potřeba se přihlásit!','alert-danger');
@@ -346,8 +345,9 @@ final class HomePresenter extends Nette\Application\UI\Presenter
        $animal = $this->animalsRepository->findById(intval($this->getPresenter()->getParameter('id')));
 
        $aks = new AdoptionKeyService();
-       $key = $aks -> createKey($this->getUser()->getId(), $animal->getId(),$animal->getAzyl()->getId());
-
+       $aks -> createKey($this->getUser()->id, $animal->getId(),$animal->getAzyl()->getId());
+       $key =  $aks->getKey();
+       bdump($key);
        $adoption  = new Adoption();
        $adoption -> setDescription($values->description);
        $adoption -> setAnimal($animal);
@@ -356,7 +356,15 @@ final class HomePresenter extends Nette\Application\UI\Presenter
        $adoption -> setUpdatedAt(new DateTimeImmutable());
        $adoption -> setAdoptionType($animal->getAdoptionType());
        $adoption -> setActionType(ActionTypeEnum::START_ADOPTION);
+       $adoption -> setUser($this->usersRepository->getUserById($this->getPresenter()->getUser()->id));
        $adoption -> setAzyl($animal->getAzyl());
+       $adoption -> setSetings('adopce');
+       $adoption -> setDeleted(false);
+       $adoption -> setConfirmed(false);
+       $adoption -> setCanceled(false);
+       $adoption -> setActionType(ActionTypeEnum::START_ADOPTION);
+       $adoption -> setAdoptionType($animal->getAdoptionType());
+
 
        $this->adoptionsRepository->saveAdoption($adoption);
 

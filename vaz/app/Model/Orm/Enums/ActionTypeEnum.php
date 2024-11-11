@@ -27,15 +27,15 @@ class ActionTypeEnum extends Type
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string
     {
         $actions = [
-            self::START_ADOPTION,
-            self::END_ADOPTION,
-            self::BREAK_ADOPTION,
+            self::START_ADOPTION, //modra
+            self::END_ADOPTION,   //zluta
+            self::BREAK_ADOPTION,   //zluta
             self::CONTACT_ADOPTION,
             self::PHONE_CALL_ADOPTION,
             self::PERSONAL_VISIT_ADOPTION,
             self::VERIFICATION_ADOPTION,
-            self::POSITIVE_ADOPTION_END,
-            self::NEGATIVE_ADOPTION_END
+            self::POSITIVE_ADOPTION_END,  //zelena
+            self::NEGATIVE_ADOPTION_END   //cervena
         ];
         $quotedActions = array_map(fn($action) => $platform->quoteStringLiteral($action), $actions);
         return 'ENUM(' . implode(', ', $quotedActions) . ')';

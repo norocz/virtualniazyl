@@ -66,7 +66,7 @@
         <div class="content">
             <div class="row">
                 <h2>Info o adopci</h2>
-                <div class="col-xl-5 col-sm-12 flex-column">
+                <div class="col-xl-4 col-sm-12 flex-column">
                     <h4>Azyl</h4>
                     <div class="adopce" id="adopce">
 
@@ -82,7 +82,7 @@
                     </div>
 
                 </div>
-                <div class="col-xl-7 col-sm-12 flex-column">
+                <div class="col-xl-8 col-sm-12 flex-column">
                     <div class="animal-info">
                         {var $now = new DateTimeImmutable()}
                                         {var $interval = date_diff($vek = $adopce->getBirthdate(), $now)}
@@ -92,16 +92,16 @@
                     </div>
 
                     {if $adopce->getPhotos() != null }
-                        <div class="animal-photos d-flex flex-row flex-wrap gallery">
+                        <div class="gallery row g-1">
                         {foreach $adopce->getPhotos() as $photo}
                             {if $iterator->first}
-                                <div class="col-12 col-md-6 gallery-item large">
+                                <div class="col-8 col-md-4 gallery-item large">
                                     <div class="position-relative">
                                         <img src="{$photo->getPath()}{$photo->getName()}" alt="{$photo->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
                                     </div>
                                 </div>
                             {else}
-                                <div class="col-6 col-md-3 gallery-item">
+                                <div class="col-4 col-md-2 gallery-item">
                                     <div class="position-relative">
                                         <img src="{$photo->getPath()}{$photo->getName()}" alt="{$photo->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
                                     </div>
@@ -113,8 +113,9 @@
                 </div>
 
                 <div class="adoption-form col-xl-12 col-sm-12 flex-column">
-                  {if $user->isLoggedIn()}
-                   <form n:name=adoptionForm class=form>
+                 {if $status != true && $user->isLoggedIn() && !$adopce->isAdopted()}
+
+                    <form n:name=adoptionForm class=form>
                        <div class="row">
                        <div class="col-9 col-xl-9 col-sm-12">
                            <div class="form-group">
@@ -145,9 +146,28 @@
                        </div>
 
                    </form>
-                    {else}
-                    <div class="adopce-message alert alert-warning align-center">
+                    {elseif $status == true}
+
+                    <div class="adopce-message alert alert-success align-center">
+
+                        <span class="big-message"><h3>Tady už jste požádali o adopci!</h3> Zkuste jiné <a href="{link home:adoptions}">zvířátko</a>! Díky!</span>
+
+                    </div>
+
+                    {elseif $adopce->isAdopted()}
+                    <div class="adopce-message alert alert-primary align-center">
+
+                        <span class="big-message"><h3>Zvířátko je už adoptované!</h3> Zkuste jiné <a href="{link home:adoptions}">zvířátko</a>! Díky!</span>
+
+                    </div>
+
+                    {elseif !$user->isLoggedIn()}
+
+                    <div class="adopce-message alert alert-secondary align-center">
+
+
                         <span class="big-message"><h3>Nejste přihlášený!</h3> <a class="btn btn-outline-success" href="{link home:signIn}">Přihlaste se</a> nebo se <a class="btn btn-outline-secondary" href="{link home:registration}">registrujte</a> a pak se přihlaste. Díky!</span>
+
                     </div>
                     {/if}
                 </div>
