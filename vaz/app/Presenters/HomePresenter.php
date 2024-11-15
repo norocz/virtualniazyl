@@ -347,7 +347,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
        $aks = new AdoptionKeyService();
        $aks -> createKey($this->getUser()->id, $animal->getId(),$animal->getAzyl()->getId());
        $key =  $aks->getKey();
-       bdump($key);
+       //bdump($key);
        $adoption  = new Adoption();
        $adoption -> setDescription($values->description);
        $adoption -> setAnimal($animal);

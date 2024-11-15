@@ -6,6 +6,7 @@ namespace App\Forms;
 use App\Model\Orm\Repository\CityRepository;
 use App\Presenters\UserPresenter;
 use Nepada\PhoneNumberInput\PhoneNumberInput;
+use Nepada\Bridges\PhoneNumberInputForms\PhoneNumberInputMixin;
 use Nette\Application\UI\Form;
 use Nette\Application\UI\InvalidLinkException;
 
@@ -32,7 +33,8 @@ class userDetailsFormFactory extends Form
         $form = new Form;
         $form->addProtection('S formulářem nebo daty bylo manipulováno!');
 
-        $form->addText('phone', 'Telefon:')
+        $form->addPhoneNumber('phone', 'Telefon:', 'CZ')
+        //$form->addPhoneNumber('phone', 'Telefon:', 'CZ')
             ->setHtmlAttribute('class', 'form-control')
             ->addRule(PhoneNumberInput::REGION, 'Prosím zadejte platný telefonní číslo. Pro ČR nebo SR začíná na +420 nebo +421.',['CZ', 'SK'])
             ->setCaption('Telefon:', 'form-control');
@@ -49,7 +51,11 @@ class userDetailsFormFactory extends Form
             ->setHtmlAttribute('rows', 8)
             ->setHtmlAttribute('cols', 45);
         $form->addText('street', 'Ulice a číslo:')
-            ->setHtmlAttribute('class', 'form-control');
+            ->setHtmlAttribute('class', 'form-control form-inline');
+        $form->addInteger('house', 'Čp:')
+            ->setHtmlAttribute('class', 'form-control form-inline');
+        $form->addInteger('orientation','Čo:')
+            ->setHtmlAttribute('class', 'form-control form-inline');
 
 
         $country = $form->addSelect('country', 'Země:', $this->cityRepository->fetchCountries())

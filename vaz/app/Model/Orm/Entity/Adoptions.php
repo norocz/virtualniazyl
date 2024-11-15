@@ -22,7 +22,7 @@ class Adoption
     private int $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private string $adoptionKey;
+    private ?string $adoptionKey;
 
     #[ORM\Column(type: 'string', length: 2048)]
     private string $description;
@@ -141,7 +141,7 @@ class Adoption
         return $this;
     }
 
-    public function getAzyl(): Users
+    public function getAzyl(): Azyl
     {
         return $this->azyl;
     }

@@ -7,6 +7,7 @@ namespace App\Model\Orm\Repository;
 use App\Model\Orm\Entity\Citys;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 
 class CityRepository extends EntityRepository
 {
@@ -21,6 +22,9 @@ class CityRepository extends EntityRepository
         $this->getEntityManager()->flush();
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
     public function updateCity(int $id, int $cityCode, string $cityName, string $region, string $cityOffice, string $country)
     {
         $city = $this->findCityById($id);
@@ -38,6 +42,9 @@ class CityRepository extends EntityRepository
             ->getResult();
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
     public function findCityById(int $id)
     {
         return $this->createQueryBuilder('c')
@@ -47,6 +54,9 @@ class CityRepository extends EntityRepository
             ->getOneOrNullResult();
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
     public function findCityByName(string $name)
     {
         return $this->createQueryBuilder('c')
@@ -58,6 +68,7 @@ class CityRepository extends EntityRepository
 
     public function findCityByRegion(string $region):array
     {
+        $return = [];
         $pole = $this->createQueryBuilder('c')
             ->where('c.region = :region')
             ->setParameter('region', $region)

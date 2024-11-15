@@ -36,6 +36,7 @@ class RegisterFormFactory extends Form
             ->addRule(Form::Email, 'Prosím zadejte platný email.')
             ->setRequired('Zadejte prosím email. Je důležitý pro přihlášení');
 
+
         $form->addText('phone', 'Telefon:')
             ->setHtmlAttribute('class', 'form-control')
             ->addRule(PhoneNumberInput::REGION, 'Prosím zadejte platný telefonní číslo. Pro ČR nebo SR začíná na +420 nebo +421.',['CZ', 'SK'])

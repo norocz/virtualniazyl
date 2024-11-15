@@ -7,7 +7,10 @@ use App\Model\Orm\Enums\RoleTypeEnum;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use libphonenumber\NumberParseException;
+use libphonenumber\PhoneMetadata;
 use libphonenumber\PhoneNumber;
+use libphonenumber\PhoneNumberUtil;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'users')]
@@ -39,7 +42,7 @@ class Users
     private string $password;
 
     #[ORM\Column(type: 'string', length: 2048, nullable: true)]
-    private string $phone;
+    private ?string $phone;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $mailVerifyToken = null;
@@ -68,10 +71,10 @@ class Users
     private ?Collection $adoptions;
 
     #[ORM\OneToMany(mappedBy: "sender", targetEntity: "Messages")]
-    public Collection $sentMessages;
+    public ?Collection $sentMessages;
 
     #[ORM\OneToMany(mappedBy: "receiver", targetEntity: "Messages")]
-    private Collection $receivedMessages;
+    private ?Collection $receivedMessages;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $messageAddress;
@@ -100,10 +103,8 @@ class Users
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $legalTerms;
 
-    #[ORM\Column(type: 'integer', length: 255, nullable: true)]
-    #[ORM\ManyToOne(targetEntity: "Citys", inversedBy: "cityCode")]
-    #[ORM\JoinColumn(name: "city_code", referencedColumnName: "cityCode")]
-    private ?int $cityCode;
+    #[ORM\ManyToOne(targetEntity: Citys::class, inversedBy: "id")]
+    private ?Citys $city;
 
     #[ORM\Column(type: 'string', length: 6, nullable: true)]
     private ?string $houseNumber;
@@ -147,6 +148,9 @@ class Users
     #[ORM\OneToMany(mappedBy: 'reviewer', targetEntity: UsersRatings::class)]
     private ?Collection $ratings;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $description;
+
 
     public function __construct()
     {
@@ -160,7 +164,7 @@ class Users
         $this->adoptionVerification = false;
         $this->legalTerms = false;
         $this->photos = null;
-        $this->phone = '';
+        $this->phone = null;
         $this->messageAddress = null;
         $this->reviewer = null;
         $this->azyl = null;
@@ -169,6 +173,7 @@ class Users
         $this->rating = null;
         $this->reviewerRatings = null;
         $this->userRatings = null;
+        $this->description = null;
     }
 
     public function __toString(): string
@@ -176,6 +181,15 @@ class Users
         return $this->userName;
     }
 
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
+    }
 
 
     public function getSentMessages(): Collection
@@ -230,6 +244,66 @@ class Users
         return $this->baned;
     }
 
+    public function getAdoptions(): ?Collection
+    {
+        return $this->adoptions;
+    }
+
+    public function getHouseNumber(): ?string
+    {
+        return $this->houseNumber;
+    }
+
+    public function setHouseNumber(?string $houseNumber): Users
+    {
+        $this->houseNumber = $houseNumber;
+        return $this;
+    }
+
+    public function getOrientationNumber(): ?string
+    {
+        return $this->orientationNumber;
+    }
+
+    public function setOrientationNumber(?string $orientationNumber): Users
+    {
+        $this->orientationNumber = $orientationNumber;
+        return $this;
+    }
+
+    public function getStreet(): ?string
+    {
+        return $this->street;
+    }
+
+    public function setStreet(?string $street): Users
+    {
+        $this->street = $street;
+        return $this;
+    }
+
+    public function getZipCode(): ?string
+    {
+        return $this->zipCode;
+    }
+
+    public function setZipCode(?string $zipCode): Users
+    {
+        $this->zipCode = $zipCode;
+        return $this;
+    }
+
+    public function getAdoptionsAsOwner(): ?Collection
+    {
+        return $this->adoptionsAsOwner;
+    }
+
+
+    public function getAdoptionsAsAzyl(): ?Collection
+    {
+        return $this->adoptionsAsAzyl;
+    }
+
 
     public function isMeilVerified(): bool
     {
@@ -266,6 +340,15 @@ class Users
         $this->createdBy = $createdBy;
     }
 
+    public function setCity(Citys $city): void
+    {
+        $this->city = $city;
+    }
+
+    public function getCity(): ?Citys
+    {
+        return $this->city;
+    }
 
     public function getUpdatedAt(): ?DateTimeImmutable
     {
@@ -405,14 +488,17 @@ class Users
         return $this;
     }
 
-    public function getPhone(): PhoneNumber
+    /**
+     * @throws NumberParseException
+     */
+    public function getPhone(): ?PhoneNumber
     {
-        $phone = new PhoneNumber($this->phone);
-        $phone->setRawInput($this->phone);
-
+        $phone = PhoneNumberUtil::getInstance();
+        $phone = is_null($this->phone)? null : $phone->parse($this->phone, 'CZ');
         return $phone;
+
     }
-    public function setPhone($phone) : void
+    public function setPhone(?PhoneNumber $phone) : void
     {
         $this->phone = $phone;
     }
@@ -486,7 +572,12 @@ class Users
         return $this;
     }
 
-    public function getPersonalPhoto(): Photo
+    public function getPhotos(): Collection
+    {
+        return $this->photos;
+    }
+
+    public function getPersonalPhoto(): ?Photo
     {
         return $this->personalPhoto;
     }

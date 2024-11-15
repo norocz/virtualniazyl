@@ -24,6 +24,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Model\Services\Menu;
 use Contributte\Application\UI\BasePresenter;
 use DateTimeImmutable;
+use Doctrine\ORM\NonUniqueResultException;
+use libphonenumber\NumberParseException;
+use libphonenumber\PhoneNumber;
+use libphonenumber\PhoneNumberFormat;
+use libphonenumber\PhoneNumberUtil;
 use Nette;
 use Nette\Application\UI\Form;
 use App\Model\Orm\Entity\Owner;
@@ -122,6 +127,8 @@ public function actionDefault(): void
     public function renderProfil(): void
     {
         $this->template->title = 'Profil';
+        $this->getTemplate()->personalPhoto = $this->usersRepository->getUserById($this->getUser()->getId())->getPersonalPhoto();
+        $this->getTemplate()->adoptions = $this->usersRepository->getUserById($this->getUser()->getId())->getAdoptions();
     }
 
     public function actionMessages($id): void
@@ -310,13 +317,32 @@ public function actionDefault(): void
 
     /**
      * @throws InvalidLinkException
+     * @throws NumberParseException
      */
-    public function createComponentUserDetailForm(): Form
+    public function createComponentUserDetailsForm(): Form
     {
         $form = $this->userDetailsFormFactory->create($this->getPresenter());
         $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
 
-        $form->setDefaults($user->toArray());
+        if (!is_null($user->getCity()))
+        {
+            $form->addSelect('country', 'Země', $this->cityRepository->fetchCountries());
+            $form->addSelect('region', 'Region', $this->cityRepository->findRegionByCountry($user->getCity()->getCountry()));
+            $form->addSelect('city','Město',$this->cityRepository->findCityByRegion($user->getCity()->getRegion()));
+        }
+
+        $pn = New PhoneNumber();
+        $form->setDefaults(['firstName' => $user->getFirstName(),
+                            'lastName' => $user->getLastName(),
+                            'phone' => $user->getPhone(),
+                            'street' => $user->getStreet(),
+                            'city' => is_null($user->getCity()) ? null : $user->getCity()->getCityCode(),
+                            'country' => is_null($user->getCity()) ? null : $user->getCity()->getCountry(),
+                            'region' => is_null($user->getCity()) ? null : $user->getCity()->getRegion(),
+                            'orintation' => $user->getOrientationNumber(),
+                            'house' => $user->getHouseNumber(),
+                            'description' => $user->getDescription()
+        ]);
 
         $form['send']->setHtmlAttribute('class', 'btn btn-primary');
         $form['send']->setCaption('Uložit změny');
@@ -325,11 +351,43 @@ public function actionDefault(): void
         return $form;
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
+    public function userUpdateFormSucceeded(Form $form, \stdClass $values) : void
+    {
+
+        $post = $this->getPresenter()->getHttpRequest()->getPost();
+
+        $user = $this->usersRepository->getUserById($this->getUser()->getId());
+        bdump($post);
+        bdump($values);
+        if (!is_null($user))
+            {
+                $pn = PhoneNumberUtil::getInstance();
+
+                $user->setFirstName($post['firstName']);
+                $user->setLastName($post['lastName']);
+                $user->setUpdatedAt(new DateTimeImmutable());
+                $user->setUpdatedBy($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()));
+                $user->setPhone(is_null($post['phone']) ? null : $pn->format(($values->phone ),PhoneNumberFormat::E164));
+                $user->setOrientationNumber($post['orientation']);
+                $user->setHouseNumber($post['house']);
+                $user->setCity($this->cityRepository->findOneBy(['id' => intval($post['city'])]));
+               // $user->setCity($this->cityRepository->findCityById(intval($post['city'])));
+                $this->usersRepository->save($user);
+
+            }
+
+    }
+
+
     public function createComponentUserUpdateForm(string $name): ?Nette\ComponentModel\IComponent
     {
        $form = $this->registerFormFactory->create();
        $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
        $form->setDefaults($user->toArray());
+       $form->addUpload('personalPhoto','Profilová fotka');
        return $form;
     }
 

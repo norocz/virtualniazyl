@@ -88,11 +88,6 @@ class UsersRepository extends EntityRepository
         return $this->findOneBy(['azyl' => $azyl]);
     }
 
-    public function setPassword(string $hash)
-    {
-
-    }
-
     public function getUserByMailVerifyToken(mixed $vrf): ?Users
     {
         return $this->findOneBy(['mailVerifyToken' => $vrf]);
@@ -124,5 +119,16 @@ class UsersRepository extends EntityRepository
             ->select('count(u.id)')
             ->getQuery()
             ->getSingleScalarResult();
+    }
+
+    public function persist(Users $user): void
+    {
+        $this->getEntityManager()->persist($user);
+    }
+
+    public function save(Users $user): void
+    {
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
     }
 }

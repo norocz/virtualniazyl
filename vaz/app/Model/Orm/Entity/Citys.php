@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Model\Orm\Entity;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -13,10 +14,8 @@ class Citys
     #[ORM\Column(type: 'integer')]
     private int $id;
 
-    #[ORM\Column(type: 'integer', length: 255)]
-    #[ORM\OneToMany(targetEntity: "Users", mappedBy: "cityCode")]
-    #[ORM\JoinColumn(name: "city_code", referencedColumnName: "cityCode")]
-    private int $cityCode;
+    #[ORM\OneToMany(mappedBy: "city", targetEntity: Users::class)]
+    private ?Collection $cityUsers;
 
     #[ORM\Column(type: 'string', length: 35)]
     private string $cityName;
@@ -55,6 +54,11 @@ class Citys
         return $this->cityOffice;
     }
 
+    public function getCityUsers(): Collection
+    {
+        return $this->cityUsers;
+    }
+
     public function getCountry(): string
     {
         return $this->country;
@@ -66,7 +70,7 @@ class Citys
 
     public function getCityCode(): int
     {
-        return $this->cityCode;
+        return $this->id;
     }
 
 }
