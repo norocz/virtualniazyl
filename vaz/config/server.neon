@@ -1,0 +1,8 @@
+parameters:
+    smtp:
+        host: "smtp.seznam.cz"
+        username: "registration@virtualniazyl.cz"
+        password: "ing('stri55+"
+        port: 465
+        secure: "ssl"
+        timeout: 600

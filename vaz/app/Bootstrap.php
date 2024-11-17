@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App;
 
+use Brick\PhoneNumber\PhoneNumber;
+use Nepada\PhoneNumberDoctrine\PhoneNumberType;
 use Nette\Bootstrap\Configurator;
 use Doctrine\DBAL\Types\Type;
 
@@ -35,6 +37,7 @@ class Bootstrap
 		$configurator->addConfig($appDir . '/config/common.neon');
 		$configurator->addConfig($appDir . '/config/services.neon');
 		$configurator->addConfig($appDir . '/config/local.neon');
+        $configurator->addConfig($appDir . '/config/server.neon');
         //new types
 
         Type::addType('roleTypeEnum', 'App\Model\Orm\Enums\RoleTypeEnum');
@@ -42,6 +45,7 @@ class Bootstrap
         Type::addType('actionTypeEnum', 'App\Model\Orm\Enums\ActionTypeEnum');
         Type::addType('adoptionsTypeEnum', 'App\Model\Orm\Enums\AdoptionsTypeEnum');
         Type::addType('sexTypeEnum', 'App\Model\Orm\Enums\SexTypeEnum');
+        Type::addType(PhoneNumber::class,PhoneNumberType::class);
 
 		return $configurator;
 	}

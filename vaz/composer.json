@@ -27,7 +27,8 @@
 		"nettrine/fixtures": "^0.7.2",
 		"nepada/phone-number-input": "^1.3",
 		"contributte/translation": "^2.0",
-		"dfridrich/qr-platba": "^2"
+		"dfridrich/qr-platba": "^2",
+		"nepada/phone-number-doctrine": "^2.3"
 	},
 	"require-dev": {
 		"nette/tester": "^2.5",

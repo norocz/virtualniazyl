@@ -27,12 +27,13 @@ use App\Services\UserAddressService;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use JetBrains\PhpStorm\NoReturn;
+use libphonenumber\NumberParseException;
+use libphonenumber\PhoneNumberFormat;
+use libphonenumber\PhoneNumberUtil;
 use Nette;
 use Nette\Bridges\ApplicationLatte\TemplateFactory;
 use Nette\Forms\Form;
-use Nette\Utils\DateTime;
-use Nette\Mail\Message;
-use Nette\Mail\SmtpMailer;
+use App\Services\EmailService;
 use Nette\Security\AuthenticationException;
 use Nette\Security\Passwords;
 use App\Model\Services\Menu;
@@ -64,12 +65,14 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                                 private AnimalsRepository           $animalsRepository,
                                 private adoptionFormFactory         $adoptionFormFactory,
                                 private adoptionAction              $adoptionAction,
-                                private logingService               $logingService)
+                                private logingService               $logingService,
+                                private emailService                $emailService)
     {
         parent::__construct();
         $this->entityManager = $entityManager;
         $this->usersRepository = $usersRepository;
         $this->QRPlatba = $QRPlatba;
+        $this->emailService = $emailService;
         $this->messagesRepository = $messagesRepository;
         $this->userAddressService  = $userAddressService;
         $this->animalsRepository = $animalsRepository;
@@ -243,6 +246,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         if (!empty($vrf))
         {
             $user = $this->usersRepository->getUserByMailVerifyToken($vrf);
+            bdump($user);
             if($user !== NULL)
             {
                 $user->setMailverified(TRUE);
@@ -301,6 +305,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
             if ($this->getUser()->isInRole('user')) {
                 $this->getPresenter()->redirect('User:first');
             }
+            /*
             $message = new Messages();
             $admin = $this->usersRepository->getUserById(1);
             $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
@@ -313,6 +318,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
             $message->setType(MessageTypeEnum::TOADMIN_TYPE);
             $message->setReaded(false);
             $this->messagesRepository->save($message);
+            */
             if ($values->remember) {
                 $this->user->setExpiration('14 days'); // Uživatel zůstane přihlášen 14 dní
             } else {
@@ -385,7 +391,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
 
                 $now = new DateTimeImmutable();
                 $token = md5($values->email.$now->format('Y-m-d H:i:s'));
-
+                $pn = PhoneNumberUtil::getInstance();
                 $user = new Users();
                 $user->setUserName(strval($values->username));
                 $user->setEmail(strval($values->email));
@@ -393,7 +399,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                 $user->setRole('user');
                 $user->setCreatedAt($now);
                 $user->setVerified(FALSE);
-                $user->setPhone($values->phone);
+                $user->setPhone($pn->parse(($values->phone),PhoneNumberFormat::E164));
                 $user->setLegalTerms($values->legalTerms);
                 $user->setAdoptionVerification($values->adoptionVerification);
                 $user->setMailverified(FALSE);
@@ -412,6 +418,14 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                 $template = $this->templateFactory->createTemplate();
                 $html = $template->renderToString(__DIR__ . '/Template/Email/RegistrationEmail.latte', ['verificationLink' => $verificationlink]);
 
+                    $this->emailService->sendEmail(
+                        'Registrace Virtuální Azyl <registration@virtualniazyl.cz>',
+                        strval($values->email),
+                       'Registrace na Virtuální Azyl',
+                                         $html
+                    );
+/*
+                )
                 $mail = new Message;
                 $mail->setFrom('Registrace Virtuální Azyl <registration@virtualniazyl.cz>')
                     ->addTo(strval($values->email))
@@ -429,11 +443,14 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                 );
 
                 $mailer->send($mail);
+*/
 
                 $this->getPresenter()->flashMessage('Registrace proběhla v pořádku :-)', 'alert-success');
                 $this->getPresenter()->redirect('Home:Registered');
             } catch (AuthenticationException $e) {
                 $form->addError('Registrace se nezdařila možná jméno nebo email jsou již registrovány');
+            } catch (Nette\Application\UI\InvalidLinkException $e) {
+            } catch (NumberParseException $e) {
             }
         }
 

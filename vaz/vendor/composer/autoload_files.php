@@ -15,5 +15,6 @@ return array(
     '25072dd6e2470089de65ae7bf11d3109' => $vendorDir . '/symfony/polyfill-php72/bootstrap.php',
     'a4a119a56e50fbb293281d9a48007e0e' => $vendorDir . '/symfony/polyfill-php80/bootstrap.php',
     'a1105708a18b76903365ca1c4aa61b02' => $vendorDir . '/symfony/translation/Resources/functions.php',
+    'c4a49931419ce1f184993456c9b5db14' => $vendorDir . '/dfridrich/qr-platba/src/bcmod.php',
     'd507e002f7fce7f0c6dbf1f22edcb902' => $vendorDir . '/tracy/tracy/src/Tracy/functions.php',
 );

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5fc9a72ae950f85721eda1297269af6c",
+    "content-hash": "034bb12e383e021721c1cd1d4bad62eb",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -2160,6 +2160,72 @@
                 "source": "https://github.com/nette/latte/tree/v3.0.13"
             },
             "time": "2024-01-09T13:54:57+00:00"
+        },
+        {
+            "name": "nepada/phone-number-doctrine",
+            "version": "v2.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nepada/phone-number-doctrine.git",
+                "reference": "d3c5088a39a9d473ef1355378219570b51eec008"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nepada/phone-number-doctrine/zipball/d3c5088a39a9d473ef1355378219570b51eec008",
+                "reference": "d3c5088a39a9d473ef1355378219570b51eec008",
+                "shasum": ""
+            },
+            "require": {
+                "brick/phonenumber": "^0.2.2@dev || ^0.3@dev || ^0.4@dev || ^0.5@dev || ^0.6@dev",
+                "doctrine/dbal": "^3.4@dev || ^4.0@dev",
+                "php": ">=8.1.0 <8.5"
+            },
+            "require-dev": {
+                "giggsey/libphonenumber-for-php": ">=8.13.47",
+                "mockery/mockery": "1.6.12",
+                "nepada/coding-standard": "7.14.0",
+                "nepada/phpstan-nette-tester": "1.2.1",
+                "nette/tester": "2.5.4",
+                "php-parallel-lint/php-parallel-lint": "1.4.0",
+                "phpstan/phpstan": "1.12.5",
+                "phpstan/phpstan-mockery": "1.1.3",
+                "phpstan/phpstan-strict-rules": "1.6.1",
+                "shipmonk/phpstan-rules": "3.2.0",
+                "spaze/phpstan-disallowed-calls": "3.4.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Nepada\\PhoneNumberDoctrine\\": "src/PhoneNumberDoctrine/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Petr Morávek",
+                    "email": "petr@pada.cz"
+                }
+            ],
+            "description": "Phone number type for Doctrine.",
+            "keywords": [
+                "Value Object",
+                "doctrine",
+                "phone number"
+            ],
+            "support": {
+                "email": "petr@pada.cz",
+                "issues": "https://github.com/nepada/phone-number-doctrine/issues",
+                "source": "https://github.com/nepada/phone-number-doctrine/tree/v2.3.1"
+            },
+            "time": "2024-10-27T17:31:22+00:00"
         },
         {
             "name": "nepada/phone-number-input",
@@ -5923,12 +5989,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">= 8.1"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "plugin-api-version": "2.6.0"
 }

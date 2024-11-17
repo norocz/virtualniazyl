@@ -353,6 +353,7 @@ public function actionDefault(): void
 
     /**
      * @throws NonUniqueResultException
+     * @throws NumberParseException
      */
     public function userUpdateFormSucceeded(Form $form, \stdClass $values) : void
     {

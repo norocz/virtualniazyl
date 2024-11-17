@@ -10,7 +10,9 @@ use Doctrine\ORM\Mapping as ORM;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneMetadata;
 use libphonenumber\PhoneNumber;
+use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
+use Nepada\PhoneNumberDoctrine\PhoneNumberType;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'users')]
@@ -41,7 +43,7 @@ class Users
     #[ORM\Column(type: 'string', length: 512)]
     private string $password;
 
-    #[ORM\Column(type: 'string', length: 2048, nullable: true)]
+    #[ORM\Column(type: 'string', length: 4096, nullable: true)]
     private ?string $phone;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -494,13 +496,17 @@ class Users
     public function getPhone(): ?PhoneNumber
     {
         $phone = PhoneNumberUtil::getInstance();
-        $phone = is_null($this->phone)? null : $phone->parse($this->phone, 'CZ');
-        return $phone;
+        return is_null($this->phone)? null : $phone->parse($this->phone, 'CZ');
 
     }
+
+    /**
+     * @throws NumberParseException
+     */
     public function setPhone(?PhoneNumber $phone) : void
     {
-        $this->phone = $phone;
+        $pni= PhoneNumberUtil::getInstance();
+        $this->phone = $pni->format(($phone),PhoneNumberFormat::E164);
     }
 
     public function getMailVerifyToken(): string
@@ -523,7 +529,7 @@ class Users
         return [
             'username' => $this->userName,
             'email' => $this->email,
-            'phone' => isset($this->phone) ? $this->phone : null, //kontrola incializace
+            'phone' => $this->phone ?? null, //kontrola incializace
             'password' => '11223334445556677',
             'password2' => '11223334445556677'
         ];

@@ -46,6 +46,8 @@ services:
 	- App\Services\AdoptionKeyService
 	- Defr\QRPlatba\QRPlatba
 	- App\Services\LogingService
+	emailService:
+	    factory: App\Services\EmailService(%smtp%)
 
 search:
 	-	in: %appDir%
