@@ -51,7 +51,7 @@
         <div class="bg-white p-1 p-lg-2">
             <div class="container">
 				<div id="cookieConsent" class="alert alert-info text-center" role="alert" style="display:none;">
-					Tento web používá cookies pri přihlašování uživatele. Nepoužívá cookies třetích stran (Google, Facebook a spol.)
+					Tento web používá cookies při přihlašování uživatele. Nepoužívá cookies třetích stran (Google, Facebook a spol.)
 					<button type="button" class="btn btn-primary btn-sm" id="acceptCookies">Rozumím</button>
 				</div>
                 <div class="d-flex justify-content-end align-items-center">
@@ -106,13 +106,13 @@
                 <button class="navbar-toggler border-0 pe-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent" data-navbar-collapse="data-navbar-collapse">
                     <div class="container d-lg-flex justify-content-lg-end pe-lg-0 w-lg-100">
-						<ul class="navbar-nav" data-navbar-nav="data-navbar-nav">
+						<ul class="navbar-nav" data-navbar-nav="data-navbar-nav" style="align-items: flex-start; flex-flow: row; flex-shrink: initial;">
 							{ifset $mainMenuItems}
 								{foreach $mainMenuItems as $item}
 									{if ($item['alwaysAvailable'] || $item['logged'] && $user->isLoggedIn() && (!$item['role'] || $user->isInRole($item['role'])))}
 										{var $isActive = $presenter->getAction() === $item['link']}
 											<li class="nav-item">
-												<a href="{link $item['link']}"{if $isActive} class="nav-link nav-bar-item px-0 active" {else} class="nav-link nav-bar-item px-0"{/if} title="{$item['title']}">{$item['name']}</a>
+												<a href="{link $item['link']}"{if $isActive} class="nav-link nav-bar-item px-0 active" {else} class="nav-link nav-bar-item"{/if} title="{$item['title']}">{$item['name']}</a>
 											</li>
 									{/if}
 								{/foreach}
@@ -125,14 +125,40 @@
         </nav>
     {/block}
 <main class="main" id="top">
+	<div class="toast-container position-fixed bottom-0 start-0 p-3">
+		<div
+				n:foreach="$flashes as $flash"
+				id="flash-toast-{$iterator->counter}"
+				class="toast"
+				role="alert"
+				aria-live="assertive"
+				aria-atomic="true"
+				data-bs-autohide="true"
+				data-bs-delay="10000">
+			<div class="toast-header {if $flash->type === 'alert-success'}bg-success text-white{elseif $flash->type === 'alert-warning'}bg-danger text-white{else}bg-info text-white{/if}">
+            <span class="me-auto">Informace
+                {if $flash->type === 'alert-success'}
+					<i class="bi bi-check-circle-fill text-success"></i>
+                {elseif $flash->type === 'alert-warning'}
+                    <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                {else}
+                    <i class="bi bi-info-circle-fill text-info"></i>
+				{/if}
+
+            </span>
+				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+			</div>
+			<div class="toast-body">
+				{$flash->message}
+			</div>
+		</div>
+	</div>
+
+
+
 	<div class="container-lg">
 
-	<div class="row">
-		<div class="col-4-lg"><div n:foreach="$flashes as $flash" n:class="alert, $flash->type">{$flash->message}</div>
-		<div class="col-4-lg"></div>
-		<div class="col-4-lg"></div>
-	</div>
-	</div>
+
 
 				{include content}
 			</div>
@@ -211,8 +237,8 @@
 	<script src="https://polyfill.io/v3/polyfill.min.js?features=window.scroll"></script>
 	<script src="{$basePath}/vendors/list.js/list.min.js"></script>
 	<script src="{$basePath}/assets/js/theme.js"></script>
-	<script src="{$basePath}/assets/js/Naja.min.js"></script>
-	<script src="{$basePath}/assets/js/netteForms.js"></script>
+	<script src="https://unpkg.com/naja@2/dist/Naja.min.js"></script>
+<script src="https://unpkg.com/nette-forms@3/src/assets/netteForms.js"></script>
 	<script>
 		document.addEventListener('DOMContentLoaded', function() {
 			// Zkontrolovat, zda je uživatel přihlášený - tato proměnná bude přicházet z PHP (Nette)
@@ -229,6 +255,17 @@
 				document.getElementById('cookieConsent').style.display = 'none';
 			});
 		});
+		document.addEventListener("DOMContentLoaded", () => {
+			// Najdi všechny toast prvky
+			const toastElements = document.querySelectorAll('.toast');
+
+			// Pro každý toast vytvoř instance Bootstrap Toast
+			toastElements.forEach(toastElement => {
+				const toast = new bootstrap.Toast(toastElement);
+				toast.show(); // Zobraz toast
+			});
+		});
+
 	</script>
 </body>
 </html>

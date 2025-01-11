@@ -3,10 +3,13 @@ declare(strict_types=1);
 
 namespace App\Model\Orm\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
+#[ORM\Table(name: 'citys')]
+#[ORM\MappedSuperclass]
 class Citys
 {
     #[ORM\Id]
@@ -14,25 +17,29 @@ class Citys
     #[ORM\Column(type: 'integer')]
     private int $id;
 
-    #[ORM\OneToMany(mappedBy: "city", targetEntity: Users::class)]
-    private ?Collection $cityUsers;
+   // #[ORM\OneToMany(mappedBy: "city", targetEntity: Users::class)]
+    //private ?Collection $cityUsers;
 
-    #[ORM\Column(type: 'string', length: 35)]
+    #[ORM\Column(type: 'string', length: 100)]
     private string $cityName;
 
-    #[ORM\Column(type: 'string', length: 22)]
+    #[ORM\Column(type: 'string', length: 100)]
     private string $region;
 
-    #[ORM\Column(type: 'string', length: 35)]
+    #[ORM\Column(type: 'string', length: 100)]
     private string $cityOffice;
 
-    #[ORM\Column(type: 'string', length: 35)]
+    #[ORM\Column(type: 'string', length: 50)]
     private string $country;
 
     #[ORM\Column(type: 'string', length: 5)]
     private string $countryCode;
 
 
+    public function __construct()
+    {
+  //      $this->cityUsers = new ArrayCollection();
+    }
 
     public function getId(): int
     {
@@ -53,12 +60,12 @@ class Citys
     {
         return $this->cityOffice;
     }
-
+/*
     public function getCityUsers(): Collection
     {
         return $this->cityUsers;
     }
-
+*/
     public function getCountry(): string
     {
         return $this->country;

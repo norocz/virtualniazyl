@@ -105,8 +105,8 @@ class Users
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $legalTerms;
 
-    #[ORM\ManyToOne(targetEntity: Citys::class, inversedBy: "id")]
-    private ?Citys $city;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $city = null;
 
     #[ORM\Column(type: 'string', length: 6, nullable: true)]
     private ?string $houseNumber;
@@ -176,6 +176,7 @@ class Users
         $this->reviewerRatings = null;
         $this->userRatings = null;
         $this->description = null;
+        $this->city = null;
     }
 
     public function __toString(): string
@@ -342,12 +343,13 @@ class Users
         $this->createdBy = $createdBy;
     }
 
-    public function setCity(Citys $city): void
+    public function setCity(?int $city): void
     {
         $this->city = $city;
+
     }
 
-    public function getCity(): ?Citys
+    public function getCity(): ?int
     {
         return $this->city;
     }
@@ -505,8 +507,7 @@ class Users
      */
     public function setPhone(?PhoneNumber $phone) : void
     {
-        $pni= PhoneNumberUtil::getInstance();
-        $this->phone = $pni->format(($phone),PhoneNumberFormat::E164);
+        $this->phone = $phone;
     }
 
     public function getMailVerifyToken(): string

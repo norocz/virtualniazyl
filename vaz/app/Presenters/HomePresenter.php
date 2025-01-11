@@ -297,7 +297,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
 
         return $form;
     }
-    public function formSignInSucceeded(\Nette\Application\UI\Form $form, \stdClass $values): void
+    public function formSignInSucceeded(Form $form, \stdClass $values): void
     {
         try {
             $this->getUser()->login($values->email, $values->password);

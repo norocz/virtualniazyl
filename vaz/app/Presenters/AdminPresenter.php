@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Presenters;
 
+use App\Components\Datagrids\AnimalsDatagridFactory;
 use App\Components\Datagrids\CitysDatagridFactory;
 use App\Components\Datagrids\PagesDatagridFactory;
 use App\Components\Datagrids\UsersDatagridFactory;
@@ -62,7 +63,8 @@ class AdminPresenter extends BasePresenter
                                 public readonly speciesDatagridFactory  $speciesDatagridFactory,
                                 public newsRepository               $newsRepository,
                                 public MessagesService              $messagesService,
-                                public SpeciesRepository            $speciesRepository)
+                                public SpeciesRepository            $speciesRepository,
+                                public AnimalsDatagridFactory      $animalsDatagridFactory)
     {
         parent::__construct();
         $this->roleFormFactory = $roleFormFactory;
@@ -77,6 +79,7 @@ class AdminPresenter extends BasePresenter
         $this->newsRepository = $newsRepository;
         $this->messagesService = $messagesService;
         $this->speciesRepository = $speciesRepository;
+        $this->animalsDatagridFactory = $animalsDatagridFactory;
         //$this->speciesFormFactory = $speciesFormFactory;
         //$this->speciesDatagridFactory = $speciesDatagridFactory;
 
@@ -230,6 +233,15 @@ class AdminPresenter extends BasePresenter
         }
     }
 
+    public function handleDelete(int $id): void
+    {
+        $animal = $this->animalsRepository->findById($id);
+        $animal->setIsDeleted(true);
+        $this->animalsRepository->saveAnimal($animal);
+        $this->flashMessage('Zvířátko bylo smazáno.', 'alert-success');
+        $this->redirect('this');
+    }
+
 
     // Components
     public function createComponentPageForm(): Form
@@ -323,6 +335,8 @@ class AdminPresenter extends BasePresenter
         return $form;
     }
 
+
+
     public function speciesFormSucceeded(Form $form, \stdClass $values): void
     {
         bdump($values);
@@ -401,5 +415,10 @@ class AdminPresenter extends BasePresenter
         return $grid;
     }
 
+    public function createComponentAnimalsAdminDatagrid(): DataGrid
+    {
+        $grid = $this->animalsDatagridFactory->create();
+        return $grid;
+    }
 
 }

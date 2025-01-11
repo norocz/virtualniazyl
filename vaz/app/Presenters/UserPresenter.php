@@ -326,9 +326,20 @@ public function actionDefault(): void
 
         if (!is_null($user->getCity()))
         {
+            $test = $form->components;
+            $city = $this->cityRepository->findOneBy(['id'=>$user->getCity()]);
+
+            $form->removeComponent($form->getComponent('city'));
+            $form->removeComponent($form->getComponent('region'));
+            $form->removeComponent($form->getComponent('country'));
             $form->addSelect('country', 'Země', $this->cityRepository->fetchCountries());
-            $form->addSelect('region', 'Region', $this->cityRepository->findRegionByCountry($user->getCity()->getCountry()));
-            $form->addSelect('city','Město',$this->cityRepository->findCityByRegion($user->getCity()->getRegion()));
+            $form->addSelect('region', 'Region', $this->cityRepository->findRegionByCountry($city->getCountry()));
+            $form->addSelect('city','Město',$this->cityRepository->findCityByRegion($city->getRegion()));
+
+/*
+            $form->getComponent('region')->setItems($this->cityRepository->findRegionByCountry($user->getCity()->getCountry()));
+            $form->getComponent('city')->setItems($this->cityRepository->findCityByRegion($user->getCity()->getRegion()));
+  */
         }
 
         $pn = New PhoneNumber();
@@ -336,9 +347,9 @@ public function actionDefault(): void
                             'lastName' => $user->getLastName(),
                             'phone' => $user->getPhone(),
                             'street' => $user->getStreet(),
-                            'city' => is_null($user->getCity()) ? null : $user->getCity()->getCityCode(),
-                            'country' => is_null($user->getCity()) ? null : $user->getCity()->getCountry(),
-                            'region' => is_null($user->getCity()) ? null : $user->getCity()->getRegion(),
+                            'city' => is_null($user->getCity()) ? null : $city->getId(),
+                            'country' => is_null($user->getCity()) ? null : $city->getCountry(),
+                            'region' => is_null($user->getCity()) ? null : $city->getRegion(),
                             'orintation' => $user->getOrientationNumber(),
                             'house' => $user->getHouseNumber(),
                             'description' => $user->getDescription()
@@ -361,8 +372,8 @@ public function actionDefault(): void
         $post = $this->getPresenter()->getHttpRequest()->getPost();
 
         $user = $this->usersRepository->getUserById($this->getUser()->getId());
-        bdump($post);
-        bdump($values);
+
+        dump($values->phone->getPhoneNumber()->getValue());
         if (!is_null($user))
             {
                 $pn = PhoneNumberUtil::getInstance();
@@ -371,10 +382,12 @@ public function actionDefault(): void
                 $user->setLastName($post['lastName']);
                 $user->setUpdatedAt(new DateTimeImmutable());
                 $user->setUpdatedBy($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()));
-                $user->setPhone(is_null($post['phone']) ? null : $pn->format(($values->phone ),PhoneNumberFormat::E164));
+                $user->setPhone(empty($post['phone']) ? null : $values->phone->phoneNumber->getNumber());
                 $user->setOrientationNumber($post['orientation']);
+                $user->setStreet($values->street);
+                $user->setDescription($values->description);
                 $user->setHouseNumber($post['house']);
-                $user->setCity($this->cityRepository->findOneBy(['id' => intval($post['city'])]));
+                $user->setCity(intval($post['city']));
                // $user->setCity($this->cityRepository->findCityById(intval($post['city'])));
                 $this->usersRepository->save($user);
 
