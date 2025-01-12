@@ -39,6 +39,34 @@
 </style>
 
 <body>
+<div class="toast-container position-fixed bottom-0 start-50 p-3">
+    <div
+            n:foreach="$flashes as $flash"
+            id="flash-toast-{$iterator->counter}"
+            class="toast"
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
+            data-bs-autohide="true"
+            data-bs-delay="5000">
+        <div class="toast-header {if $flash->type === 'alert-success'}bg-success text-white{elseif $flash->type === 'alert-warning'}bg-danger text-white{else}bg-info text-white{/if}">
+            <span class="me-auto">Informace
+                {if $flash->type === 'alert-success'}
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                {elseif $flash->type === 'alert-warning'}
+                    <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                {else}
+                    <i class="bi bi-info-circle-fill text-info"></i>
+                {/if}
+
+            </span>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            {$flash->message}
+        </div>
+    </div>
+</div>
 <div class="container-fluid position-relative bg-white d-flex p-0">
 
 
@@ -91,15 +119,14 @@
                         <a href="{link Admin:updateMessagesAddress}" class="dropdown-item">Messages Address Update</a>
 
                     </div>
-                    <hr>
-                    <div class="d-flex align-items-center ms-4 mb-4"><div n:foreach="$flashes as $flash" n:class="alert, $flash->type">{$flash->message}</div></div>
-                    <hr>
+
                 </div>
 
 
             </div>
         </nav>
     </div>
+</div>
     <!-- Sidebar End -->
 
 
@@ -192,6 +219,18 @@
 <script>naja.initialize();
 </script>
 <script src="{$basePath}/assets/js/datagrid.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Najdi všechny toast prvky
+        const toastElements = document.querySelectorAll('.toast');
+
+        // Pro každý toast vytvoř instance Bootstrap Toast
+        toastElements.forEach(toastElement => {
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show(); // Zobraz toast
+        });
+    });
+</script>
 </body>
 
 </html>
