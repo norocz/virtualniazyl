@@ -4,12 +4,8 @@ declare(strict_types = 1);
 
 namespace App\Model\Orm\Entity;
 
-use App\Model\Orm\Entity\Animal;
-use App\Model\Orm\Entity\Azyl;
-use App\Model\Orm\Entity\Users;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\ManyToOne;
 
 
 #[ORM\Entity]
@@ -57,7 +53,7 @@ class Analytics
         return $this->date;
     }
 
-    public function setDate(DateTimeImmutable $date): Analitics
+    public function setDate(DateTimeImmutable $date): Analytics
     {
         $this->date = $date;
         return $this;
