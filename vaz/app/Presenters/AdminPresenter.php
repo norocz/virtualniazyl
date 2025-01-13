@@ -242,6 +242,17 @@ class AdminPresenter extends BasePresenter
         $this->redirect('this');
     }
 
+    public function handleGlobalNewsChange(int $id, $new_global): void
+    {
+        $news = $this->newsRepository->findOneBy(['id' => $id]);
+        $news->setGlobal($new_global);
+        $this->newsRepository->save($news);
+            if ($this->isAjax()) {
+                $this['columnsGrid']->redrawItem($id);
+            }
+
+    }
+
 
     // Components
     public function createComponentPageForm(): Form
