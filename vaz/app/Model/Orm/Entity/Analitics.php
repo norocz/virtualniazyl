@@ -30,6 +30,15 @@ class Analitics
     #[ORM\Column(type: 'string', length: 512)]
     private string $comment;
 
+    #[ORM\Column(type: 'string', length: 255)]
+    private string $ipAdress; //nonregistredip
+
+    #[ORM\Column(type: 'string', length: 255)]
+    private string $action; //login,logout,visit,registration,showadoption,
+
+    #[ORM\Column(type: 'integer', length: 255)]
+    private int $tempId; //temporary non registred user id
+
     public function getId(): int
     {
         return $this->id;

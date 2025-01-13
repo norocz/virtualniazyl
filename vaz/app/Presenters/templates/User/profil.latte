@@ -27,69 +27,68 @@
                 <div class="tab-pane fade" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
                     {ifset $adoptions}
                         <div class="row">
-                            <div class="col-xl-12 col-sm-12 flex-column">
+                            <div class="col-12 col-sm-12">
                                 <h3>Vaše adopce</h3>
                                 {if $adoptions == null}
                                     Nemáte žádnou aktivní adopci. Máte vyplněný celý profil? Bez toho to nepůjde.
                                 {else}
                                 <div class="adoptions d-flex flex-row flex-wrap" id="adoptions">
                     {snippet activeAdoptions}
-                    {foreach $adoptions as $adoption}
-                        <div class="card" style="width: 9rem;">
-                            {var $info = ''}
-                            {switch $adoption->getActionType()}
-                                {case 'Start adopce'}
-                                {var $bcg = 'bg-primary'}
-                                {var $info = 'Adopce začala'}
-                                {case 'Přerušení adopce'}
-                                {var $bcg = 'bg-warning'}
-                                {var $info = 'Adopce skončila'}
-                                {case 'Kontakt'}
-                                {var $bcg = 'bg-primary'}
-                                {var $info = 'Kontakt zájemce'}
-                                {case 'Telefonát'}
-                                {var $bcg = 'bg-primary'}
-                                {var $info = 'Telefonát zájemci'}
-                                {case 'Osobní kontakt'}
-                                {var $bcg = 'bg-primary'}
-                                {var $info = 'Osobní návštěva'}
-                                {case 'Ověření'}
-                                {var $bcg = 'bg-primary'}
-                                {var $info = 'Adopce ověřená'}
-                                {case 'Adopce se zdařila'}
-                                {var $bcg = 'bg-success'}
-                                {var $info = 'Adopce skončila'}
-                                {case 'Adopce se nezdařila'}
-                                {var $bcg = 'bg-danger'}
-                                {var $info = 'Adopce skončila'}
-                                {case 'Konec adopce'}
-                                {var $bcg = 'bg-warning'}
-                                {var $info = 'Adopce skončila'}
 
-                            {/switch}
+                        <div class="adoptions d-flex flex-row flex-wrap" id="adoptions">
+                            {foreach $adoptions as $adoption}
+                                <div class="col-12 col-lg-3 mb-3 px-3">
+                                    <div class="card" style="width: 100%;">
+                                        {var $info = ''}
+                {switch $adoption->getActionType()}
+                                            {case 'Start adopce'}
+                                            {var $bcg = 'bg-primary'}
+                                            {var $info = 'Adopce začala'}
+                                            {case 'Přerušení adopce'}
+                                            {var $bcg = 'bg-warning'}
+                                            {var $info = 'Adopce skončila'}
+                                            {case 'Kontakt'}
+                                            {var $bcg = 'bg-primary'}
+                                            {var $info = 'Kontakt zájemce'}
+                                            {case 'Telefonát'}
+                                            {var $bcg = 'bg-primary'}
+                                            {var $info = 'Telefonát zájemci'}
+                                            {case 'Osobní kontakt'}
+                                            {var $bcg = 'bg-primary'}
+                                            {var $info = 'Osobní návštěva'}
+                                            {case 'Ověření'}
+                                            {var $bcg = 'bg-primary'}
+                                            {var $info = 'Adopce ověřená'}
+                                            {case 'Adopce se zdařila'}
+                                            {var $bcg = 'bg-success'}
+                                            {var $info = 'Adopce skončila'}
+                                            {case 'Adopce se nezdařila'}
+                                            {var $bcg = 'bg-danger'}
+                                            {var $info = 'Adopce skončila'}
+                                            {case 'Konec adopce'}
+                                            {var $bcg = 'bg-warning'}
+                                            {var $info = 'Adopce skončila'}
+                                        {/switch}
 
-
-
-
-                            <div class="adoptions-border">
-                                <div class = "card adoptions-card" style="width: 18rem;">
-                                    {if !is_null($adoption->getAnimal()->getPhotos()[0])}
-                                        <img class="card-img-top" src="{$basePath}/{$adoption->getAnimal()->getPhotos()[0]->getPath().$adoption->getAnimal()->getPhotos()[0]->getName()}" alt="{$adoption->getAnimal()->getPhotos()[0]->getName()}" />
-                                    {else}
-                                        <img class="card-img-top" src="{$basePath}/assets/vazdata/img/pic/love1.jpeg" alt="Happy dino" />
-                                    {/if}
-                            <div class="card-header {$bcg} bf- text-white">{$adoption->getAnimal()->getName()} </div>
-                            <div class="card-body">
-                                <p class="card-text">{$adoption->getCreatedAt()|date:'H:i d.m.Y'}<br> {$info}</p>
-                                <a class="btn btn-outline-info btn-sm" href="{link home:adopce $adoption->getId()}">Zvířátko</a>
-                                <a href="{link Home:azyl $adoption->getAzyl()->getId()}" class="btn btn-sm btn-outline-info">{$adoption->getAzyl()->getAzylName()}</a>
-                            </div>
+                                        <div class="adoptions-border">
+                                            <div class="card adoptions-card" style="width: 100%;">
+                                                {if !is_null($adoption->getAnimal()->getPhotos()[0])}
+                                                    <img class="card-img-top" src="{$basePath}/{$adoption->getAnimal()->getPhotos()[0]->getPath().$adoption->getAnimal()->getPhotos()[0]->getName()}" alt="{$adoption->getAnimal()->getPhotos()[0]->getName()}" />
+                                                {else}
+                                                    <img class="card-img-top" src="{$basePath}/assets/vazdata/img/pic/love1.jpeg" alt="Happy dino" />
+                                                {/if}
+                                                <div class="card-header {$bcg} text-white">{$adoption->getAnimal()->getName()}</div>
+                                                <div class="card-body">
+                                                    <p class="card-text">{$adoption->getCreatedAt()|date:'H:i d.m.Y'}<br> {$info}</p>
+                                                    <a class="btn btn-outline-info btn-sm" href="{link home:adopce $adoption->getId()}">Zvířátko</a>
+                                                    <a href="{link Home:azyl $adoption->getAzyl()->getId()}" class="btn btn-sm btn-outline-info">{$adoption->getAzyl()->getAzylName()}</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {/foreach}
                         </div>
-                            </div>
-                        </div>
-
-
-                    {/foreach}
 
                     {/snippet}
                     </div>
