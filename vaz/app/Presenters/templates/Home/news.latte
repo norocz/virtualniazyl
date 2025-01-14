@@ -15,7 +15,10 @@
             <div class="news d-flex flex-row flex-wrap" id="news">
 
                 {foreach $news as $new}
-                {var $authorRole = $new->getAuthor()}
+                {var $author = $new->getAuthor()}
+                {if $author !== null}
+                  {var $userName = $author->getUserName()}
+                  {/if}
                 {if $new->getImportant() === true}
                 <div class = "card news-card text-dark bg-warning" style="width: 40rem;" >
                     {else}
@@ -24,12 +27,13 @@
                         <h5 class="card-header">{$new->getTitle()}</h5>
                         <div class="card-body">
                             <p class="card-text"> {$new->getContent()|noescape}</p>
-                            <p class="author-name card-text"><small class="text-muted">Autor: {$new->getAuthor()->getUserName()}</small>
+                            <p class="author-name card-text"><small class="text-muted">Autor: {$userName} </small>
                                 <br><small class="text-muted">Vytvořeno: {$new->getCreatedAt()->format('d.m.Y. H:m:s')}</small>
 
                             </p>
-                            {if $authorRole == 'azyl'}
-                            <a n:href="Home:azyl $author->id" class="btn btn-sm btn-primary">Stránka azylu</a>
+
+                            {if $new->getAzyl() != null}
+                            <a n:href="Home:azyl $new->getAzyl()->getId()" class="btn btn-sm btn-primary">Stránka azylu</a>
                             {/if}
                         </div>
                     </div>

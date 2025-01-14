@@ -16,6 +16,7 @@ use App\Model\Orm\Entity\News;
 use App\Model\Orm\Entity\Photo;
 use App\Model\Orm\Enums\MessageTypeEnum;
 use App\Model\Orm\Enums\RoleTypeEnum;
+use App\Model\Orm\Repository\AnalyticsRepository;
 use App\Model\Orm\Repository\AnimalsRepository;
 use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\MessagesRepository;
@@ -52,7 +53,8 @@ class AzylPresenter extends BasePresenter
                                 public AzylRepository $azylRepository,
                                 private MessagesRepository $messagesRepository,
                                 private messagesFormFactory $messagesFormFactory,
-                                private messagesService $messagesService)
+                                private messagesService $messagesService,
+                                private AnalyticsRepository $analyticsRepository)
     {
         $this->animalsRepository = $animalsRepository;
         $this->animalFormFactory = $animalFormFactory;
@@ -65,6 +67,7 @@ class AzylPresenter extends BasePresenter
         $this->azylRepository = $azylRepository;
         $this->messagesFormFactory = $messagesFormFactory;
         $this->messagesService = $messagesService;
+        $this->analyticsRepository = $analyticsRepository;
         parent::__construct();
     }
 
@@ -100,12 +103,16 @@ class AzylPresenter extends BasePresenter
 
     public function renderDefault(): void
     {
-        $this->template->title = 'Azyl';
+        $this->getTemplate()->title = 'Azyl';
 
         if ($this->getPresenter()->getUser()->getRoles()[0] === 'superadmin') {
-            $this->getTemplate()->countAnimals = 999;
+            $this->getTemplate()->countAnimals = $this->animalsRepository->countByAzyl($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']);
+            $this->getTemplate()->countVisits = $this->analyticsRepository->countVisitsForAzyl($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
+            $this->getTemplate()->visitors = $this->analyticsRepository->getVisitorsForAzyl($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
         } else {
             $this->getTemplate()->countAnimals = $this->animalsRepository->countByAzyl($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']);
+            $this->getTemplate()->countVisits = $this->analyticsRepository->countVisitsForAzyl($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
+            $this->getTemplate()->visitors = $this->analyticsRepository->getVisitorsForAzyl($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
         }
 
 

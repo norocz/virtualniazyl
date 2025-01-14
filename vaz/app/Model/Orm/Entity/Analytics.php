@@ -38,10 +38,19 @@ class Analytics
     private string $ipAdress; //nonregistredip
 
     #[ORM\Column(type: 'string', length: 255)]
+    private string $host; //host name
+
+    #[ORM\Column(type: 'string', length: 255)]
+    private string $name; //presenter name
+
+    #[ORM\Column(type: 'string', length: 255)]
     private string $action; //login,logout,visit,registration,showadoption,
 
-    #[ORM\Column(type: 'integer', length: 255)]
-    private int $tempId; //temporary non registred user id
+    #[ORM\Column(type: 'string', length: 255)]
+    private string $tempId; //temporary non registred user id
+
+    #[ORM\Column(type: 'string', length: 1024)]
+    private string $params; //parametry odkazu
 
     public function getId(): int
     {
@@ -59,34 +68,34 @@ class Analytics
         return $this;
     }
 
-    public function getAzyl(): Azyl
+    public function getAzyl(): ?Azyl
     {
         return $this->azyl;
     }
 
-    public function setAzyl(Azyl $azyl): Analytics
+    public function setAzyl(?Azyl $azyl): Analytics
     {
         $this->azyl = $azyl;
         return $this;
     }
 
-    public function getAnimal(): Animal
+    public function getAnimal(): ?Animal
     {
         return $this->animal;
     }
 
-    public function setAnimal(Animal $animal): Analytics
+    public function setAnimal(?Animal $animal): Analytics
     {
         $this->animal = $animal;
         return $this;
     }
 
-    public function getUser(): Users
+    public function getUser(): ?Users
     {
         return $this->user;
     }
 
-    public function setUser(Users $user): Analytics
+    public function setUser(?Users $user): Analytics
     {
         $this->user = $user;
         return $this;
@@ -125,16 +134,49 @@ class Analytics
         return $this;
     }
 
-    public function getTempId(): int
+    public function getTempId(): string
     {
         return $this->tempId;
     }
 
-    public function setTempId(int $tempId): Analytics
+    public function setTempId(string $tempId): Analytics
     {
         $this->tempId = $tempId;
         return $this;
     }
 
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): Analytics
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    public function setHost(string $host): Analytics
+    {
+        $this->host = $host;
+        return $this;
+    }
+    public function getHost(): string
+    {
+        return $this->host;
+    }
+
+    /**
+     * @param string $params
+     */
+    public function setParams(string $params): void
+    {
+        $this->params = $params;
+    }
+
+    public function getParams(): string
+    {
+        return $this->params;
+    }
 
 }

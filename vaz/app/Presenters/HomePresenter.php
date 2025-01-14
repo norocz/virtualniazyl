@@ -9,12 +9,14 @@ use App\Forms\registerFormFactory;
 use App\Forms\SignInFormFactory;
 use App\Model\Orm\Entity\Adoption;
 use App\Model\Orm\Entity\AdoptionAction;
+use App\Model\Orm\Entity\Analytics;
 use App\Model\Orm\Entity\Azyl;
 use App\Model\Orm\Entity\Messages;
 use App\Model\Orm\Entity\Users;
 use App\Model\Orm\Enums\ActionTypeEnum;
 use App\Model\Orm\Enums\MessageTypeEnum;
 use App\Model\Orm\Repository\AdoptionsRepository;
+use App\Model\Orm\Repository\AnalyticsRepository;
 use App\Model\Orm\Repository\AnimalsRepository;
 use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\MessagesRepository;
@@ -22,6 +24,7 @@ use App\Model\Orm\Repository\NewsRepository;
 use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use App\Services\AdoptionKeyService;
+use App\Services\AnalyticsService;
 use App\Services\LogingService;
 use App\Services\UserAddressService;
 use DateTimeImmutable;
@@ -43,6 +46,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
 {
     protected EntityManagerInterface $entityManager;
     protected UsersRepository $usersRepository;
+
 
     public Azyl $azylProfil;
     public Users $azylUser;
@@ -66,7 +70,8 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                                 private adoptionFormFactory         $adoptionFormFactory,
                                 private adoptionAction              $adoptionAction,
                                 private logingService               $logingService,
-                                private emailService                $emailService)
+                                private emailService                $emailService,
+                                private AnalyticsService         $analyticsService)
     {
         parent::__construct();
         $this->entityManager = $entityManager;
@@ -79,6 +84,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->adoptionFormFactory = $adoptionFormFactory;
         $this->adoptionAction = $adoptionAction;
         $this->logingService = $logingService;
+        $this->analyticsService = $analyticsService;
 
     }
 
@@ -94,6 +100,9 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         }
         $this->getTemplate()->mainMenuItems = $menu->getMenu();
         //$this->getTemplate()->userRepository = $this->usersRepository;
+        $this->analyticsService->setPresenter($this);
+        $this->analyticsService->logVisit();
+
     }
 
     public function renderDefault(): void

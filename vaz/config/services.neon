@@ -17,6 +17,7 @@ services:
 	- App\Model\Orm\Entity\HelpForm
 	- App\Model\Orm\Entity\Citys
 	- App\Model\Orm\Entity\UsersRatings
+	- App\Model\Orm\Entity\Analytics
 
 	##Enum##
 	- App\Model\Orm\Enums\RoleTypeEnum
@@ -44,6 +45,7 @@ services:
 	- App\Services\UserAddressService
 	- App\Services\MessagesService
 	- App\Services\AdoptionKeyService
+	- App\Services\AnalyticsService
 	- Defr\QRPlatba\QRPlatba
 	- App\Services\LogingService
 	emailService:

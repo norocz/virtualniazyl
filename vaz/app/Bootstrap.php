@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Model\Doctrine\JsonExtract;
 use Brick\PhoneNumber\PhoneNumber;
 use Nepada\PhoneNumberDoctrine\PhoneNumberType;
 use Nette\Bootstrap\Configurator;

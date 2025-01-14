@@ -14,7 +14,7 @@
             <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
                 <i class="fa fa-chart-bar fa-3x text-primary"></i>
                 <div class="ms-3">
-                    <p class="mb-2">Reakce na adopce</p>
+                    <p class="mb-2">Návštěvy adopcí</p>
                     <h6 class="mb-0">12</h6>
                 </div>
             </div>
@@ -23,8 +23,8 @@
             <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
                 <i class="fa fa-chart-area fa-3x text-primary"></i>
                 <div class="ms-3">
-                    <p class="mb-2">Návštěvy stránky</p>
-                    <h6 class="mb-0">25</h6>
+                    <p class="mb-2">Návštěvy stránky azylu</p>
+                    <h6 class="mb-0">{$countVisits}</h6>
                 </div>
             </div>
         </div>
@@ -32,8 +32,13 @@
             <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
                 <i class="fa fa-chart-pie fa-3x text-primary"></i>
                 <div class="ms-3">
-                    <p class="mb-2">Reakce na Azyl</p>
-                    <h6 class="mb-0">2</h6>
+                    <p class="mb-2">Poslední návštěvníci</p>
+                    {ifset  $visitors}
+                        {foreach $visitors as $visitor}
+                            <h6 class="mb-0">{$visitor['userName']}</h6>
+                        {/foreach}
+
+                    {/ifset}
                 </div>
             </div>
         </div>
