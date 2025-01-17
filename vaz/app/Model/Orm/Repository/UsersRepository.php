@@ -121,6 +121,22 @@ class UsersRepository extends EntityRepository
             ->getSingleScalarResult();
     }
 
+
+   public function getUsersByMonthOfRegistration(int $lastMonths = 12): array
+   {
+       $sql = "
+        SELECT MONTH(u.created_at) as month, YEAR(u.created_at) as year, COUNT(u.id) as count
+        FROM users u
+        WHERE u.created_at >= DATE_SUB(CURDATE(), INTERVAL :lastMonths MONTH)
+        GROUP BY YEAR(u.created_at), MONTH(u.created_at)
+        ORDER BY YEAR(u.created_at), MONTH(u.created_at)
+    ";
+
+       $connection = $this->getEntityManager()->getConnection();
+       $stmt = $connection->executeQuery($sql, ['lastMonths' => $lastMonths]);
+       return $stmt->fetchAllAssociative();
+   }
+
     public function persist(Users $user): void
     {
         $this->getEntityManager()->persist($user);

@@ -18,6 +18,7 @@ class Firewall
     private FirewallLogsRepository $firewallLogsRepository;
 
     private Presenter $presenter;
+    private $ufwPath;
 
     public function __construct(
         Request $request,
@@ -116,5 +117,10 @@ class Firewall
            }
 
        }
+    }
+
+    private function blockIpInUbuntuFirewall(string $ip): void
+    {
+        exec("sudo {$this->ufwPath} deny from $ip");
     }
 }

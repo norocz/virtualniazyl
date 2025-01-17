@@ -104,12 +104,67 @@ class AdminPresenter extends BasePresenter
         $this->getTemplate()->mainMenuItems = $menu->getMenu();
     }
 
+    private function getMonthName(int $month): string
+    {
+        $months = [
+            1 => 'Leden', 2 => 'Únor', 3 => 'Březen', 4 => 'Duben',
+            5 => 'Květen', 6 => 'Červen', 7 => 'Červenec', 8 => 'Srpen',
+            9 => 'Září', 10 => 'Říjen', 11 => 'Listopad', 12 => 'Prosinec'
+        ];
+
+        return $months[$month];
+    }
+
     public function renderDefault(): void
     {
+        $lastMonths = 24;
         $this->template->title = 'Admin';
         $this->template->newUsersCount = $this->usersRepository->CountNewUsers();
         $this->template->usersCount = $this->usersRepository->CountUsers();
         $this->template->azylsCount = $this->usersRepository->CountAzyls();
+
+        $registrations = $this->usersRepository->getUsersByMonthOfRegistration(6);
+
+        // Vytvoříme mapu pro výsledky (klíč: "rok-měsíc", hodnota: počet)
+        $resultsMap = [];
+        foreach ($registrations as $registration) {
+            $key = $registration['year'] . '-' . $registration['month'];
+            $resultsMap[$key] = $registration['count'];
+        }
+
+        // Pole pro měsíce a počty
+        $labels = [];
+        $data = [];
+
+        // Aktuální datum
+        $currentDate = new \DateTime();
+
+        // Projdeme posledních X měsíců
+        for ($i = 0; $i < $lastMonths; $i++) {
+            $date = (clone $currentDate)->modify("-$i months");
+            $year = $date->format('Y');
+            $month = intval($date->format('n'));
+            $key = $year . '-' . $month;
+
+            // Název měsíce
+            $monthName = $this->getMonthName($month);
+
+            // Přidáme název měsíce do labels
+            $labels[] = $monthName . ' ' . $year;
+
+            // Přidáme počet registrací (nebo 0, pokud měsíc není v výsledcích)
+            $data[] = $resultsMap[$key] ?? 0;
+        }
+
+        // Obrátíme pořadí, aby nejnovější měsíc byl první
+        $labels = array_reverse($labels);
+        $data = array_reverse($data);
+
+        $this->getTemplate()->uniqueId = random_int(0, 10000); //nahodne unikátní číslo pro rander
+        $this->getTemplate()->labels = $labels ;// ['aaa','bbb','ccc'] nazvy sloupců
+        $this->getTemplate()->data = $data ; //[xx,yyy,zzz] data
+        $this->getTemplate()->label = 'Počty registrovaných uživatelů' ; //nazev grafu
+
     }
 
     public function renderUpdateMessagesAddress(): void

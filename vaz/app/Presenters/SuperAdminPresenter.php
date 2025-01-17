@@ -105,6 +105,17 @@ class SuperAdminPresenter extends BasePresenter
 
     public function handleFirewallLogAddToUFW($id): void
     {
+        //todo: doplnit přidní do UFW na serveru
+        //csudo visudo
+
+        //www-data ALL=(ALL) NOPASSWD: /usr/sbin/ufw
+
+        //private function blockIpInUbuntuFirewall(string $ip): void
+        //{
+        //    exec("sudo ufw deny from $ip");
+        //}
+
+
 
         $firewallLog = $this->firewallLogsRepository->find($id);
         $firewallLog->setAction('firewall_blocked');

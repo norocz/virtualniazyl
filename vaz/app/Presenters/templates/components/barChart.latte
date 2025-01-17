@@ -1,17 +1,20 @@
 {* templates/components/lineChart.latte *}
+{block charCanvas}
 <div class="chart-container">
-    <canvas id="lineChart-{$uniqueId}" width="400" height="200"></canvas>
+    <canvas id="barChart-{$uniqueId}" width="1200" height="200"></canvas>
 </div>
+{/block}
 
+{block $charScript}
 <script>
-    const ctx = document.getElementById('lineChart-{$uniqueId}').getContext('2d');
+    const ctx = document.getElementById('barChart-' + {$uniqueId}).getContext('2d');
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: $labels,
+            labels: {json_encode($labels)},
             datasets: [{
-                label: $label,
-                data: $data,
+                label: {$label},
+                data: {json_encode($data)},
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1
@@ -22,3 +25,4 @@
         }
     });
 </script>
+{/block}

@@ -157,15 +157,119 @@ class AnalyticsRepository extends EntityRepository
 
         return $visitors;
     }
+    public function countVisitsByIpPerDay(string $ip): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select("DATE_FORMAT(a.date, '%Y-%m-%d') as day, COUNT(a.id) as count")
+            ->where('a.ipAdress = :ip')
+            ->setParameter('ip', $ip)
+            ->groupBy('day')
+            ->orderBy('day', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 
+    public function countVisitsByIpPerWeek(string $ip): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select("DATE_FORMAT(a.date, '%Y-%u') as week, COUNT(a.id) as count")
+            ->where('a.ipAdress = :ip')
+            ->setParameter('ip', $ip)
+            ->groupBy('week')
+            ->orderBy('week', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 
+    public function countVisitsByIpPerMonth(string $ip): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select("DATE_FORMAT(a.date, '%Y-%m') as month, COUNT(a.id) as count")
+            ->where('a.ipAdress = :ip')
+            ->setParameter('ip', $ip)
+            ->groupBy('month')
+            ->orderBy('month', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 
+    public function countVisitsByHostPerDay(string $host): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select("DATE_FORMAT(a.date, '%Y-%m-%d') as day, COUNT(a.id) as count")
+            ->where('a.host = :host')
+            ->setParameter('host', $host)
+            ->groupBy('day')
+            ->orderBy('day', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 
+    public function countVisitsByHostPerWeek(string $host): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select("DATE_FORMAT(a.date, '%Y-%u') as week, COUNT(a.id) as count")
+            ->where('a.host = :host')
+            ->setParameter('host', $host)
+            ->groupBy('week')
+            ->orderBy('week', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 
+    public function countVisitsByHostPerMonth(string $host): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select("DATE_FORMAT(a.date, '%Y-%m') as month, COUNT(a.id) as count")
+            ->where('a.host = :host')
+            ->setParameter('host', $host)
+            ->groupBy('month')
+            ->orderBy('month', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 
+    public function countUniqueVisitsPerMonth(int $months = 6): array
+    {
+        $dateThreshold = (new \DateTime())->modify("-$months months")->format('Y-m-d');
 
+        return $this->createQueryBuilder('a')
+            ->select("DATE_FORMAT(a.date, '%Y-%m') as month, COUNT(DISTINCT a.tempId) as count")
+            ->where('a.date >= :dateThreshold')
+            ->setParameter('dateThreshold', $dateThreshold)
+            ->groupBy('month')
+            ->orderBy('month', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 
+    public function countUniqueVisitsPerWeek(int $weeks = 12): array
+    {
+        $dateThreshold = (new \DateTime())->modify("-$weeks weeks")->format('Y-m-d');
 
+        return $this->createQueryBuilder('a')
+            ->select("DATE_FORMAT(a.date, '%Y-%u') as week, COUNT(DISTINCT a.tempId) as count")
+            ->where('a.date >= :dateThreshold')
+            ->setParameter('dateThreshold', $dateThreshold)
+            ->groupBy('week')
+            ->orderBy('week', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countUniqueVisitsPerDay(int $days = 30): array
+    {
+        $dateThreshold = (new \DateTime())->modify("-$days days")->format('Y-m-d');
+
+        return $this->createQueryBuilder('a')
+            ->select("DATE_FORMAT(a.date, '%Y-%m-%d') as day, COUNT(DISTINCT a.tempId) as count")
+            ->where('a.date >= :dateThreshold')
+            ->setParameter('dateThreshold', $dateThreshold)
+            ->groupBy('day')
+            ->orderBy('day', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 
 
 }

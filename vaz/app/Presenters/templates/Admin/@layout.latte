@@ -141,13 +141,7 @@
                 <i class="fa fa-bars"></i>
             </a>
             <div class="navbar-nav align-items-center ms-auto">
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                        <i class="fa fa-envelope me-lg-2"></i>
-                        <span class="d-none d-lg-inline-flex">Vzkazy</span>
-                    </a>
 
-                </div>
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                         <i class="fa fa-bell me-lg-2"></i>
@@ -157,7 +151,7 @@
                 </div>
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                        <img class="rounded-circle me-lg-2" src="{$basePath}/dashmin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                        <img class="rounded-circle me-lg-2" src="{$basePath}{ifset $user->getIdentity()->data['User']->personalPhoto}{$user->getIdentity()->data['User']->personalPhoto}{else}/dashmin/img/user.jpg{/ifset}" alt="" style="width: 40px; height: 40px;">
                         <span class="d-none d-lg-inline-flex">{$user->getIdentity()->data['User']->userName}</span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
