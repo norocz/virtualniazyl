@@ -1,0 +1,40 @@
+{block superAdminContent}
+    <div class="firewall">
+        <div class=""></div>
+        <div class="firewall-tab">
+            {snippet firewallTable}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>IP</th>
+                        <th>Datum</th>
+                        <th>Pokusy</th>
+                        <th>Akce</th>
+                        <th>Komentář</th>
+                        <th>Co dělat?</th>
+                    </tr>
+                </thead>
+                    <tbody class="firewall-result">
+                        {ifset $firewallLogs}
+                            {foreach $firewallLogs as $log}
+                                <tr class="" {if $log->getAction() == blocked} style="background-color: #f5a5b5" {elseif $log->getAction() == firewall_blocked} style="background-color: #ffc8ad"{else} {/if} class="teble d-sm-table-row">
+                                    <td>{$log->getId()}</td>
+                                    <td class="">{$log->getIp()}</td>
+                                    <td class="">{$log->getCreatedAt()->format('d.m.Y. H:m:s')}</td>
+                                    <td class="">{$log->getAttempts()}</td>
+                                    <td >{$log->getAction()}</td>
+                                    <td class="">{$log->getNotes()}</td>
+                                    <td class=""><a class="btn-sm btn-success me-2 ajax" href="{link firewallLogDelete! $log->getId()}">Smazat</a><a class="btn-sm btn-danger me-2 ajax" href="{link firewallLogAddToUFW! $log->getId()}">Přidat do UFW</a><a class="btn-sm btn-warning me-2 ajax" href="{link firewallLogBlock! $log->getId()}">Blokovat</a></td>
+                                </tr>
+                            {/foreach}
+                        {/ifset}
+                    </tbody>
+            </table>
+            {/snippet}
+        </div>
+    </div>
+{/block}
+
+{block scripts}
+{/block}

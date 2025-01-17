@@ -1,0 +1,24 @@
+{* templates/components/lineChart.latte *}
+<div class="chart-container">
+    <canvas id="lineChart-{$uniqueId}" width="400" height="200"></canvas>
+</div>
+
+<script>
+    const ctx = document.getElementById('lineChart-{$uniqueId}').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: $labels,
+            datasets: [{
+                label: $label,
+                data: $data,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+</script>

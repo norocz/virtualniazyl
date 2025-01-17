@@ -11,6 +11,9 @@ latte:
 session:
 	expiration: 14 days
 	autoStart: true
+	cookieSecure: true
+	cookieSamesite: 'Lax'
+	cookieHttponly: true
 
 di:
 	export:

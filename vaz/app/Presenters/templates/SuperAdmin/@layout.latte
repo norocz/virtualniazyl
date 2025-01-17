@@ -1,0 +1,208 @@
+{templateType App\Presenters\Templates\Admin\Layout}
+<!DOCTYPE html>
+<html lang="cz" xmlns="http://www.w3.org/1999/html">
+
+<head>
+    <meta charset="utf-8">
+    <title>Virtuální azyl administrace</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="{$basePath}/dashmin/img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="{$basePath}/dashmin/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="{$basePath}/dashmin/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="{$basePath}/dashmin/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="{$basePath}/dashmin/css/style.css" rel="stylesheet">
+</head>
+<style>
+    .adminContent {
+        min-height: 80vh;
+        padding: 5px;
+    }
+</style>
+
+<body>
+<div class="toast-container position-fixed bottom-0 start-50 p-3">
+    <div
+            n:foreach="$flashes as $flash"
+            id="flash-toast-{$iterator->counter}"
+            class="toast"
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
+            data-bs-autohide="true"
+            data-bs-delay="5000">
+        <div class="toast-header {if $flash->type === 'alert-success'}bg-success text-white{elseif $flash->type === 'alert-warning'}bg-danger text-white{else}bg-info text-white{/if}">
+            <span class="me-auto">Informace
+                {if $flash->type === 'alert-success'}
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                {elseif $flash->type === 'alert-warning'}
+                    <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                {else}
+                    <i class="bi bi-info-circle-fill text-info"></i>
+                {/if}
+
+            </span>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            {$flash->message}
+        </div>
+    </div>
+</div>
+<div class="container-fluid position-relative bg-white d-flex p-0">
+
+
+
+    <!-- Sidebar Start -->
+    <div class="sidebar pe-4 pb-3">
+        <nav class="navbar bg-light navbar-light">
+            <a href="{link SuperAdmindefault}" class="navbar-brand mx-4 mb-3">
+                <h3 class="text-primary"><i class="fa fa-hashtag me-2"></i>Administrace</h3>
+            </a>
+            <div class="d-flex align-items-center ms-4 mb-4">
+                <div class="position-relative">
+                    <img class="rounded-circle" src="{$basePath}/dashmin/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                    <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
+                </div>
+                <div class="ms-3">
+                    <h6 class="mb-0">{$user->getIdentity()->data['User']->userName}</h6>
+                    <span>{if $user->getIdentity()->data['User']->userName == 'noro'}The GOD{/if}</span>
+                </div>
+            </div>
+            <div class="navbar-nav w-100">
+                <a href="{link SuperAdmin:default}" class="nav-item nav-link active"><i class="bi bi-bar-chart me-2"></i>Přehled</a>
+                <a href="{link SuperAdmin:analytics}" class="nav-item nav-link"><i class="bi bi-bar-chart-steps me-2"></i>Analytics</a>
+                <a href="{link SuperAdmin:logs}" class="nav-item nav-link"><i class="bi bi-list-stars me-2"></i>Logy</a>
+                <a href="{link SuperAdmin:firewall}" class="nav-item nav-link"><i class="bi bi-bookmark-x me-2"></i>Firewall</a>
+                <a href="{link SuperAdmin:animals}" class="nav-item nav-link"><i class="bi bi-github me-2"></i>Zvířata</a>
+                <a href="{link SuperAdmin:messages}" class="nav-item nav-link"><i class="bi bi-chat-text me-2"></i>Vzkazy</a>
+                <a href="{link SuperAdmin:users}" class="nav-item nav-link"><i class="bi bi-people me-2"></i>Uživatelé</a>
+                <a href="{link SuperAdmin:photos}" class="nav-item nav-link"><i class="bi bi-images me-2"></i>Fotky</a>
+                <a href="{link SuperAdmin:news}" class="nav-item nav-link"><i class="bi bi-newspaper me-2"></i>Novinky</a>
+                <a href="{link SuperAdmin:adoptions}" class="nav-item nav-link"><i class="bi bi-clipboard me-2"></i>Adopce</a>
+
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-alarm me-2"></i>Update</a>
+                    <div class="dropdown-menu bg-transparent border-0">
+                        <a href="{link SuperAdminupdateMessagesAddress}" class="dropdown-item">Messages Address Update</a>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+        </nav>
+    </div>
+</div>
+<!-- Sidebar End -->
+
+
+<!-- Content Start -->
+<div class="content">
+    <!-- Navbar Start -->
+    <nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
+        <a href="{link SuperAdmin:default}" class="navbar-brand d-flex d-lg-none me-4">
+            <h2 class="text-primary mb-0"><i class="fa fa-hashtag"></i></h2>
+        </a>
+        <a href="#" class="sidebar-toggler flex-shrink-0">
+            <i class="fa fa-bars"></i>
+        </a>
+        <div class="navbar-nav align-items-center ms-auto">
+            <a href="SuperAdmin:events" class="nav-link" data-bs-toggle="">
+                <i class="bi bi-exclamation-diamond-fill" style="color:orangered;"></i><span class="d-none d-lg-inline-flex">Události</span>
+            </a>
+            <a href="{link Admin:default}" class="nav-link" data-bs-toggle="">
+                <i class="bi bi-box-arrow-left" style="color:green;"></i><span class="d-none d-lg-inline-flex">Do administrace</span>
+            </a>
+            <a href="{link Home:default}" class="nav-link" data-bs-toggle="">
+                <i class="bi bi-house-door-fill" style="color: #0d6efd;"></i><span class="d-none d-lg-inline-flex">Na web</span>
+            </a>
+            <a href="{link Home:logOut}" class="nav-link" data-bs-toggle="">
+                <i class="bi bi-box-arrow-right" style="color: red;"></i><span class="d-none d-lg-inline-flex">Odhlásit</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Navbar End -->
+    <div class="adminContent">
+        {include superAdminContent}
+    </div>
+    <!-- Footer Start -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="bg-light rounded-top p-4">
+            <div class="row">
+                <div class="col-12 col-sm-6 text-center text-sm-start">
+                    &copy; <a href="{link Home:default}">Virtuální azyl</a>, All Right Reserved.
+                </div>
+                <div class="col-12 col-sm-6 text-center text-sm-end">
+                    <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
+                    Developed by <a href="https://josefnemec.cz">Josef 'Noro' Němec</a>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+</div>
+<!-- Content End -->
+
+
+<!-- Back to Top -->
+<a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+</div>
+
+<!-- JavaScript Libraries -->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://unpkg.com/naja@2/dist/Naja.min.js"></script>
+<script src="https://unpkg.com/nette-forms@3/src/assets/netteForms.js"></script>
+<script src="{$basePath}/dashmin/lib/chart/chart.min.js"></script>
+<script src="{$basePath}/dashmin/lib/easing/easing.min.js"></script>
+<script src="{$basePath}/dashmin/lib/waypoints/waypoints.min.js"></script>
+<script src="{$basePath}/dashmin/lib/owlcarousel/owl.carousel.min.js"></script>
+<script src="{$basePath}/dashmin/lib/tempusdominus/js/moment.min.js"></script>
+<script src="{$basePath}/dashmin/lib/tempusdominus/js/moment-timezone.min.js"></script>
+<script src="{$basePath}/dashmin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+{include scripts}
+<!-- Template Javascript -->
+<script src="{$basePath}/dashmin/js/main.js"></script>
+<script>naja.initialize();
+</script>
+<script src="{$basePath}/assets/js/datagrid.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Najdi všechny toast prvky
+        const toastElements = document.querySelectorAll('.toast');
+
+        // Pro každý toast vytvoř instance Bootstrap Toast
+        toastElements.forEach(toastElement => {
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show(); // Zobraz toast
+        });
+    });
+</script>
+</body>
+
+</html>

@@ -129,7 +129,6 @@ class NewsDatagridFactory extends DataGrid
             ->setConfirmation(new CallbackConfirmation(
                                 function($item) {return 'Opravdu chcete smazat novinku'.$item->getTitle().'??';}
             ));
-//bdump($grid);
         return $grid;
     }
 

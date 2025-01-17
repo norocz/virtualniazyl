@@ -37,17 +37,19 @@ services:
 	##Repository##
 	- App\Model\Orm\Repository\UsersRepository
 	- App\Model\Orm\Repository\MessagesRepository
-	- App\Model\Services\MyAuthenticator
+	- App\Model\Orm\Repository\FirewallLogsRepository
 
 	- App\Presenters\UserPresenter
 
 	##Core Services##
+	- App\Model\Services\MyAuthenticator
 	- App\Services\UserAddressService
 	- App\Services\MessagesService
 	- App\Services\AdoptionKeyService
 	- App\Services\AnalyticsService
 	- Defr\QRPlatba\QRPlatba
 	- App\Services\LogingService
+	- App\Model\Service\Firewall
 	emailService:
 	    factory: App\Services\EmailService(%smtp%)
 

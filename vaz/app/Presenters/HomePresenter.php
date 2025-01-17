@@ -23,6 +23,7 @@ use App\Model\Orm\Repository\MessagesRepository;
 use App\Model\Orm\Repository\NewsRepository;
 use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\UsersRepository;
+use App\Model\Service\Firewall;
 use App\Services\AdoptionKeyService;
 use App\Services\AnalyticsService;
 use App\Services\LogingService;
@@ -71,7 +72,8 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                                 private adoptionAction              $adoptionAction,
                                 private logingService               $logingService,
                                 private emailService                $emailService,
-                                private AnalyticsService         $analyticsService)
+                                private AnalyticsService         $analyticsService,
+                                private Firewall                    $firewall)
     {
         parent::__construct();
         $this->entityManager = $entityManager;
@@ -85,6 +87,8 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->adoptionAction = $adoptionAction;
         $this->logingService = $logingService;
         $this->analyticsService = $analyticsService;
+        $this->firewall = $firewall;
+        $this->firewall->setPresenter($this->getPresenter());
 
     }
 
@@ -308,26 +312,24 @@ final class HomePresenter extends Nette\Application\UI\Presenter
     }
     public function formSignInSucceeded(Form $form, \stdClass $values): void
     {
+        if ($this->firewall->isUserTemporarilyBlocked()) {
+            $this->flashMessage('Počkejte 30 sekund před dalším pokusem.', 'alert-warning');
+            $this->redirect('this');
+            }
+
+        if ($this->firewall->isUserPermanentlyBlocked()) {
+            $this->flashMessage('Přihlášení bylo zablokováno. Napište adminům na admin@virtualniazyl.cz', 'alert-warning');
+            $this->redirect('Home:default');
+        }
+
         try {
             $this->getUser()->login($values->email, $values->password);
             $this->getPresenter()->flashMessage('Přihlášení se zdařilo', 'alert-success');
+            $this->firewall->unBlockUser();
             if ($this->getUser()->isInRole('user')) {
                 $this->getPresenter()->redirect('User:first');
             }
-            /*
-            $message = new Messages();
-            $admin = $this->usersRepository->getUserById(1);
-            $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
-            $message->setSender($this->usersRepository->getUserByMessageAddress('sys'));
-            $message->setSenderAddress('sys');
-            $message->setCreatedAt(new DateTimeImmutable());
-            $message->setMessage('Přihlásil se uživatel:'.$user->getUserName());
-            $message->setReceiver($admin);
-            $message->setReceiverAddress($admin->getMessageAddress());
-            $message->setType(MessageTypeEnum::TOADMIN_TYPE);
-            $message->setReaded(false);
-            $this->messagesRepository->save($message);
-            */
+
             if ($values->remember) {
                 $this->user->setExpiration('14 days'); // Uživatel zůstane přihlášen 14 dní
             } else {
@@ -336,6 +338,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
 
             $this->getPresenter()->redirect('Home:default');
         } catch (AuthenticationException $e) {
+            $this->firewall->logFailedLogin(); // Logování neúspěšného pokusu
             $this->getPresenter()->flashMessage('Email nebo heslo jsou špatně', 'alert-warning');
 
         }

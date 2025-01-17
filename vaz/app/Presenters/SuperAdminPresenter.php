@@ -5,6 +5,7 @@ namespace App\Presenters;
 
 
 use App\Model\Orm\Repository\AzylRepository;
+use App\Model\Orm\Repository\FirewallLogsRepository;
 use Contributte\Application\UI\BasePresenter;
 use Nette\Application\UI\Form;
 use App\Forms\setAzylFormFactory;
@@ -16,10 +17,14 @@ class SuperAdminPresenter extends BasePresenter
 
     private setAzylFormFactory $setAzylFormFactory;
     private AzylRepository $azylRepository;
-    public function __construct(setAzylFormFactory $setAzylFormFactory, azylRepository $azylRepository)
+    private FirewallLogsRepository $firewallLogsRepository;
+    public function __construct(setAzylFormFactory $setAzylFormFactory,
+                                azylRepository $azylRepository,
+                                firewallLogsRepository $firewallLogsRepository)
     {
         $this->setAzylFormFactory = $setAzylFormFactory;
         $this->azylRepository = $azylRepository;
+        $this->firewallLogsRepository = $firewallLogsRepository;
         parent::__construct();
     }
 
@@ -28,7 +33,7 @@ class SuperAdminPresenter extends BasePresenter
         parent::startup();
 
             if (!$this->getPresenter()->user->isLoggedIn() && !$this->getPresenter()->getUser()->isInRole('superadmin')) {
-            $this->getPresenter()->redirect('SuperAdmin:SignIn');
+            $this->getPresenter()->redirect('Home:default');
         }
 
 
@@ -77,7 +82,59 @@ class SuperAdminPresenter extends BasePresenter
     {
         $this->template->title = 'SignIn';
     }
-    // Actions
+
+    public function renderFirewall(): void
+    {
+        $this->getTemplate()->title = 'Firewall setings';
+        $this->getTemplate()->firewallLogs = $this->firewallLogsRepository->findAll();
+    }
+    //handle
+
+    public function handleFirewallLogDelete($id): void
+    {
+        $firewallLog = $this->firewallLogsRepository->find($id);
+        $ip = $firewallLog->getIp();
+        $this->firewallLogsRepository->delete($id);
+
+
+        if($this->getPresenter()->isAjax()){
+            $this->getPresenter()->redrawControl('firewallTable');
+            $this->getPresenter()->flashMessage('Záznam Firewallu ID: '.$id.' k IP:'.$ip.' smazán.');
+        }
+    }
+
+    public function handleFirewallLogAddToUFW($id): void
+    {
+
+        $firewallLog = $this->firewallLogsRepository->find($id);
+        $firewallLog->setAction('firewall_blocked');
+        $ip = $firewallLog->getIp();
+        $this->firewallLogsRepository->save($firewallLog);
+
+
+        if($this->getPresenter()->isAjax()){
+            $this->getPresenter()->redrawControl('firewallTable');
+            $this->getPresenter()->flashMessage('Záznam přidán do Ubuntu Firewallu zablokovány porty 80 a 443.');
+        }
+
+    }
+
+
+    public function handleFirewallLogBlock($id): void
+    {
+
+        $firewallLog = $this->firewallLogsRepository->find($id);
+        $firewallLog->setAction('blocked');
+        $ip = $firewallLog->getIp();
+        $this->firewallLogsRepository->save($firewallLog);
+
+
+        if($this->getPresenter()->isAjax()){
+            $this->getPresenter()->redrawControl('firewallTable');
+            $this->getPresenter()->flashMessage('Přihlášení z IP:'.$ip.' adresy zablokováno.');
+        }
+    }
+
 
     //components
 
