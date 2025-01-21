@@ -17,6 +17,7 @@ use App\Forms\roleFormFactory;
 use App\Forms\userDetailsFormFactory;
 use App\Model\Orm\Entity\Pages;
 use App\Model\Orm\Enums\RoleTypeEnum;
+use App\Model\Orm\Repository\AnalyticsRepository;
 use App\Model\Orm\Repository\PageRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use App\Model\Services\Menu;
@@ -64,7 +65,8 @@ class AdminPresenter extends BasePresenter
                                 public newsRepository               $newsRepository,
                                 public MessagesService              $messagesService,
                                 public SpeciesRepository            $speciesRepository,
-                                public AnimalsDatagridFactory      $animalsDatagridFactory)
+                                public AnimalsDatagridFactory      $animalsDatagridFactory,
+                                private AnalyticsRepository           $analyticsRepository)
     {
         parent::__construct();
         $this->roleFormFactory = $roleFormFactory;
@@ -80,6 +82,7 @@ class AdminPresenter extends BasePresenter
         $this->messagesService = $messagesService;
         $this->speciesRepository = $speciesRepository;
         $this->animalsDatagridFactory = $animalsDatagridFactory;
+        $this->analyticsRepository = $analyticsRepository;
         //$this->speciesFormFactory = $speciesFormFactory;
         //$this->speciesDatagridFactory = $speciesDatagridFactory;
 
@@ -124,6 +127,28 @@ class AdminPresenter extends BasePresenter
         $this->template->azylsCount = $this->usersRepository->CountAzyls();
 
         $registrations = $this->usersRepository->getUsersByMonthOfRegistration(6);
+        $visitorsByDay = $this->analyticsRepository->countUniqueVisitsPerDay(30);
+        $this->getTemplate()->visitorsByWeek = $this->analyticsRepository->countUniqueVisitsPerWeek(4);
+        $this->getTemplate()->visitorsByMonth = $this->analyticsRepository->countUniqueVisitsPerMonth(6);
+
+       $allVisitorsByDay = $this->analyticsRepository->countVisitsPerDay(30);
+
+       //todo: Tohle by chtělo uklidit někam jinam možná přímo do toho Repozitáře nebo prostě někam kde to nebude dělat takový bordel Tady mi to přjde moc dlouhé.
+
+        $lineDayVisitsLabel = [];
+        $lineDayVisitsData = [];
+        foreach ($visitorsByDay as $item) {
+            $lineDayVisitsLabel[] = $item['day'];
+            $lineDayVisitsData[] = $item['count'];
+        }
+        $allVisitorsByDayData = [];
+        foreach ($allVisitorsByDay as $item) {
+            $allVisitorsByDayData[] = $item['count'];
+
+        }
+        $this->getTemplate()->visitorsByDayLabel = $lineDayVisitsLabel;
+        $this->getTemplate()->visitorsByDayData = $lineDayVisitsData;
+        $this->getTemplate()->allVisitorsByDayData = $allVisitorsByDayData;
 
         // Vytvoříme mapu pro výsledky (klíč: "rok-měsíc", hodnota: počet)
         $resultsMap = [];
@@ -160,7 +185,8 @@ class AdminPresenter extends BasePresenter
         $labels = array_reverse($labels);
         $data = array_reverse($data);
 
-        $this->getTemplate()->uniqueId = random_int(0, 10000); //nahodne unikátní číslo pro rander
+        $this->getTemplate()->barId = random_int(0, 10000); //nahodne unikátní číslo pro rander
+        $this->getTemplate()->lineId = random_int(0, 10000);
         $this->getTemplate()->labels = $labels ;// ['aaa','bbb','ccc'] nazvy sloupců
         $this->getTemplate()->data = $data ; //[xx,yyy,zzz] data
         $this->getTemplate()->label = 'Počty registrovaných uživatelů' ; //nazev grafu

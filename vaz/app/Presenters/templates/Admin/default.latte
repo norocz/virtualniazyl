@@ -47,7 +47,7 @@
                 <div class="ms-3">
                     <h6 class="mb-2">Registrace po měsících</h6>
                     <div class="chart-container">
-                        <canvas id="barChart-{$uniqueId}" width="740" height="200"></canvas>
+                        <canvas id="barChart-{$barId}" width="740" height="200"></canvas>
                     </div>
                     {* templates/Homepage/default.latte *}
                     {*include '../components/barChart.latte'*}
@@ -61,7 +61,7 @@
                 <div class="ms-3">
                     <h6 class="mb-2">Návštěvnost po dnech</h6>
                     <div class="chart-container">
-                        <canvas id="barChart-{$uniqueId}" width="740" height="200"></canvas>
+                        <canvas id="lineChart-{$lineId}" width="740" height="200"></canvas>
                     </div>
                     {* templates/Homepage/default.latte *}
                     {*include '../components/barChart.latte'*}
@@ -75,7 +75,7 @@
 
 {block scripts}
     <script>
-        const ctx = document.getElementById('barChart-' + {$uniqueId}).getContext('2d');
+        const ctx = document.getElementById('barChart-' + {$barId}).getContext('2d');
         new Chart(ctx, {
             type: 'bar',
             data: {
@@ -92,6 +92,41 @@
                 scales: { y: { beginAtZero: true } }
             }
         });
+
+    </script>
+    <script>
+
+            const line = document.getElementById('lineChart-' + {$lineId}).getContext('2d');
+            new Chart(line, {
+            type: 'line',
+            data: {
+            labels: {$visitorsByDayLabel},
+                datasets: [
+                    {
+                        label: 'Unikátní návštěvy za den',
+                        data: {$visitorsByDayData},
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Zobrazení za den',
+                        data: {$allVisitorsByDayData},
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }
+                ]
+        },
+            options: {
+            scales: {
+            y: {
+            beginAtZero: true
+        }
+        }
+        }
+        });
+
     </script>
 {/block}
 

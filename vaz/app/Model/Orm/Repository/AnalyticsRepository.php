@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Model\Orm\Repository;
 
+use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use App\Model\Orm\Entity\Analytics;
@@ -157,6 +158,7 @@ class AnalyticsRepository extends EntityRepository
 
         return $visitors;
     }
+
     public function countVisitsByIpPerDay(string $ip): array
     {
         return $this->createQueryBuilder('a')
@@ -228,47 +230,88 @@ class AnalyticsRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
-
     public function countUniqueVisitsPerMonth(int $months = 6): array
     {
         $dateThreshold = (new \DateTime())->modify("-$months months")->format('Y-m-d');
 
-        return $this->createQueryBuilder('a')
-            ->select("DATE_FORMAT(a.date, '%Y-%m') as month, COUNT(DISTINCT a.tempId) as count")
-            ->where('a.date >= :dateThreshold')
-            ->setParameter('dateThreshold', $dateThreshold)
-            ->groupBy('month')
-            ->orderBy('month', 'ASC')
-            ->getQuery()
-            ->getResult();
+        $sql = "
+        SELECT DATE_FORMAT(a.date, '%Y-%m') as month, COUNT(DISTINCT a.temp_id) as count
+        FROM analytics a
+        WHERE a.date >= :dateThreshold
+        GROUP BY month
+        ORDER BY month ASC
+    ";
+
+        $connection = $this->getEntityManager()->getConnection();
+        $statement = $connection->prepare($sql);
+        $statement->executeStatement(['dateThreshold' => $dateThreshold]);
+
+        return $statement->executeQuery()->fetchAllAssociative();
     }
 
+    /**
+     * @throws \DateMalformedStringException
+     * @throws Exception
+     */
     public function countUniqueVisitsPerWeek(int $weeks = 12): array
     {
         $dateThreshold = (new \DateTime())->modify("-$weeks weeks")->format('Y-m-d');
 
-        return $this->createQueryBuilder('a')
-            ->select("DATE_FORMAT(a.date, '%Y-%u') as week, COUNT(DISTINCT a.tempId) as count")
-            ->where('a.date >= :dateThreshold')
-            ->setParameter('dateThreshold', $dateThreshold)
-            ->groupBy('week')
-            ->orderBy('week', 'ASC')
-            ->getQuery()
-            ->getResult();
+        $sql = "
+        SELECT DATE_FORMAT(a.date, '%Y-%u') as week, COUNT(DISTINCT a.temp_id) as count
+        FROM analytics a
+        WHERE a.date >= :dateThreshold
+        GROUP BY week
+        ORDER BY week ASC
+    ";
+
+        $connection = $this->getEntityManager()->getConnection();
+        $statement = $connection->prepare($sql);
+        $statement->executeStatement(['dateThreshold' => $dateThreshold]);
+
+        return $statement->executeQuery()->fetchAllAssociative();
     }
 
+    /**
+     * @throws \DateMalformedStringException
+     * @throws Exception
+     */
     public function countUniqueVisitsPerDay(int $days = 30): array
+    {
+     $dateThreshold = (new \DateTime())->modify("-$days days")->format('Y-m-d');
+
+        $sql = "
+        SELECT DATE_FORMAT(a.date, '%Y-%m-%d') as day, COUNT(DISTINCT a.temp_id) as count
+        FROM analytics a
+        WHERE a.date >= :dateThreshold
+        GROUP BY day
+        ORDER BY day ASC
+    ";
+
+        $connection = $this->getEntityManager()->getConnection();
+        $statement = $connection->prepare($sql);
+        $statement->executeStatement(['dateThreshold' => $dateThreshold]);
+
+        return $statement->executeQuery()->fetchAllAssociative();
+    }
+
+    public function countVisitsPerDay(int $days = 30): array
     {
         $dateThreshold = (new \DateTime())->modify("-$days days")->format('Y-m-d');
 
-        return $this->createQueryBuilder('a')
-            ->select("DATE_FORMAT(a.date, '%Y-%m-%d') as day, COUNT(DISTINCT a.tempId) as count")
-            ->where('a.date >= :dateThreshold')
-            ->setParameter('dateThreshold', $dateThreshold)
-            ->groupBy('day')
-            ->orderBy('day', 'ASC')
-            ->getQuery()
-            ->getResult();
+        $sql = "
+        SELECT DATE_FORMAT(a.date, '%Y-%m-%d') as day, COUNT(a.id) as count
+        FROM analytics a
+        WHERE a.date >= :dateThreshold
+        GROUP BY day
+        ORDER BY day ASC
+    ";
+
+        $connection = $this->getEntityManager()->getConnection();
+        $statement = $connection->prepare($sql);
+        $statement->executeStatement(['dateThreshold' => $dateThreshold]);
+
+        return $statement->executeQuery()->fetchAllAssociative();
     }
 
 

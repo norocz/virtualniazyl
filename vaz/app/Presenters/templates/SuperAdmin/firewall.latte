@@ -25,7 +25,7 @@
                                     <td class="">{$log->getAttempts()}</td>
                                     <td >{$log->getAction()}</td>
                                     <td class="">{$log->getNotes()}</td>
-                                    <td class=""><a class="btn-sm btn-success me-2 ajax" href="{link firewallLogDelete! $log->getId()}">Smazat</a><a class="btn-sm btn-danger me-2 ajax" href="{link firewallLogAddToUFW! $log->getId()}">Přidat do UFW</a><a class="btn-sm btn-warning me-2 ajax" href="{link firewallLogBlock! $log->getId()}">Blokovat</a></td>
+                                    <td class=""><div class="btn-group" role="group"> <a class="btn-sm btn-danger ajax" href="{link firewallLogDelete! $log->getId()}">Smazat</a><a class="btn-sm btn-warning ajax" href="{link firewallLogAddToUFW! $log->getId()}">Přidat do UFW</a><a class="btn-sm btn-success ajax" href="{link firewallLogBlock! $log->getId()}">Blokovat</a></div></td>
                                 </tr>
                             {/foreach}
                         {/ifset}
