@@ -36,7 +36,8 @@
                                         {ifset $ipInfo}
                                             {dump $ipInfo}
                                          {foreach $ipInfo as $detail}
-
+                                            Země:{$detail['country']} | Region: {$detail['region']} | Město: {$detail['city']}<br>
+                                            Provozovatel:{$detail['org']} | host: {$detail['hostname']}
                                          {/foreach}
 
                                         {/ifset}

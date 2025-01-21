@@ -12,8 +12,6 @@ use Nette\Application\UI\Form;
 use App\Forms\setAzylFormFactory;
 use Nette\Caching\Cache;
 use Nette\Caching\Storages\FileStorage;
-use Nette\Http\Request;
-use Nette\Security\User;
 use Nette\Security\SimpleIdentity;
 use Nette\Utils\Paginator;
 
@@ -29,11 +27,12 @@ class SuperAdminPresenter extends BasePresenter
                                 firewallLogsRepository $firewallLogsRepository,
                                 analyticsRepository $analyticsRepository)
     {
+        parent::__construct();
         $this->setAzylFormFactory = $setAzylFormFactory;
         $this->azylRepository = $azylRepository;
         $this->firewallLogsRepository = $firewallLogsRepository;
         $this->analyticsRepository = $analyticsRepository;
-        parent::__construct();
+
     }
 
     public function startup():void
