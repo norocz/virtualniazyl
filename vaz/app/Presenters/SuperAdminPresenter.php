@@ -4,13 +4,18 @@ declare(strict_types=1);
 namespace App\Presenters;
 
 
+use App\Model\Orm\Repository\AnalyticsRepository;
 use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\FirewallLogsRepository;
 use Contributte\Application\UI\BasePresenter;
 use Nette\Application\UI\Form;
 use App\Forms\setAzylFormFactory;
+use Nette\Caching\Cache;
+use Nette\Caching\Storages\FileStorage;
+use Nette\Http\Request;
 use Nette\Security\User;
 use Nette\Security\SimpleIdentity;
+use Nette\Utils\Paginator;
 
 class SuperAdminPresenter extends BasePresenter
 {
@@ -18,13 +23,16 @@ class SuperAdminPresenter extends BasePresenter
     private setAzylFormFactory $setAzylFormFactory;
     private AzylRepository $azylRepository;
     private FirewallLogsRepository $firewallLogsRepository;
+    private analyticsRepository $analyticsRepository;
     public function __construct(setAzylFormFactory $setAzylFormFactory,
                                 azylRepository $azylRepository,
-                                firewallLogsRepository $firewallLogsRepository)
+                                firewallLogsRepository $firewallLogsRepository,
+                                analyticsRepository $analyticsRepository)
     {
         $this->setAzylFormFactory = $setAzylFormFactory;
         $this->azylRepository = $azylRepository;
         $this->firewallLogsRepository = $firewallLogsRepository;
+        $this->analyticsRepository = $analyticsRepository;
         parent::__construct();
     }
 
@@ -41,6 +49,46 @@ class SuperAdminPresenter extends BasePresenter
     public function renderDefault(): void
     {
         $this->template->title = 'Admin';
+    }
+
+    public function renderAnalytics(int $page = 1):void
+    {
+
+        $paginator = new Paginator();
+        $paginator->setItemCount($this->analyticsRepository->countAll());
+        $paginator->setItemsPerPage(16);
+        $paginator->setPage($page);
+        $paginator->setBase(1);
+        $this->getTemplate()->paginator = $paginator;
+        bdump($paginator);
+        bdump($paginator->getOffset());
+        bdump($paginator->getLength());
+        $this->getTemplate()->analytics = $this->analyticsRepository->findBy([], ['id' => 'DESC'],$paginator->getLength(),$paginator->getOffset());
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function handleIpInfo(string $ip):void
+    {
+        $storage = new FileStorage(__DIR__ . '/../../temp');
+        $cache = new Cache($storage);
+
+        $cacheKey = 'ip-info-' . md5($ip);
+        $ipInfo = $cache->load($cacheKey);
+        if ($ipInfo === null) {
+            $response = file_get_contents("https://ipinfo.io/{$ip}/json");
+            $ipInfo = json_decode($response, true);
+            $cache->save($cacheKey, $ipInfo);
+            $ipInfo['cached'] = true;
+        }
+        bdump($ipInfo);
+        if ($this->isAjax())
+        {
+            $this->getTemplate()->ipInfo = $ipInfo;
+            $this->redrawControl('ip-info'.$ip);
+
+        }
     }
 
     public function renderSetAzyl(): void

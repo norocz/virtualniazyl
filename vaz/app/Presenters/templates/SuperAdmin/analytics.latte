@@ -1,0 +1,93 @@
+{block superAdminContent}
+    <div class="analytics">
+        <div class=""></div>
+        <div class="analytics-tab">
+            {snippet abalyticsTable}
+                <table class="table table-striped table-hover table-sm table-striped-columns">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Datum</th>
+                        <th>Počítač</th>
+                        <th>Kde/Co</th>
+                        <th>Parametry</th>
+                        <th>Komentář</th>
+                    </tr>
+                    </thead>
+                    <tbody class="analytics-result font-monospace" style="font-size: smaller;">
+                    {ifset $analytics}
+                        {foreach $analytics as $log}
+                            <tr class="teble d-sm-table-row">
+                                <td>{$log->getId()}</td>
+                                <td class="">
+                                    {if $log->getUser() != null}
+                                    Uživatel: {$log->getUser()->getUserName()} <br>
+                                        {/if}
+                                   {if $log->getAzyl() != null}
+                                    Azyl:{$log->getAzyl()->getAzylName()} <br>
+                                {/if}
+                                      {if $log->getTempId() != null}
+                                    TempID:{$log->getTempId()}</td>
+                                {/if}
+                                <td class="">{$log->getDate()->format('d.m.Y. H:m:s')}</td>
+                                <td class="">IP:{$log->getIpAdress()} <a class="btn-sm ajax" href="{link ipInfo! $log->getIpAdress()}">Detaily</a> <br> HOST:{$log->getHost()}
+                                {snippet ipinfo.$log->getIpAdress()}
+                                        {ifset $ipInfo}
+                                            {dump $ipInfo}
+                                         {foreach $ipInfo as $detail}
+
+                                         {/foreach}
+
+                                        {/ifset}
+
+                                    {/snippet}
+                                </td>
+
+
+                                <td >{$log->getName()}<br> {$log->getAction()}</td>
+                                <td class="">{$log->getParams()}</td>
+                                <td class="">{$log->getComment()}</td>
+                            </tr>
+                        {/foreach}
+                    {/ifset}
+                    </tbody>
+                </table>
+            {/snippet}
+        </div>
+        <div class="analytics-paginator align-center">
+            {if !$paginator->isFirst()}
+                <div class="btn-group">
+                <a class="btn btn-sm btn-outline-info" n:href="analytics, 1">První</a>
+
+                <a class="btn btn-sm btn-outline-info" n:href="analytics, $paginator->page-1">Předchozí</a>
+                </div>
+                {else}
+                <div class="btn-group disabled">
+                    <a class="btn btn-sm btn-outline-info disabled" n:href="analytics, 1">První</a>
+
+                    <a class="btn btn-sm btn-outline-info disabled" n:href="analytics, $paginator->page-1">Předchozí</a>
+                </div>
+
+            {/if}
+
+                Stránka {$paginator->getPage()} z {$paginator->getPageCount()}
+
+	        {if !$paginator->isLast()}
+            <div class="btn-group">
+                <a  class="btn btn-sm btn-outline-info" n:href="analytics, $paginator->getPage() + 1">Další</a>
+
+                <a class="btn btn-sm btn-outline-info"  n:href="analytics, $paginator->getPageCount()">Poslední</a>
+                {else}
+                <a  class="btn btn-sm btn-outline-info disabled" n:href="analytics, $paginator->getPage() + 1">Další</a>
+
+                <a class="btn btn-sm btn-outline-info disabled"  n:href="analytics, $paginator->getPageCount()">Poslední</a>
+            </div>
+            {/if}
+        </div>
+    </div>
+
+{/block}
+
+{block scripts}
+{/block}
