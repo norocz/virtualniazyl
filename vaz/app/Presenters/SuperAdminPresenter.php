@@ -85,7 +85,8 @@ class SuperAdminPresenter extends BasePresenter
         if ($this->isAjax())
         {
             $this->getTemplate()->ipInfo = $ipInfo;
-            $this->redrawControl('ip-info'.$ip);
+            $this->redrawControl('phpInfo');
+            $this->redrawControl('phpInfo-'.$ip);
 
         }
     }

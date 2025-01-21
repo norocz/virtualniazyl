@@ -2,7 +2,7 @@
     <div class="analytics">
         <div class=""></div>
         <div class="analytics-tab">
-            {snippet abalyticsTable}
+
                 <table class="table table-striped table-hover table-sm table-striped-columns">
                     <thead>
                     <tr>
@@ -15,7 +15,7 @@
                         <th>Komentář</th>
                     </tr>
                     </thead>
-                    <tbody class="analytics-result font-monospace" style="font-size: smaller;">
+                    <tbody n:snippetArea="phpInfo" class="analytics-result font-monospace" style="font-size: smaller;">
                     {ifset $analytics}
                         {foreach $analytics as $log}
                             <tr class="teble d-sm-table-row">
@@ -31,19 +31,22 @@
                                     TempID:{$log->getTempId()}</td>
                                 {/if}
                                 <td class="">{$log->getDate()->format('d.m.Y. H:m:s')}</td>
-                                <td class="">IP:{$log->getIpAdress()} <a class="btn-sm ajax" href="{link ipInfo! $log->getIpAdress()}">Detaily</a> <br> HOST:{$log->getHost()}
-                                {snippet ipinfo.$log->getIpAdress()}
+
+                                <td>IP:{$log->getIpAdress()} <a class="btn-sm btn-sm ajax" href="{link ipInfo! $log->getIpAdress()}">Detaily</a> <br> HOST:{$log->getHost()}
+                                    <span n:snippet="phpInfo-{$log->getIpAdress()}">
                                         {ifset $ipInfo}
-                                            {dump $ipInfo}
-                                         {foreach $ipInfo as $detail}
-                                            Země:{$detail['country']} | Region: {$detail['region']} | Město: {$detail['city']}<br>
-                                            Provozovatel:{$detail['org']} | host: {$detail['hostname']}
-                                         {/foreach}
-
+                                            {ifset $ipInfo['country']}
+                                            <br>Země:{$ipInfo['country']} | Region: {$ipInfo['region']} | Město: {$ipInfo['city']}<br>
+                                            Provozovatel:{$ipInfo['org']} | host: {ifset $ipInfo['hostname']}{$ipInfo['hostname']}{/ifset}
+                                            {/ifset}
+                                            {ifset $ipInfo['bogon']}
+                                                <br>Bogon:{$ipInfo['bogon']}
+                                            {/ifset}
                                         {/ifset}
+                                    </span>
 
-                                    {/snippet}
                                 </td>
+
 
 
                                 <td >{$log->getName()}<br> {$log->getAction()}</td>
@@ -54,7 +57,7 @@
                     {/ifset}
                     </tbody>
                 </table>
-            {/snippet}
+
         </div>
         <div class="analytics-paginator align-center">
             {if !$paginator->isFirst()}
