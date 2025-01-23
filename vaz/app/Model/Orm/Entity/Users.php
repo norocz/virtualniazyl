@@ -78,6 +78,9 @@ class Users
     #[ORM\OneToMany(mappedBy: "receiver", targetEntity: "Messages")]
     private ?Collection $receivedMessages;
 
+    #[ORM\OneToMany(mappedBy: "collections", targetEntity: Collections::class)]
+    private ?Collection $collections;
+
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $messageAddress;
 
@@ -627,6 +630,29 @@ class Users
         $this->ratings = $ratings;
         return $this;
     }
+
+    public function getPages(): ?Collection
+    {
+        return $this->pages;
+    }
+
+    public function setPages(?Collection $pages): Users
+    {
+        $this->pages = $pages;
+        return $this;
+    }
+
+    public function getCollections(): ?Collection
+    {
+        return $this->collections;
+    }
+
+    public function setCollections(?Collection $collections): Users
+    {
+        $this->collections = $collections;
+        return $this;
+    }
+
 
 
 

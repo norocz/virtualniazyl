@@ -7,6 +7,7 @@ namespace App\Presenters;
 use App\Model\Orm\Repository\AnalyticsRepository;
 use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\FirewallLogsRepository;
+use App\Services\IpInfoService;
 use Contributte\Application\UI\BasePresenter;
 use Nette\Application\UI\Form;
 use App\Forms\setAzylFormFactory;
@@ -22,16 +23,19 @@ class SuperAdminPresenter extends BasePresenter
     private AzylRepository $azylRepository;
     private FirewallLogsRepository $firewallLogsRepository;
     private analyticsRepository $analyticsRepository;
+    private ipInfoService $ipInfoService;
     public function __construct(setAzylFormFactory $setAzylFormFactory,
                                 azylRepository $azylRepository,
                                 firewallLogsRepository $firewallLogsRepository,
-                                analyticsRepository $analyticsRepository)
+                                analyticsRepository $analyticsRepository,
+                                ipInfoService $ipInfoService)
     {
         parent::__construct();
         $this->setAzylFormFactory = $setAzylFormFactory;
         $this->azylRepository = $azylRepository;
         $this->firewallLogsRepository = $firewallLogsRepository;
         $this->analyticsRepository = $analyticsRepository;
+        $this->ipInfoService = $ipInfoService;
 
     }
 
@@ -59,34 +63,23 @@ class SuperAdminPresenter extends BasePresenter
         $paginator->setPage($page);
         $paginator->setBase(1);
         $this->getTemplate()->paginator = $paginator;
-        bdump($paginator);
-        bdump($paginator->getOffset());
-        bdump($paginator->getLength());
         $this->getTemplate()->analytics = $this->analyticsRepository->findBy([], ['id' => 'DESC'],$paginator->getLength(),$paginator->getOffset());
     }
 
     /**
      * @throws \Throwable
      */
-    public function handleIpInfo(string $ip):void
+    public function handleIpInfo(int $id):void
     {
-        $storage = new FileStorage(__DIR__ . '/../../temp');
-        $cache = new Cache($storage);
+        $ip='';
+        $ipInfo = [];
+        $ip = $this->analyticsRepository->findOneBy(['id' => $id]);
+        if($this->isAjax()) {
+            $ipInfo = $this->ipInfoService->getIpInfo($ip->getIpAdress());
+           $this->getTemplate()->ipInfo = $ipInfo;
 
-        $cacheKey = 'ip-info-' . md5($ip);
-        $ipInfo = $cache->load($cacheKey);
-        if ($ipInfo === null) {
-            $response = file_get_contents("https://ipinfo.io/{$ip}/json");
-            $ipInfo = json_decode($response, true);
-            $cache->save($cacheKey, $ipInfo);
-            $ipInfo['cached'] = true;
-        }
-        bdump($ipInfo);
-        if ($this->isAjax())
-        {
-            $this->getTemplate()->ipInfo = $ipInfo;
-            $this->redrawControl('phpInfo');
-            $this->redrawControl('phpInfo-'.$ip);
+           $this->redrawControl('ipInfoIp'.$ip->getIpAdress());
+           $this->redrawControl('ipInfoTable');
 
         }
     }

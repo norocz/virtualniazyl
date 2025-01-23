@@ -50,6 +50,8 @@ services:
 	- Defr\QRPlatba\QRPlatba
 	- App\Services\LogingService
 	- App\Model\Service\Firewall
+	ipInfoService:
+	    factory: App\Services\IpInfoService(%tempDir%)
 	emailService:
 	    factory: App\Services\EmailService(%smtp%)
 

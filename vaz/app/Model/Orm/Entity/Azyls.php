@@ -41,6 +41,12 @@ class Azyl
     #[ORM\OneToMany(mappedBy: "azyl", targetEntity: Adoption::class)]
     private ?Collection $adoptions;
 
+    #[ORM\OneToMany(mappedBy: "payments", targetEntity: Payments::class)]
+    private ?Collection $payments;
+
+    #[ORM\OneToMany(mappedBy: "collections", targetEntity: Collections::class)]
+    private ?Collection $collections;
+
     #[ORM\OneToMany(mappedBy: "azyl", targetEntity: News::class)]
     private ?Collection $news = null;
 
@@ -184,4 +190,50 @@ class Azyl
             ->andWhere(Criteria::expr()->lte("visibleFrom", new \DateTimeImmutable('now')))
             ->orderBy(["createdAt" => Criteria::DESC]));
     }
+
+    public function getAdoptions(): ?Collection
+    {
+        return $this->adoptions;
+    }
+
+    public function setAdoptions(?Collection $adoptions): Azyl
+    {
+        $this->adoptions = $adoptions;
+        return $this;
+    }
+
+    public function getPayments(): ?Collection
+    {
+        return $this->payments;
+    }
+
+    public function setPayments(?Collection $payments): Azyl
+    {
+        $this->payments = $payments;
+        return $this;
+    }
+
+    public function getCollections(): ?Collection
+    {
+        return $this->collections;
+    }
+
+    public function setCollections(?Collection $collections): Azyl
+    {
+        $this->collections = $collections;
+        return $this;
+    }
+
+    public function getPhotos(): ?Collection
+    {
+        return $this->photos;
+    }
+
+    public function setPhotos(?Collection $photos): Azyl
+    {
+        $this->photos = $photos;
+        return $this;
+    }
+
+
 }
