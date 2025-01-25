@@ -9,7 +9,7 @@ use Nette\Application\UI\Form;
 
 class AzylSetingsFormFactory extends Form
 {
-    public function create()
+    public function create(): Form
     {
         $form = new Form;
         $form->addHidden('id');
@@ -25,7 +25,7 @@ class AzylSetingsFormFactory extends Form
             ->setHtmlAttribute('class', 'form-control')      ;
         $form->addText('bankCode', 'Kód banky')
             ->setHtmlAttribute('class', 'form-control');
-        $form->addText('bankSpecificCode', 'Specifický symbol')
+        $form->addText('bankSpecificCode', 'Variabilní symbol')
              ->setDefaultValue('269')
              ->setHtmlAttribute('class', 'form-control');
         $form->addText('phoneNumber', 'Telefonní číslo azylu')

@@ -1,11 +1,32 @@
 {block azylContent}
     <div class="container">
+        {ifset $adoption}
+        <div class="title h2">Adopce</div>
         <div class="row">
-                <div class="col-lg-6"> </div>
+            <div class="col-12">
+                <div class="bg-light rounded p-4">
+                    {$adoption->getAnimal()->getName()}
+                    {var $photos = $adoption->getAnimal()->getPhotos()}
 
-                <div class="col-lg-6"> </div>
+                </div>
+            </div>
 
         </div>
+        <div class="row">
+                <div class="col-lg-6 col-sn-12">
+                    <div class="title h4">Zájemce</div>
+                    {$adoption->getUser()->getUserName()}
+                    {$adoption->getUser()->getFirstName()}
+                    {$adoption->getUser()->getLastName()}
+                </div>
+
+                <div class="col-lg-6 col-sn-12">
+                    <div class="title h4">Komunikace</div>
+
+                </div>
+
+        </div>
+        {/ifset}
     </div>
 {/block}
 {block scripts}

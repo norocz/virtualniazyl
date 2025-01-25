@@ -13,6 +13,7 @@ use App\Forms\newsFormFactory;
 use App\Model\Orm\Entity\Animal;
 use App\Model\Orm\Entity\News;
 use App\Model\Orm\Entity\Photo;
+use App\Model\Orm\Repository\AdoptionsRepository;
 use App\Model\Orm\Repository\AnalyticsRepository;
 use App\Model\Orm\Repository\AnimalsRepository;
 use App\Model\Orm\Repository\AzylRepository;
@@ -52,7 +53,8 @@ class AzylPresenter extends BasePresenter
                                 private messagesFormFactory $messagesFormFactory,
                                 private messagesService $messagesService,
                                 private AnalyticsRepository $analyticsRepository,
-                                private AnalyticsService $analyticsService,)
+                                private AnalyticsService $analyticsService,
+                                private AdoptionsRepository $adoptionsRepository)
     {
         $this->animalsRepository = $animalsRepository;
         $this->animalFormFactory = $animalFormFactory;
@@ -67,6 +69,7 @@ class AzylPresenter extends BasePresenter
         $this->messagesService = $messagesService;
         $this->analyticsRepository = $analyticsRepository;
         $this->analyticsService = $analyticsService;
+        $this->adoptionsRepository = $adoptionsRepository;
         parent::__construct();
     }
 
@@ -171,6 +174,7 @@ class AzylPresenter extends BasePresenter
 
     public function actionAdoptions(?int $id): void
     {
+     $this->getTemplate()->adoption = $this->adoptionsRepository->findOneBy(['id'=>$id]);
 
     }
 
