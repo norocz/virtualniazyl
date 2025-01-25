@@ -10,9 +10,7 @@ use App\Forms\messagesFormFactory;
 use App\Forms\roleFormFactory;
 use App\Forms\userDetailsFormFactory;
 use App\Model\Orm\Entity\Azyl;
-use App\Model\Orm\Entity\Messages;
 use App\Model\Orm\Entity\Users;
-use App\Model\Orm\Enums\MessageTypeEnum;
 use App\Model\Orm\Enums\RoleTypeEnum;
 use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\CityRepository;
@@ -26,9 +24,9 @@ use App\Model\Services\Menu;
 use Contributte\Application\UI\BasePresenter;
 use DateTimeImmutable;
 use Doctrine\ORM\NonUniqueResultException;
+use JetBrains\PhpStorm\NoReturn;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumber;
-use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
 use Nette;
 use Nette\Application\UI\Form;
@@ -53,8 +51,8 @@ class UserPresenter extends BasePresenter
                         private readonly registerFormFactory    $registerFormFactory,
                         private readonly PhotoUploadFormFactory $photoUploadFormFactory,
                         private OwnersRepository                $ownerRepository,
-                        private CityRepository                  $cityRepository,
-                        private MessagesRepository              $messagesRepository,
+                        private readonly CityRepository         $cityRepository,
+                        private readonly MessagesRepository     $messagesRepository,
                         private messagesFormFactory             $messagesFormFactory,
                         private messagesService                 $messagesService,
                         private analyticsService                $analyticsService)
@@ -88,7 +86,7 @@ class UserPresenter extends BasePresenter
         $this->getTemplate()->mainMenuItems = $menu->getMenu();
 
     }
-public function actionDefault(): void
+#[NoReturn] public function actionDefault(): void
     {
         if ($this->getPresenter()->getUser()->isLoggedIn())
         {
@@ -141,6 +139,7 @@ public function actionDefault(): void
 
     public function actionMessages($id): void
     {
+        $chats = '';
         $this->template->title = 'Zprávy';
         $messages =  $this->messagesService->getUserContacts($this->getUser()->getId());
             foreach($messages as $message)
@@ -310,7 +309,7 @@ public function actionDefault(): void
         return $form;
     }
 
-    public function userDetailsFormSucceeded(Form $form,  \stdClass $values) : void
+    #[NoReturn] public function userDetailsFormSucceeded(Form $form, \stdClass $values) : void
     {
         $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
 

@@ -11,11 +11,8 @@ use App\Forms\azylSetingsFormFactory;
 use App\Forms\messagesFormFactory;
 use App\Forms\newsFormFactory;
 use App\Model\Orm\Entity\Animal;
-use App\Model\Orm\Entity\Messages;
 use App\Model\Orm\Entity\News;
 use App\Model\Orm\Entity\Photo;
-use App\Model\Orm\Enums\MessageTypeEnum;
-use App\Model\Orm\Enums\RoleTypeEnum;
 use App\Model\Orm\Repository\AnalyticsRepository;
 use App\Model\Orm\Repository\AnimalsRepository;
 use App\Model\Orm\Repository\AzylRepository;
@@ -30,7 +27,6 @@ use App\Services\MessagesService;
 use Contributte\Application\UI\BasePresenter;
 use DateTimeImmutable;
 use Nette\Forms\Form;
-use Symfony\Component\Yaml\Yaml;
 use Ublaboo\DataGrid\DataGrid;
 
 class AzylPresenter extends BasePresenter

@@ -11,8 +11,6 @@ use App\Services\IpInfoService;
 use Contributte\Application\UI\BasePresenter;
 use Nette\Application\UI\Form;
 use App\Forms\setAzylFormFactory;
-use Nette\Caching\Cache;
-use Nette\Caching\Storages\FileStorage;
 use Nette\Security\SimpleIdentity;
 use Nette\Utils\Paginator;
 

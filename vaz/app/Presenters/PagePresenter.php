@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Presenters;
 
-use AllowDynamicProperties;
 use App\Model\Orm\Repository\PageRepository;
 use App\Model\Services\Menu;
 use Contributte\Application\UI\BasePresenter;
