@@ -210,6 +210,8 @@ class SuperAdminPresenter extends BasePresenter
             $newIdentity = new SimpleIdentity($identity->getId(),$identity->getRoles(),$newData);
             $this->user->login($newIdentity);
 
+            $this->getPresenter()->redirect('Azyl:default');
+
         }
 
     }

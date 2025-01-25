@@ -18,7 +18,7 @@ abstract class BaseRepository extends EntityRepository
         return $this->findAll();
     }
 
-    public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null): array
+    public function findBy(array $criteria, ?array $orderBy = null, $limit = null, $offset = null): array
     {
         return $this->createQueryBuilder('e')
             ->andWhere($criteria)

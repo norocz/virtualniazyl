@@ -105,6 +105,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->getTemplate()->mainMenuItems = $menu->getMenu();
         //$this->getTemplate()->userRepository = $this->usersRepository;
         $this->analyticsService->setPresenter($this);
+        $this->analyticsService->setComment('Home presenter |'.$this->getPresenter()->getAction().' | ');
         $this->analyticsService->logVisit();
 
     }

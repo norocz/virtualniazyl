@@ -25,6 +25,7 @@ use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use App\Model\Services\Menu;
 use App\Repository\SpeciesRepository;
+use App\Services\AnalyticsService;
 use App\Services\MessagesService;
 use Contributte\Application\UI\BasePresenter;
 use DateTimeImmutable;
@@ -54,7 +55,8 @@ class AzylPresenter extends BasePresenter
                                 private MessagesRepository $messagesRepository,
                                 private messagesFormFactory $messagesFormFactory,
                                 private messagesService $messagesService,
-                                private AnalyticsRepository $analyticsRepository)
+                                private AnalyticsRepository $analyticsRepository,
+                                private AnalyticsService $analyticsService,)
     {
         $this->animalsRepository = $animalsRepository;
         $this->animalFormFactory = $animalFormFactory;
@@ -68,6 +70,7 @@ class AzylPresenter extends BasePresenter
         $this->messagesFormFactory = $messagesFormFactory;
         $this->messagesService = $messagesService;
         $this->analyticsRepository = $analyticsRepository;
+        $this->analyticsService = $analyticsService;
         parent::__construct();
     }
 
@@ -79,12 +82,18 @@ class AzylPresenter extends BasePresenter
         } else {
             if (!($this->getPresenter()->getUser()->isInRole('azyl') || $this->getPresenter()->getUser()->isInRole('superadmin'))) {
                 $this->flashMessage('Nemáte dostatečná oprávnění pro tuto akci. Akce byla zalogována!', 'alert-danger');
+                $this->analyticsService->setPresenter($this);
+                $this->analyticsService->setComment('Azyl presenter, nepovolený přístup|'.$this->getPresenter()->getAction().' | '.$this->getPresenter()->getUser()->getIdentity()->getId());
+                $this->analyticsService->logVisit();
                 $this->redirect('Home:default');
             } else {
                 if (!is_null($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl'])) {
 
                     $menu = new Menu();
                     $this->getTemplate()->mainMenuItems = $menu->getMenu();
+                    $this->analyticsService->setPresenter($this);
+                    $this->analyticsService->setComment('Azyl presenter |'.$this->getPresenter()->getAction().' | '.$this->getPresenter()->getUser()->getIdentity()->getId());
+                    $this->analyticsService->logVisit();
                 }else{
                     $this->getPresenter()->redirect('SuperAdmin:SetAzyl');
                 }

@@ -9,7 +9,7 @@ use Nette\Application\UI\Form;
 
 class PageFormFactory extends Form
 {
-    public function create(Pages $page = null): Form
+    public function create(?Pages $page = null): Form
     {
         $page = $page === null ? new Pages() : $page;
 

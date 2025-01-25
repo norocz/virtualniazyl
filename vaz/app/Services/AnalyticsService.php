@@ -15,6 +15,8 @@ class AnalyticsService
     private UsersRepository $usersRepository;
     private ?Presenter $presenter;
 
+    private string $comment;
+
     public function __construct(AnalyticsRepository $analyticsRepository
     , UsersRepository $usersRepository)
     {
@@ -26,6 +28,11 @@ class AnalyticsService
     public function setPresenter(Presenter $presenter): void
     {
         $this->presenter = $presenter;
+    }
+
+    public function setComment(string $comment = 'Komentář není nastaven'): void
+    {
+        $this->comment = $comment;
     }
 
     public function logVisit(): void
@@ -73,7 +80,7 @@ class AnalyticsService
         $analytics->setAction($actionName);
         $analytics->setName($presenterName);
         $analytics->setDate(new DateTimeImmutable());
-        $analytics->setComment('Test');
+        $analytics->setComment($this->comment);
         $analytics->setParams(json_encode($this->presenter->getParameters()));
 
         $this->analyticsRepository->save($analytics);

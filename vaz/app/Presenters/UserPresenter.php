@@ -20,6 +20,7 @@ use App\Model\Orm\Repository\MessagesRepository;
 use App\Model\Orm\Repository\OwnersRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use App\Components\Messenger\ChatControl;
+use App\Services\AnalyticsService;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Model\Services\Menu;
 use Contributte\Application\UI\BasePresenter;
@@ -55,15 +56,16 @@ class UserPresenter extends BasePresenter
                         private CityRepository                  $cityRepository,
                         private MessagesRepository              $messagesRepository,
                         private messagesFormFactory             $messagesFormFactory,
-                        private messagesService                 $messagesService)
+                        private messagesService                 $messagesService,
+                        private analyticsService                $analyticsService)
     {
         parent::__construct();
         $this->roleFormFactory = $roleFormFactory;
         $this->usersRepository = $usersRepository;
         $this->entityManager = $entityManager;
         $this->azylRepository = $azylRepository;
+        $this->analyticsService = $analyticsService;
         $this->messagesService = $messagesService;
-
         $this->messagesFormFactory = $messagesFormFactory;
     }
 
@@ -75,6 +77,12 @@ class UserPresenter extends BasePresenter
             $this->redirect('Home:signIn');
 
         }
+
+        $this->analyticsService->setPresenter($this);
+        $this->analyticsService->setComment('User presenter |'.$this->getPresenter()->getAction().' | '.$this->getPresenter()->getUser()->getIdentity()->getId());
+        $this->analyticsService->logVisit();
+
+        
         $menu = new Menu();
         $this->getTemplate()->messagesCount = $this->messagesRepository->countUnreadMessages($this->getPresenter()->getUser()->getId());
         $this->getTemplate()->mainMenuItems = $menu->getMenu();
