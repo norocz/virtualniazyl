@@ -24,6 +24,8 @@ class adoptionFormFactory extends Form
             ->setHtmlAttribute('rows', 5)
             ->setHtmlAttribute('cols', 80)
              ->setHtmlAttribute('class', 'form-control form-textarea');
+        $form->addInteger('howMuch','Kolik zvířat chcete adoptovat')
+             ->setHtmlAttribute('class', 'form-control form-textarea');
         $form->addSubmit('sendAdoption','Nabídnout domov')
         ->setHtmlAttribute('class', 'btn btn-primary')  ;
 

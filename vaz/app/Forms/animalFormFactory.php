@@ -28,7 +28,7 @@ class animalFormFactory extends Form
         $adoptionType = $this->adoptionTypeEnum->getAdoptionsTypesForm();
 
         $form = new Form;
-        $form->addText('name', 'Jméno:')
+        $form->addText('name', 'Jméno zvířete:')
             ->setHtmlAttribute('class', 'form-control')
             ->setRequired('Zadejte prosím jméno.');
         $form->addTextArea('description', 'Popis:')
@@ -55,6 +55,15 @@ class animalFormFactory extends Form
             ->setHtmlAttribute('class', 'form-control')
             ->setHtmlAttribute('id', 'adoptionTypeSelect')
             ->setHtmlAttribute('disabled', true);
+
+        $form->addCheckbox('multiAdoption','Přiznat více zvířat')
+            ->setHtmlAttribute('class', 'form-check-input')
+            ->setHtmlAttribute('id', 'multiAdoption'); // Přidání ID pro JavaScript
+
+        $form->addInteger('howMuch','Kolik je zvířat k adopci:')
+            ->setHtmlAttribute('class', 'form-control form-textarea')
+            ->setDefaultValue('1')
+            ->setNullable(false);
 
 
         $form->addSubmit('send', 'Uložit')

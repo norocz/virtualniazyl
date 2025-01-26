@@ -3,24 +3,37 @@
         {ifset $adoption}
         <div class="title h2">Adopce</div>
         <div class="row">
-            <div class="col-12">
-                <div class="bg-light rounded p-4">
-                    {$adoption->getAnimal()->getName()}
+            <div class="col-12 bg-light rounded p-4 m-1">
+                <div class="row">
+                <div class="col-xl-4 col-sm-12 rounded ">
+                   <span class="h2"> {$adoption->getAnimal()->getName()}</span><br>
+                    <span class="h4">{$adoption->getAnimal()->getSpecies()->getName()} </span><span class="h5"> - {$adoption->getAnimal()->getBreed()}</span>
                     {var $photos = $adoption->getAnimal()->getPhotos()}
 
+                </div>
+                <div class="col-xl-8 col-sm-12 bg-dark rounded p-4  ">
+                    {if $photos != null}
+                    {foreach $photos as $photo}
+                        <img width="80em" src="{$photo->getPath()}{$photo->getName()}" alt="{$photo->getOriginalName()}" class="img-fluid image-thumbnail">
+
+                    {/foreach}
+                    {/if}
+                </div>
                 </div>
             </div>
 
         </div>
         <div class="row">
-                <div class="col-lg-6 col-sn-12">
+                <div class="col-lg-5 col-sm-12 bg-light rounded p-4 m-2">
                     <div class="title h4">Zájemce</div>
-                    {$adoption->getUser()->getUserName()}
+                    <span class="h4 alert-warning">{$adoption->getUser()->getUserName()} <br>
                     {$adoption->getUser()->getFirstName()}
-                    {$adoption->getUser()->getLastName()}
+                    {$adoption->getUser()->getLastName()} </span>
+                    {$adoption->getUser()->getEmail()}
+                    {$adoption->getUser()->getPhone()}
                 </div>
 
-                <div class="col-lg-6 col-sn-12">
+                <div class="col-lg-6 col-sm-12 bg-light rounded p-4 m-2">
                     <div class="title h4">Komunikace</div>
 
                 </div>

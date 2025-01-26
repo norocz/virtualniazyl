@@ -64,6 +64,12 @@ class Adoption
     #[ORM\Column(type: 'string', length: 255)]
     private string $adoptionkey;
 
+    #[ORM\OneToMany(mappedBy: 'adoption', targetEntity: Messages::class)]
+    private ?Collection $messages;
+
+    #[ORM\Column(type: 'integer', length: 255)]
+    private int $howMuch;
+
     public function setAdoptionKey(string $adoptionKey): Adoption
     {
         $this->adoptionKey = $adoptionKey;
@@ -233,5 +239,28 @@ class Adoption
     {
         return $this->id;
     }
+
+    public function getMessages(): ?Collection
+    {
+        return $this->messages;
+    }
+
+    public function setMessages(?Collection $messages): Adoption
+    {
+        $this->messages = $messages;
+        return $this;
+    }
+
+    public function getHowMuch(): int
+    {
+        return $this->howMuch;
+    }
+
+    public function setHowMuch(int $howMuch): Adoption
+    {
+        $this->howMuch = $howMuch;
+        return $this;
+    }
+
 
 }

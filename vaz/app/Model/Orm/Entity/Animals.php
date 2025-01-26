@@ -34,12 +34,15 @@ class Animal
     #[ORM\JoinColumn(name: "animal_id", referencedColumnName: "id")]
     private ?Collection $photos;
 
+    #[ORM\Column(type: 'integer', length: 255)]
+    private int $howMuch;
+
     #[ORM\OneToMany(mappedBy: "animal", targetEntity: "Adoption")]
     #[ORM\JoinColumn(name: "animal_id", referencedColumnName: "id")]
     private ?Collection $adoption;
 
     #[ORM\OneToMany(mappedBy: 'animal', targetEntity: Adoption::class)]
-    private Collection $adoptions;
+    private ?Collection $adoptions;
 
     public function getAdoptions(): Collection
     {
@@ -222,6 +225,18 @@ class Animal
         return $this;
     }
 
+    public function getHowMuch(): int
+    {
+        return $this->howMuch;
+    }
+
+    public function setHowMuch(int $howMuch): Animal
+    {
+        $this->howMuch = $howMuch;
+        return $this;
+    }
+
+
 
 
     public function toArray(): array
@@ -241,6 +256,4 @@ class Animal
             'isDeleted' => $this->isDeleted,
         ];
     }
-
-
 }

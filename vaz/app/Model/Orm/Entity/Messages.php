@@ -51,6 +51,9 @@ class Messages
     #[ORM\Column(type: MessageTypeEnum::MESSAGE_TYPE_ENUM, length: 255)]
     private string $type;
 
+    #[ORM\ManyToOne(targetEntity: "Adoption", inversedBy: "Messages")]
+    private ?Adoption $adoption;
+
     public function getSender(): Users
     {
         return $this->sender;
@@ -166,6 +169,18 @@ class Messages
         $this->receiverAddress = $receiverAddress;
         return $this;
     }
+
+    public function getAdoption(): ?Adoption
+    {
+        return $this->adoption;
+    }
+
+    public function setAdoption(?Adoption $adoption): Messages
+    {
+        $this->adoption = $adoption;
+        return $this;
+    }
+
 
 
 }
