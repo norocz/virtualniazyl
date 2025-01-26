@@ -313,7 +313,9 @@ class AzylPresenter extends BasePresenter
                     'birthDate' => $animal->getBirthdate()->format('d-m-Y'),
                     'breed' => $animal->getBreed(),
                     'toAdoption' => $animal->isToAdoption(),
-                    'adoptionType' => $animal->getAdoptionType()]
+                    'adoptionType' => $animal->getAdoptionType(),
+                    'multiAdoption' => $animal->getMultiAdoption(),
+                    'howMuch' => $animal->getHowMuch()]
                     );
 
 
@@ -371,6 +373,8 @@ class AzylPresenter extends BasePresenter
             $animal->setSpecies($this->speciesRepository->findOneById($values->species));
             $animal->setBirthDate($values->birthDate);
             $animal->setBreed($values->breed);
+            $animal->setHowMuch($values->howMuch);
+            $animal->setMultiAdoption($values->multiAdoption);
             $this->animalsRepository->persist($animal);
             foreach ($values->photos as $photo)
             {
@@ -397,6 +401,9 @@ class AzylPresenter extends BasePresenter
             $animal->setBreed($values->breed);
             $animal->setToAdoption($values->toAdoption);
             $animal->setAdoptionType($values->adoptionType);
+            $animal->setHowMuch($values->howMuch);
+            $animal->setMultiAdoption($values->multiAdoption);
+
             foreach ($values->photos as $photo)
             {
                 $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());

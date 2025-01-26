@@ -34,6 +34,8 @@ class Animal
     #[ORM\JoinColumn(name: "animal_id", referencedColumnName: "id")]
     private ?Collection $photos;
 
+    #[ORM\Column(type: 'boolean')]
+    private ?bool $multiAdoption;
     #[ORM\Column(type: 'integer', length: 255)]
     private int $howMuch;
 
@@ -235,6 +237,19 @@ class Animal
         $this->howMuch = $howMuch;
         return $this;
     }
+
+    public function getMultiAdoption(): ?bool
+    {
+        return $this->multiAdoption;
+    }
+
+    public function setMultiAdoption(?bool $multiAdoption): Animal
+    {
+        $this->multiAdoption = $multiAdoption;
+        return $this;
+    }
+
+
 
 
 

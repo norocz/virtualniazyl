@@ -75,6 +75,11 @@
                             <h5 class="card-header">{$adopce->getAzyl()->getAzylName()}</h5>
                             <div class="card-body">
                                 <p class="card-text">{$adopce->getAzyl()->getDescription()|noescape}</p>
+                                {if $adopce->getHowMuch() > 1 && $adopce->getMultiAdoption() == true}
+                                {var $multiAdopce = true}
+                                {else}
+                                {var $multiAdopce = false}
+                                {/if}
 
                                 <a href="{link Home:azyl $adopce->getAzyl()->getId()}" class="btn btn-outline-primary btn-sm">Stránka azylu</a>
                             </div>
@@ -89,6 +94,9 @@
                       <h3>  {$adopce->getSpecies()->getName()} jménem {$adopce->getName()}</h3>
                         <h5>Věk: {$interval->y}, plemeno: {$adopce->getBreed()}</h5>
                         <p>{$adopce->getDescription()|noescape}</p>
+                        {if $multiAdopce}
+                        <p class = "bg-warning p-1">Pozor je tu možnost adoptovat více zvířat najednou (například nenarozená štěňátka). Počet míst ve Vašem srdci můžete nastavit níže.</p>
+                        {/if}
                     </div>
 
                     {if $adopce->getPhotos() != null }
@@ -117,12 +125,25 @@
 
                     <form n:name=adoptionForm class=form>
                        <div class="row">
-                       <div class="col-9 col-xl-9 col-sm-12">
+                       <div class="col-xl-10 col-sm-12">
                            <div class="form-group">
                                <label n:name="description">Napište o sobě něco:</label>
-                               <textarea n:name="description" rows="5" cols="80" class="form-control form-textarea"></textarea>
+                               <textarea n:name="description" rows="5" cols="40" class="form-control form-textarea"></textarea>
                                <div class="invalid-feedback">{$form['description']->getOption('error')}</div>
+
+
                            </div>
+                       </div>
+                           <div class="col-xl-2 col-sm-12">
+                           <div class="form-group">
+                            {if $multiAdopce}
+                           <label n:name="howMuch">Kolik chcete adoptovat zvířatek:</label>
+                           <input n:name="howMuch" type="number" max="{$adopce->getHowMuch()}" min="1" value="1">
+                               {/if}
+                       </div>
+                       </div>
+                        <div class="row">
+                            <div class="col-xl-12 col-sm-12">
                          <div class="form-group">
                             <input n:name="info" class="checkbox form-inline">
                             <label n:name="info">Souhlas s prověřením informací <a href="{link page:provereni}">(detaily)</a></label>
@@ -139,7 +160,7 @@
 
 
                        </div>
-                           <div class="col-3 col-xl-3 col-sm-12 align-content-xxl-end">
+                           <div class="col-xl-12 col-sm-12">
                         <div class="form-group">
                             <button n:name="sendAdoption" class="btn btn-outline-primary ajax">Nabídnout domov 🥹</button>
                         </div>
@@ -180,7 +201,7 @@
 
                 </div>
             </div>
-        </div>
+        </main>
 
         <!-- Modal pro zvětšení obrázku -->
 <div id="imageModal" class="modal">

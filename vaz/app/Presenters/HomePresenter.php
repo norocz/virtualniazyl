@@ -10,8 +10,10 @@ use App\Forms\SignInFormFactory;
 use App\Model\Orm\Entity\Adoption;
 use App\Model\Orm\Entity\AdoptionAction;
 use App\Model\Orm\Entity\Azyl;
+use App\Model\Orm\Entity\Messages;
 use App\Model\Orm\Entity\Users;
 use App\Model\Orm\Enums\ActionTypeEnum;
+use App\Model\Orm\Enums\MessageTypeEnum;
 use App\Model\Orm\Repository\AdoptionsRepository;
 use App\Model\Orm\Repository\AnimalsRepository;
 use App\Model\Orm\Repository\AzylRepository;
@@ -358,7 +360,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
     #[NoReturn] public function formAdoptionSucceeded(Form $form, \stdClass $values): void
     {
        $animal = $this->animalsRepository->findById(intval($this->getPresenter()->getParameter('id')));
-
+       $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->id);
        $aks = new AdoptionKeyService();
        $aks -> createKey($this->getUser()->id, $animal->getId(),$animal->getAzyl()->getId());
        $key =  $aks->getKey();
@@ -371,7 +373,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
        $adoption -> setUpdatedAt(new DateTimeImmutable());
        $adoption -> setAdoptionType($animal->getAdoptionType());
        $adoption -> setActionType(ActionTypeEnum::START_ADOPTION);
-       $adoption -> setUser($this->usersRepository->getUserById($this->getPresenter()->getUser()->id));
+       $adoption -> setUser($user);
        $adoption -> setAzyl($animal->getAzyl());
        $adoption -> setSetings('adopce');
        $adoption -> setDeleted(false);
@@ -379,9 +381,20 @@ final class HomePresenter extends Nette\Application\UI\Presenter
        $adoption -> setCanceled(false);
        $adoption -> setActionType(ActionTypeEnum::START_ADOPTION);
        $adoption -> setAdoptionType($animal->getAdoptionType());
-
-
+       $adoption -> setHowMuch($values->howMuch ?: 1);
        $this->adoptionsRepository->saveAdoption($adoption);
+       //poslat zprávu
+
+        $message =new Messages();
+        $message -> setType(MessageTypeEnum::FROMUSER_TYPE);
+        $message -> setCreatedAt(new DateTimeImmutable());
+        $message ->setAdoption($adoption);
+        $message ->setMessage('Uživatel: '.$user->getUserName(). ' požádal o adopci zvířete: '.$animal->getName().'. Tak mu dejte co nejdřív vědět! Podrobnosti najdete'.
+                              '<a href="'.$this->getPresenter()->link('Azyl:adoption',$adoption->getId()).'">Zde </a>');
+
+
+
+
 
        $this->getPresenter()->flashMessage('Žádost o adopci byla odeslána!', 'alert-success');
        $this->getPresenter()->redirect('this');
