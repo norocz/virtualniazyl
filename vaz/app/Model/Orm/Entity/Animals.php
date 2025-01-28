@@ -46,17 +46,6 @@ class Animal
     #[ORM\OneToMany(mappedBy: 'animal', targetEntity: Adoption::class)]
     private ?Collection $adoptions;
 
-    public function getAdoptions(): Collection
-    {
-        return $this->adoptions;
-    }
-
-    public function setAdoptions(Collection $adoptions): Animal
-    {
-        $this->adoptions = $adoptions;
-        return $this;
-    }
-
     #[ORM\Column(type: AdoptionsTypeEnum::ADOPTION_TYPE_ENUM, length: 255)]
     private string $adoptionType;
 
@@ -150,7 +139,7 @@ class Animal
         $this->adoption = $adoption;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -214,6 +203,12 @@ class Animal
     {
         $this->isDeleted = $isDeleted;
         return $this;
+    }
+
+
+    public function getAdoptions(): Collection
+    {
+        return $this->adoptions;
     }
 
     public function getAdoptionType(): string
