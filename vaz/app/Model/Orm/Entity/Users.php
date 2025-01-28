@@ -5,6 +5,7 @@ namespace App\Model\Orm\Entity;
 
 use App\Model\Orm\Enums\RoleTypeEnum;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use libphonenumber\NumberParseException;
@@ -16,8 +17,6 @@ use Nepada\PhoneNumberDoctrine\PhoneNumberType;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'users')]
-#[ORM\MappedSuperclass]
-
 class Users
 {
     #[ORM\Id]
@@ -66,8 +65,8 @@ class Users
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $verified;
 
-    #[ORM\OneToMany(mappedBy: "user", targetEntity: "Photo")]
-    public ?Collection $photos;
+    #[ORM\OneToMany(mappedBy: "user", targetEntity: Photo::class)]
+    public ?Collection $photos = null;
 
     #[ORM\OneToMany(mappedBy: "user", targetEntity: Adoption::class)]
     private ?Collection $adoptions;
@@ -131,9 +130,9 @@ class Users
    #[ORM\Column(type: 'integer', length: 255, nullable: true)]
     private ?int $azyl = null;
 
-   #[ORM\OneToOne(targetEntity: Photo::class)]
-   #[ORM\Column(nullable: true)]
-   private ?Photo $personalPhoto;
+    #[ORM\OneToOne(targetEntity: Photo::class)]
+    #[ORM\JoinColumn(name: "personal_photo_id", referencedColumnName: "id", nullable: true)]
+    private ?Photo $personalPhoto = null;
 
    #[ORM\Column(type: 'string', length: 2048, nullable: true)]
    private ?string $review = null;
@@ -168,7 +167,7 @@ class Users
         $this->phoneVerified = false;
         $this->adoptionVerification = false;
         $this->legalTerms = false;
-        $this->photos = null;
+        $this->photos = new ArrayCollection();
         $this->phone = null;
         $this->messageAddress = null;
         $this->reviewer = null;
@@ -176,8 +175,8 @@ class Users
         $this->personalPhoto = null;
         $this->review = null;
         $this->rating = null;
-        $this->reviewerRatings = null;
-        $this->userRatings = null;
+        $this->reviewerRatings = new ArrayCollection();
+        $this->userRatings = new ArrayCollection();
         $this->description = null;
         $this->city = null;
     }
@@ -582,7 +581,7 @@ class Users
         return $this;
     }
 
-    public function getPhotos(): Collection
+    public function getPhotos(): ?Collection
     {
         return $this->photos;
     }
@@ -592,7 +591,7 @@ class Users
         return $this->personalPhoto;
     }
 
-    public function setPersonalPhoto(?string $personalPhoto): Users
+    public function setPersonalPhoto(?Photo $personalPhoto): self
     {
         $this->personalPhoto = $personalPhoto;
         return $this;
@@ -652,10 +651,5 @@ class Users
         $this->collections = $collections;
         return $this;
     }
-
-
-
-
-
 
 }

@@ -38,10 +38,9 @@ class Photo
     #[ORM\JoinColumn(name: "animal_id", referencedColumnName: "id", nullable: true)]
     private ?Animal $animal;
 
-
-    #[ORM\ManyToOne(targetEntity: "Users", inversedBy: "photos")]
+    #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: "photos")]
     #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id")]
-    private ?Users $user;
+    private ?Users $user = null;
 
     #[ORM\ManyToOne(targetEntity: "Owner", inversedBy: "photos")]
     #[ORM\JoinColumn(name: "owner_id", referencedColumnName: "id",nullable: true)]
@@ -107,8 +106,8 @@ class Photo
         $array = explode('.', $this->originalName);
         $extension = array_pop($array);
         $this->name = Random::generate(39) . "." . $extension;
-        $pathPart = self::REAL_UPLOAD_PATH."user/" .$this->getUser()->id.'/';
-        $path = __DIR__ . self::UPLOAD_PATH . "user/" .$this->getUser()->id.'/';
+        $pathPart = self::REAL_UPLOAD_PATH."user/" .$this->getUser()->getId().'/';
+        $path = __DIR__ . self::UPLOAD_PATH . "user/" .$this->getUser()->getId().'/';
         $this->setPath($pathPart);
 
         if (!file_exists($path)) {

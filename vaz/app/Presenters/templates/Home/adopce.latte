@@ -66,12 +66,11 @@
         <div class="content">
             <div class="row">
                 <h2>Info o adopci</h2>
-                <div class="col-xl-4 col-sm-12 flex-column">
-                    <h4>Azyl</h4>
-                    <div class="adopce" id="adopce">
+                <div class="col-xl-3 col-sm-12 flex-column bg-light p-3 text-dark m-2">
+                                        <div class="adopce" id="adopce">
 
 
-                        <div class="card azyl-card text-dark bg-light">
+                        <div class="card azyl-card text-dark bg-light-subtle border-100">
                             <h5 class="card-header">{$adopce->getAzyl()->getAzylName()}</h5>
                             <div class="card-body">
                                 <p class="card-text">{$adopce->getAzyl()->getDescription()|noescape}</p>
@@ -87,7 +86,7 @@
                     </div>
 
                 </div>
-                <div class="col-xl-8 col-sm-12 flex-column">
+                <div class="col-xl-8 col-sm-12 flex-column bg-light p-3 text-dark m-2">
                     <div class="animal-info">
                         {var $now = new DateTimeImmutable()}
                                         {var $interval = date_diff($vek = $adopce->getBirthdate(), $now)}
@@ -95,7 +94,7 @@
                         <h5>Věk: {$interval->y}, plemeno: {$adopce->getBreed()}</h5>
                         <p>{$adopce->getDescription()|noescape}</p>
                         {if $multiAdopce}
-                        <p class = "bg-warning p-1">Pozor je tu možnost adoptovat více zvířat najednou (například nenarozená štěňátka). Počet míst ve Vašem srdci můžete nastavit níže.</p>
+                        <p class = "bg-warning p-2">Pozor je tu možnost adoptovat více zvířat najednou (například nenarozená štěňátka). Počet míst ve Vašem srdci můžete nastavit níže.</p>
                         {/if}
                     </div>
 
@@ -120,7 +119,7 @@
                     {/if}
                 </div>
 
-                <div class="adoption-form col-xl-12 col-sm-12 flex-column">
+                <div class="adoption-form col-sm-12 flex-column bg-light p-3 text-dark m-2">
                  {if $status != true && $user->isLoggedIn() && !$adopce->isAdopted()}
 
                     <form n:name=adoptionForm class=form>
@@ -135,12 +134,15 @@
                            </div>
                        </div>
                            <div class="col-xl-2 col-sm-12">
-                           <div class="form-group">
-                            {if $multiAdopce}
-                           <label n:name="howMuch">Kolik chcete adoptovat zvířatek:</label>
+                               {if $multiAdopce}
+                           <div class="form-group bg-warning p-3 text-dark">
+
+                           <label n:name="howMuch">Kolik máte místa v 💚:</label>
                            <input n:name="howMuch" type="number" max="{$adopce->getHowMuch()}" min="1" value="1">
-                               {/if}
+
                        </div>
+                               {/if}
+
                        </div>
                         <div class="row">
                             <div class="col-xl-12 col-sm-12">

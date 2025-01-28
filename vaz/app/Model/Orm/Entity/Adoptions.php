@@ -34,7 +34,6 @@ class Adoption
     private Animal $animal;
    
     #[ManyToOne(targetEntity: "Azyl", inversedBy: "adoptions")]
-    #[ORM\JoinColumn(name: "azyl_id", referencedColumnName: "id")]
     private Azyl $azyl;
 
     #[ManyToOne(targetEntity: "Users", inversedBy: "adoptions")]
@@ -61,8 +60,6 @@ class Adoption
 
     #[ORM\Column(type: ActionTypeEnum::ACTION_TYPE_ENUM, length: 255)]
     private string $actionType;
-    #[ORM\Column(type: 'string', length: 255)]
-    private string $adoptionkey;
 
     #[ORM\OneToMany(mappedBy: 'adoption', targetEntity: Messages::class)]
     private ?Collection $messages;

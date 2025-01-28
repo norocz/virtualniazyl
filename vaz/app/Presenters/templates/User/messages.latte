@@ -125,6 +125,7 @@
 
 
                     {ifset $chats}
+
                         {snippet chats}
                     <div class="messages" id="messages">
                             {foreach $chats as $chat=>$key}
@@ -146,6 +147,7 @@
 
                         {snippet messages}
                         {ifset $messages}
+
                             <div class="chat-detail" id="chat-detail">
                             {foreach $messages as $message}
                                 <div class="message {if $message->getSender()->getId() == $user->id}outgoing{else}incoming{/if}">
@@ -158,7 +160,7 @@
 </svg>
                                             {/if}
                                         </div>
-                                    <div class="msg-message">{$message->getMessage()}<br><small>{$message->getCreatedAt()|date:'H:i d.m.Y'}</small></div>
+                                    <div class="msg-message">{$message->getMessage()|safeHtml|noescape}<br><small>{$message->getCreatedAt()|date:'H:i d.m.Y'}</small></div>
                                     </div>
                                     <div class="col-lg-2">
                                      {if $message->getSender()->getId() == $user->id}

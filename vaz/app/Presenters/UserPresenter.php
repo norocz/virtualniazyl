@@ -10,12 +10,14 @@ use App\Forms\messagesFormFactory;
 use App\Forms\roleFormFactory;
 use App\Forms\userDetailsFormFactory;
 use App\Model\Orm\Entity\Azyl;
+use App\Model\Orm\Entity\Photo;
 use App\Model\Orm\Entity\Users;
 use App\Model\Orm\Enums\RoleTypeEnum;
 use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\CityRepository;
 use App\Model\Orm\Repository\MessagesRepository;
 use App\Model\Orm\Repository\OwnersRepository;
+use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use App\Components\Messenger\ChatControl;
 use App\Services\AnalyticsService;
@@ -55,7 +57,8 @@ class UserPresenter extends BasePresenter
                         private readonly MessagesRepository     $messagesRepository,
                         private messagesFormFactory             $messagesFormFactory,
                         private messagesService                 $messagesService,
-                        private analyticsService                $analyticsService)
+                        private analyticsService                $analyticsService,
+                        private photosRepository                  $photosRepository,)
     {
         parent::__construct();
         $this->roleFormFactory = $roleFormFactory;
@@ -65,6 +68,7 @@ class UserPresenter extends BasePresenter
         $this->analyticsService = $analyticsService;
         $this->messagesService = $messagesService;
         $this->messagesFormFactory = $messagesFormFactory;
+        $this->photosRepository = $photosRepository;
     }
 
     public function startup(): void
@@ -86,6 +90,23 @@ class UserPresenter extends BasePresenter
         $this->getTemplate()->mainMenuItems = $menu->getMenu();
 
     }
+
+    protected function beforeRender(): void
+    {
+        $this->template->addFilter('safeHtml', function (string $html): string {
+            $allowedTags = ['b', 'i', 'a'];
+            $html = strip_tags($html, '<' . implode('><', $allowedTags) . '>');
+
+            // Povolit pouze bezpečné atributy v <a>
+            return preg_replace_callback('/<a\s+([^>]+)>/i', function ($matches) {
+                if (preg_match('/href=["\'](.*?)["\']/', $matches[1], $hrefMatch)) {
+                    return '<a href="' . htmlspecialchars($hrefMatch[1], ENT_QUOTES) . '">';
+                }
+                return '<a>';
+            }, $html);
+        });
+    }
+
 #[NoReturn] public function actionDefault(): void
     {
         if ($this->getPresenter()->getUser()->isLoggedIn())
@@ -135,18 +156,20 @@ class UserPresenter extends BasePresenter
         $this->template->title = 'Profil';
         $this->getTemplate()->personalPhoto = $this->usersRepository->getUserById($this->getUser()->getId())->getPersonalPhoto();
         $this->getTemplate()->adoptions = $this->usersRepository->getUserById($this->getUser()->getId())->getAdoptions();
+        $this->getTemplate()->photos = $this->usersRepository->getUserById($this->getUser()->getId())->getPhotos();
     }
 
     public function actionMessages($id): void
     {
-        $chats = '';
-        $this->template->title = 'Zprávy';
+        $chats = [];
+        $this->getTemplate()->title = 'Zprávy';
         $messages =  $this->messagesService->getUserContacts($this->getUser()->getId());
+
             foreach($messages as $message)
                 {
-                    $chats[$message->getSenderAddress()] = $message->getSender()->getUsername();
+                   $chats[$message->getSenderAddress()] = $message->getSender()->getUsername();
                 }
-        $this->template->chats = $chats;
+        $this->getTemplate()->chats = $chats;
         $this->redrawControl('chats');
         $this->redrawControl('messagesCount');
         $this->redrawControl('messages');
@@ -426,19 +449,24 @@ class UserPresenter extends BasePresenter
         return $form;
     }
 
-
-
     public function ownerPhotoUploadFormSucceeded(Form $form, \stdClass $values): void
     {
         $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
-        $user->setPhotos($values->photos);
+        foreach ($values->photos as $photo)
+        {
+
+            $photoUpload = New Photo();
+            $photoUpload->setUser($user);
+            $photoUpload->setDate(new DateTimeImmutable('now'));
+            $photoUpload->uploadUserPhoto($photo);
+            $this->photosRepository->save($photoUpload);
+        }
         $this->usersRepository->addUser($user);
         $this->getPresenter()->flashMessage('Fotky byly úspěšně nahrány!', 'alert-success');
-        $this->presenter->redrawControl('photos');
+        $this->getPresenter()->redrawControl('photos');
     }
 
     //TODO: Tady se musí dodělat vazba na ownera a Azyl kde má každý specifické údaje a je potřeba to rozdělit po výběru
-
 
     public function roleFormSucceeded(Form $form, \stdClass $values): void
     {

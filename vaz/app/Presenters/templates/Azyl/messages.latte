@@ -58,7 +58,7 @@
                                         <div class="msg {if $message->getReaded() == false}msg-unreaded{/if} {$message->getType()}">
                                         <h6 class="mb-0"> {$message->getTitle()}</h6>
                                         <small>{$message->getCreatedAt()|date:'H:i d.m.Y'}</small>
-                                        <span>{$message->getMessage()}</span>
+                                        <span>{$message->getMessage()|safeHtml|noescape}</span>
                                     </div>
                                 </div>
                             </div>

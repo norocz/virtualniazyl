@@ -107,6 +107,21 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->analyticsService->logVisit();
 
     }
+    protected function beforeRender(): void
+    {
+        $this->template->addFilter('safeHtml', function (string $html): string {
+            $allowedTags = ['b', 'i', 'a'];
+            $html = strip_tags($html, '<' . implode('><', $allowedTags) . '>');
+
+            // Povolit pouze bezpečné atributy v <a>
+            return preg_replace_callback('/<a\s+([^>]+)>/i', function ($matches) {
+                if (preg_match('/href=["\'](.*?)["\']/', $matches[1], $hrefMatch)) {
+                    return '<a href="' . htmlspecialchars($hrefMatch[1], ENT_QUOTES) . '">';
+                }
+                return '<a>';
+            }, $html);
+        });
+    }
 
     public function renderDefault(): void
     {
@@ -175,7 +190,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
     }
     public function renderAzyl(int $id) : void
     {
-        $qrPlatba =New QRPlatba();
+
 
         $azylProfil = $this->azylRepository->findById($id);
         $now = new DateTimeImmutable();
@@ -187,7 +202,9 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
         $this->getTemplate()->adoptions = $this->animalsRepository->findBy(['azyl' => $azylProfil, 'toAdoption' => true], ['id' => 'DESC']);
 
+        /* Blbne na pHP 8.4 dokud se neopraví a to se musí vymyslet jak ;-)
         if (!is_null($azylProfil->getBankAccount())){
+        $qrPlatba =New QRPlatba();
         $qrPlatba->setAccount($azylProfil->getBankAccount().'/'.$azylProfil->getBankCode())
                     ->setMessage('Peníze pro '.$azylProfil->getAzylName())
                     ->setVariableSymbol($azylProfil->getBankSpecificCode())
@@ -197,6 +214,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
             }
 
         $this->getTemplate()->qrkodazyl = $qrPlatba->getQRCodeImage();
+        */
     }
 
     public function actionAzylAdoptions(int $id) : void
@@ -360,10 +378,11 @@ final class HomePresenter extends Nette\Application\UI\Presenter
     #[NoReturn] public function formAdoptionSucceeded(Form $form, \stdClass $values): void
     {
        $animal = $this->animalsRepository->findById(intval($this->getPresenter()->getParameter('id')));
-       $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->id);
+       $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
        $aks = new AdoptionKeyService();
        $aks -> createKey($this->getUser()->id, $animal->getId(),$animal->getAzyl()->getId());
        $key =  $aks->getKey();
+       $reciver = $this->usersRepository->getUserByAzylId($animal->getAzyl()->getId());
        //bdump($key);
        $adoption  = new Adoption();
        $adoption -> setDescription($values->description);
@@ -385,17 +404,19 @@ final class HomePresenter extends Nette\Application\UI\Presenter
        $this->adoptionsRepository->saveAdoption($adoption);
        //poslat zprávu
 
-        $message =new Messages();
-        $message -> setType(MessageTypeEnum::FROMUSER_TYPE);
-        $message -> setCreatedAt(new DateTimeImmutable());
-        $message ->setAdoption($adoption);
-        $message ->setMessage('Uživatel: '.$user->getUserName(). ' požádal o adopci zvířete: '.$animal->getName().'. Tak mu dejte co nejdřív vědět! Podrobnosti najdete'.
-                              '<a href="'.$this->getPresenter()->link('Azyl:adoption',$adoption->getId()).'">Zde </a>');
-
-
-
-
-
+            $message =new Messages();
+            $message -> setType(MessageTypeEnum::FROMUSER_TYPE);
+            $message -> setCreatedAt(new DateTimeImmutable());
+            $message ->setAdoption($adoption);
+            $message ->setMessage('Uživatel: '.$user->getUserName(). ' požádal o adopci zvířete: '.$animal->getName().'. Tak mu dejte co nejdřív vědět! Podrobnosti najdete'.
+                                  '<a href="'.$this->getPresenter()->link('Azyl:adoptions',$adoption->getId()).'"> Zde</a>');
+            $message->setSender($user);
+            $message->setSenderAddress($user->getMessageAddress());
+            $message->setReceiver($reciver);
+            $message->setReceiverAddress($reciver->getMessageAddress());
+            $message->setReaded(false);
+            $this->messagesRepository->save($message);
+            //zpráva poslána
        $this->getPresenter()->flashMessage('Žádost o adopci byla odeslána!', 'alert-success');
        $this->getPresenter()->redirect('this');
 

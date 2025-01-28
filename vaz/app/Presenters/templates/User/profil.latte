@@ -8,6 +8,63 @@
 
     }
 
+     #photos {
+         min-height: 200px;
+     }
+    /* První obrázek větší než ostatní */
+    .gallery-item.large {
+        grid-row: span 2;
+    }
+
+    /* Styly pro ikonu mazání */
+    .delete-icon {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        padding: 5px;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    /* Modal pro zobrazení obrázku */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.95); /* Tmavé, téměř černé pozadí */
+        overflow: hidden;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        max-width: 70vw; /* Max 80 % šířky okna */
+        max-height: 70vh; /* Max 80 % výšky okna */
+        object-fit: contain; /* Zachová poměr stran */
+        background-color: black; /* Nastaví tmavé pozadí přímo na obrázek */
+    }
+
+    .close {
+        position: absolute;
+        bottom: 20px; /* Umístění do pravého dolního rohu */
+        right: 20px;
+        color: white;
+        font-size: 30px;
+        cursor: pointer;
+        background-color: rgba(0, 0, 0, 0.6);
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    .gallery {
+        min-height: 400px;
+    }
 </style>
 
 <div class="bg">
@@ -205,37 +262,69 @@
 
                 <div class="tab-pane fade" id="nav-photos" role="tabpanel" aria-labelledby="nav-photos-tab">
                     <div class="row">
-                        <div class="col-6 col">
+                        <div class="col-xl-5 Col-sm-12 rounded-2 bg-light ">
                             Nahrát fotky (fotky by měli ukázat v jakém prostředí u Vás z vířátko bude žít naráz lze nahrát 10 fotek, maximálně lze mít 30 fotek v profilu):
                             {control ownerPhotoUploadForm}
                         </div>
-                        <div class="col-6 col tab-content text-body">
-
+                        {dump $user->getIdentity()->getData()['User']->getPhotos()}
+                        {if !is_null($photos)}
                             {snippet photos}
-                            {if !is_null($user->getIdentity()->data['User']->getPhotos())}
-                            {foreach $user->getIdentity()->data['User']->getPhotos() as $photo}
-
-                            <div class="card" style="width: 18rem;">
-                                <img src="{$basePath}/{$photo->gatPath()}/{$photo->getName()}" class="card-img-top" alt="...">
-                                <div class="card-body">
-                                    <h5 class="card-title">{$photo->gatOriginalName()}</h5>
-
-                            {/foreach}
+                                <div class="col-xl-5 col-sm-12 photos">
+                                    <h5>Fotky</h5>
+                                    <div class="row g-3 gallery">
+                                        {foreach $photos as $userPhoto}
+                                            {if $iterator->first}
+                                                <div class="col-12 col-md-6 gallery-item large">
+                                                    <div class="position-relative">
+                                                        <img src="{$basePath}/{$userPhoto->getPath()}/{$userPhoto->getName()}" alt="{$userPhoto->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
+                                                    </div>
+                                                </div>
+                                            {else}
+                                                <div class="col-6 col-md-3 gallery-item">
+                                                    <div class="position-relative">
+                                                        <img src="{$basePath}/{$userPhoto->getPath()}/{$userPhoto->getName()}" alt="{$userPhoto->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
+                                                    </div>
+                                                </div>
+                                            {/if}
+                                        {/foreach}
+                                    </div>
+                                </div>
+                            {/snippet}
                             {else}
                             <p>Nemáte žádné fotky</p>
                             {/if}
-                            {/snippet}
-                        </div>
-                    </div>
+
+
+
                 </div>
             </div>
         </section>
     </div>
 </div>
+    <!-- Modal pro zvětšení obrázku -->
+    <div id="imageModal" class="modal">
+        <span class="close" onclick="closeModal()">×</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+
+
 {/block}
 
 {block scripts-user}
 <script>
+
+    function showImageModal(src) {
+    const modal = document.getElementById("imageModal");
+    const modalImg = document.getElementById("modalImage");
+    modal.style.display = "flex";
+    modalImg.src = src;
+}
+
+    function closeModal() {
+    document.getElementById("imageModal").style.display = "none";
+}
+    document.getElementById("imageModal").addEventListener('click', closeModal);
+
 document.querySelectorAll('select[data-depends]').forEach((childSelect) => {
 let parentSelect = childSelect.form[childSelect.dataset.depends]; // nadřízený <select>
     let url = childSelect.dataset.url; // atribut data-url

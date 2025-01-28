@@ -7,6 +7,7 @@ use App\Model\Orm\Entity\Photo;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use App\Model\Orm\Entity\Users;
 
 class PhotosRepository extends EntityRepository
 {
@@ -40,6 +41,15 @@ class PhotosRepository extends EntityRepository
     public function findOneBy(array $criteria, ?array $orderBy = null)
     {
         return parent::findOneBy($criteria, $orderBy);
+    }
+
+    public function fetchByUser(Users $user): array
+    {
+        return $this->createQueryBuilder('p')
+            ->where('p.user = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult();
     }
 
     public function remove(Photo $photo): void

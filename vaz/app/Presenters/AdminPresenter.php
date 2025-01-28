@@ -107,6 +107,22 @@ class AdminPresenter extends BasePresenter
         $this->getTemplate()->mainMenuItems = $menu->getMenu();
     }
 
+    protected function beforeRender(): void
+    {
+        $this->template->addFilter('safeHtml', function (string $html): string {
+            $allowedTags = ['b', 'i', 'a'];
+            $html = strip_tags($html, '<' . implode('><', $allowedTags) . '>');
+
+            // Povolit pouze bezpečné atributy v <a>
+            return preg_replace_callback('/<a\s+([^>]+)>/i', function ($matches) {
+                if (preg_match('/href=["\'](.*?)["\']/', $matches[1], $hrefMatch)) {
+                    return '<a href="' . htmlspecialchars($hrefMatch[1], ENT_QUOTES) . '">';
+                }
+                return '<a>';
+            }, $html);
+        });
+    }
+
     private function getMonthName(int $month): string
     {
         $months = [
