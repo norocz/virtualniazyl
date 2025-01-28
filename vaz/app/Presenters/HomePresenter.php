@@ -162,8 +162,9 @@ final class HomePresenter extends Nette\Application\UI\Presenter
 
     public function renderAdopce(int $id): void
     {
+        $name ='';
         $adopce = $this->animalsRepository->findById(intval($id));
-        $this->getTemplate()->title = 'Adopce - ' . $adopce->getName();
+        $this->getTemplate()->title = 'Adopce - ' . $name = is_null($adopce->getName()) ? 'Unknown' : $adopce->getName();
         $this->getTemplate()->adopce = $adopce;
 
         if ($this->getUser()->isLoggedIn())
