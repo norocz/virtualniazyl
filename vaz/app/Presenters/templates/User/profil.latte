@@ -241,7 +241,7 @@
                                 </div>
                                 <div class="col-6 personalPhoto">
                                 {if $personalPhoto != null}
-                                    <img src="{$basePath}/{$personalPhoto->gatPath()}/{$personalPhoto->getName()}" class="img-fluid img-thumbnail rounded card-img-top personalPhoto" alt="{$personalPhoto->getName()}">
+                                    <img src="{$basePath}{$personalPhoto->gatPath()}{$personalPhoto->getName()}" class="img-fluid img-thumbnail rounded card-img-top personalPhoto" alt="{$personalPhoto->getName()}">
                                 {else}
                                     <img src="{$basePath}/assets/vazdata/img/pic/love1.jpeg" class="img-fluid img-thumbnail rounded card-img-top personalPhoto" alt="Happy dino" />
                                 {/if}
@@ -276,13 +276,13 @@
                                             {if $iterator->first}
                                                 <div class="col-12 col-md-6 gallery-item large">
                                                     <div class="position-relative">
-                                                        <img src="{$basePath}/{$userPhoto->getPath()}/{$userPhoto->getName()}" alt="{$userPhoto->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
+                                                        <img src="{$basePath}{$userPhoto->getPath()}{$userPhoto->getName()}" alt="{$userPhoto->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
                                                     </div>
                                                 </div>
                                             {else}
                                                 <div class="col-6 col-md-3 gallery-item">
                                                     <div class="position-relative">
-                                                        <img src="{$basePath}/{$userPhoto->getPath()}/{$userPhoto->getName()}" alt="{$userPhoto->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
+                                                        <img src="{$basePath}{$userPhoto->getPath()}{$userPhoto->getName()}" alt="{$userPhoto->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
                                                     </div>
                                                 </div>
                                             {/if}

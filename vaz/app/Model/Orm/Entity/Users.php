@@ -28,10 +28,10 @@ class Users
     public string $userName;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private string $firstName;
+    private ?string $firstName;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private string $lastName;
+    private ?string $lastName;
 
     #[ORM\Column(type: 'string', length: 255)]
     public string $email;

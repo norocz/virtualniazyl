@@ -138,7 +138,7 @@
                 <div class="col-xl-8 col-sm-12 rounded p-4 border">
                     {if $photos != null}
                     {foreach $photos as $photo}
-                        <img width="80em" src="{$basePath}{$photo->getPath()}/{$photo->getName()}" alt="{$photo->getOriginalName()}" class="img-fluid image-thumbnail rounded" onclick="showImageModal(this.src)">
+                        <img width="80em" src="{$basePath}{$photo->getPath()}{$photo->getName()}" alt="{$photo->getOriginalName()}" class="img-fluid image-thumbnail rounded" onclick="showImageModal(this.src)">
 
                     {/foreach}
                     {/if}
@@ -163,7 +163,7 @@
                     <div class="w-auto mt-2 border rounded">
 
                         {foreach  $userPhotos as $userPhoto}
-                            <img width="80em" src="{$basePath}{$userPhoto->getPath()}/{$userPhoto->getName()}" alt="{$userPhoto->getOriginalName()}" class="img-fluid image-thumbnail rounded" onclick="showImageModal(this.src)">
+                            <img width="80em" src="{$basePath}{$userPhoto->getPath()}{$userPhoto->getName()}" alt="{$userPhoto->getOriginalName()}" class="img-fluid image-thumbnail rounded" onclick="showImageModal(this.src)">
 
                         {/foreach}
                     </div>
