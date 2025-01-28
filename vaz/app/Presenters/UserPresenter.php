@@ -403,7 +403,7 @@ class UserPresenter extends BasePresenter
 
         $user = $this->usersRepository->getUserById($this->getUser()->getId());
 
-        dump($values->phone->getPhoneNumber()->getValue());
+
         if (!is_null($user))
             {
                 $pn = PhoneNumberUtil::getInstance();

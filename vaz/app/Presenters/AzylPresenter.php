@@ -100,6 +100,24 @@ class AzylPresenter extends BasePresenter
         }
     }
 
+    protected function beforeRender(): void
+    {
+        $this->template->addFilter('safeHtml', function (string $html): string {
+            $allowedTags = ['b', 'i', 'a'];
+            $html = strip_tags($html, '<' . implode('><', $allowedTags) . '>');
+
+            // Povolit pouze bezpečné atributy v <a>
+            return preg_replace_callback('/<a\s+([^>]+)>/i', function ($matches) {
+                if (preg_match('/href=["\'](.*?)["\']/', $matches[1], $hrefMatch)) {
+                    return '<a href="' . htmlspecialchars($hrefMatch[1], ENT_QUOTES) . '">';
+                }
+                return '<a>';
+            }, $html);
+        });
+    }
+
+
+
     public function handleDelete(int $id): void
     {
         $animal = $this->animalsRepository->findById($id);
@@ -108,6 +126,18 @@ class AzylPresenter extends BasePresenter
         $this->flashMessage('Zvířátko bylo smazáno.', 'alert-success');
         $this->redirect('this');
     }
+
+    public function handleStopAdoption(int $id): void
+    {
+
+    }
+
+    public function handleEndAdoption(int $id): void
+    {
+
+    }
+
+
 
     public function renderDefault(): void
     {
@@ -161,7 +191,8 @@ class AzylPresenter extends BasePresenter
     public function actionMessages($id): void
     {
         $this->template->title = 'Zprávy';
-        $messages =  $this->messagesService->getUserContacts($this->getUser()->getId());
+        $recieverUser = $this->usersRepository->findOneBy(['azyl'=>$this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']]);
+        $messages =  $this->messagesService->getUserContacts($recieverUser->getId());
         foreach($messages as $message)
         {
             $chats[$message->getSenderAddress()] = $message->getSender()->getUsername();
@@ -174,16 +205,31 @@ class AzylPresenter extends BasePresenter
 
     public function actionAdoptions(?int $id): void
     {
-     $this->getTemplate()->adoption = $this->adoptionsRepository->findOneBy(['id'=>$id]);
+
+        if (!is_null($id))
+        {
+            $adoption = $this->adoptionsRepository->findOneBy(['id'=>$id]);
+            $this->getTemplate()->adoption = $adoption;
+
+        }
+         else
+        {
+
+            $adoptions = $this->adoptionsRepository->findBy(['azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']],['updatedAt'=>'DESC']);
+
+            $this->getTemplate()->adoptions = $adoptions;
+        }
 
     }
 
+
     public function handleChat(string $id): void
     {
-        $messages = $this->messagesRepository->getMessagesBySenderReceiverAddress(senderAddress: $id, receiverAddress: $this->getPresenter()->getUser()->getIdentity()->getData()['User']->getMessageAddress());
+        $recieverUser = $this->usersRepository->findOneBy(['azyl'=>$this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']]);
+        $messages = $this->messagesRepository->getMessagesBySenderReceiverAddress(senderAddress: $id, receiverAddress: $recieverUser->getMessageAddress());
 
         $this->getTemplate()->messages = $messages;
-        $this->getTemplate()->receiver = $id;
+        $this->getTemplate()->receiver = $recieverUser->getId();
         $this->messagesService->markMessagesAsRead($id);
         $this->redrawControl('messagesCount');
         $this->redrawControl('chats');
@@ -248,7 +294,7 @@ class AzylPresenter extends BasePresenter
     {
         $this->template->title = 'Photos';
         $this->getTemplate()->basepath = '';
-      //  $this->getTemplate()->photos = $this->
+        $this->getTemplate()->photos = $this->photosRepository->fetchByAzylId($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
     }
 
     public function renderMessages(): void
@@ -263,12 +309,24 @@ class AzylPresenter extends BasePresenter
 
     public function renderAdoptions(): void
     {
-        $this->template->title = 'Adoptions';
+        $this->template->title = 'Adoptions - Azyl: '.$this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getAzylName();
+
+
     }
 
     // Actions
 
     // Handle
+    public function handleDeletePhoto(int $id): void
+    {
+
+    }
+    public function handleSetHomePhoto(int $id): void
+    {
+
+    }
+
+
     public function handleNewsDelete(?int $id): void
     {
         $news = $this->newsRepository->findOneBy(['id' => $id]);
@@ -304,8 +362,7 @@ class AzylPresenter extends BasePresenter
         $form->onSuccess[] = [$this, 'animalFormSucceeded'];
         if ($this->getPresenter()->getParameter('id') !== null){
             $animal = $this->animalsRepository->findById(intval($this->getPresenter()->getParameter('id')));
-            bdump($animal);
-            bdump('Tady jsem v podmnínce');
+
             $form->setDefaults([
                'name' => $animal->getName(),
                 'description' => $animal->getDescription(),
@@ -321,7 +378,7 @@ class AzylPresenter extends BasePresenter
 
         }
 
-        bdump($form);
+
         return $form;
     }
 
@@ -354,7 +411,7 @@ class AzylPresenter extends BasePresenter
 
     public function animalFormSucceeded(Form $form, $values): void
     {
-        bdump($values);
+
         $id = $this->getParameter('id');
         //todo: ověření práv uživatele na úpravu zvířátka
         if (is_null($id))
@@ -410,7 +467,6 @@ class AzylPresenter extends BasePresenter
                 $photoUpload = New Photo();
                 $photoUpload->setAnimal($animal);
                 $photoUpload->setDate(new DateTimeImmutable('now'));
-                //bdump($azyl,'AZYL');
                 $photoUpload->setAzyl($azyl);
                 $photoUpload->uploadAzylPhoto($photo);
                 $this->photosRepository->save($photoUpload);
@@ -428,7 +484,7 @@ class AzylPresenter extends BasePresenter
 
         if ($this->getPresenter()->getParameter('id') !== null) {
             $news = $this->newsRepository->findOneBy(['id' => $this->getPresenter()->getParameter('id')]);
-            bdump($news);
+
             if ($news) {
 
                 $form->addHidden('newsid', $news->getId());
@@ -473,7 +529,7 @@ class AzylPresenter extends BasePresenter
             $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getIdentity()->getId());
 
             $azyl = $this->azylRepository->findOneBy(['id' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]);
-            bdump($azyl,'New news');
+
             $news->setAuthor($user);
             $news->setTitle($values->title);
             $news->setContent($values->content);
@@ -500,7 +556,7 @@ class AzylPresenter extends BasePresenter
 
             if ($news) {
                 $azyl = $this->azylRepository->findOneBy(['id' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]);
-                bdump($azyl. 'News update');
+
                 $news->setTitle($values->title);
                 $news->setContent($values->content);
                 $news->setGlobal($values->global);
@@ -524,7 +580,7 @@ class AzylPresenter extends BasePresenter
 
         $grid = $this->newsDatagridFactory->create();
         $azyl = $this->azylRepository->findOneBy(['id' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]);
-        bdump($azyl->getNews(), 'Grid před get News');
+
         $grid ->setDataSource($azyl->getNews());
         return $grid;
     }

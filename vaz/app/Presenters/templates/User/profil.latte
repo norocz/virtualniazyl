@@ -266,7 +266,7 @@
                             Nahrát fotky (fotky by měli ukázat v jakém prostředí u Vás z vířátko bude žít naráz lze nahrát 10 fotek, maximálně lze mít 30 fotek v profilu):
                             {control ownerPhotoUploadForm}
                         </div>
-                        {dump $user->getIdentity()->getData()['User']->getPhotos()}
+
                         {if !is_null($photos)}
                             {snippet photos}
                                 <div class="col-xl-5 col-sm-12 photos">

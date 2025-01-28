@@ -276,7 +276,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         if (!empty($vrf))
         {
             $user = $this->usersRepository->getUserByMailVerifyToken($vrf);
-            bdump($user);
+
             if($user !== NULL)
             {
                 $user->setMailverified(TRUE);
@@ -383,7 +383,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
        $aks -> createKey($this->getUser()->id, $animal->getId(),$animal->getAzyl()->getId());
        $key =  $aks->getKey();
        $reciver = $this->usersRepository->getUserByAzylId($animal->getAzyl()->getId());
-       //bdump($key);
+
        $adoption  = new Adoption();
        $adoption -> setDescription($values->description);
        $adoption -> setAnimal($animal);

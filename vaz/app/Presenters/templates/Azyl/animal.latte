@@ -76,14 +76,14 @@
             {if $iterator->first}
                         <div class="col-4 gallery-item large">
                             <div class="position-relative">
-                                <img src="{$photo->getPath()}{$photo->getName()}" alt="{$photo->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
+                                <img src="{$basePath}{$photo->getPath()}/{$photo->getName()}" alt="{$photo->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
                                 <span class="delete-icon" onclick="deleteImage(this)">✖</span>
                             </div>
                         </div>
                     {else}
                         <div class="col-2 gallery-item">
                             <div class="position-relative">
-                                <img src="{$photo->getPath()}{$photo->getName()}" alt="{$photo->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
+                                <img src="{$basePath}{$photo->getPath()}/{$photo->getName()}" alt="{$photo->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
                                 <span class="delete-icon" onclick="deleteImage(this)">✖</span>
                             </div>
                         </div>
@@ -181,7 +181,7 @@
             document.getElementById('adoptionTypeSelect').disabled = !this.checked;
         });
     </script>
-    </ <script>
+    <script>
     function showImageModal(src) {
         const modal = document.getElementById("imageModal");
         const modalImg = document.getElementById("modalImage");

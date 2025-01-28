@@ -68,11 +68,11 @@ use const PHP_VERSION_ID;
  *
  * @template-covariant T of object
  * @template-implements ClassMetadata<T>
- * @psalm-import-type AssociationMapping from \Doctrine\ORM\Mapping\ClassMetadata
- * @psalm-import-type FieldMapping from \Doctrine\ORM\Mapping\ClassMetadata
- * @psalm-import-type EmbeddedClassMapping from \Doctrine\ORM\Mapping\ClassMetadata
- * @psalm-import-type JoinColumnData from \Doctrine\ORM\Mapping\ClassMetadata
- * @psalm-import-type DiscriminatorColumnMapping from \Doctrine\ORM\Mapping\ClassMetadata
+ * @phpstan-import-type AssociationMapping from \Doctrine\ORM\Mapping\ClassMetadata
+ * @phpstan-import-type FieldMapping from \Doctrine\ORM\Mapping\ClassMetadata
+ * @phpstan-import-type EmbeddedClassMapping from \Doctrine\ORM\Mapping\ClassMetadata
+ * @phpstan-import-type JoinColumnData from \Doctrine\ORM\Mapping\ClassMetadata
+ * @phpstan-import-type DiscriminatorColumnMapping from \Doctrine\ORM\Mapping\ClassMetadata
  */
 class ClassMetadataInfo implements ClassMetadata
 {
@@ -373,14 +373,14 @@ class ClassMetadataInfo implements ClassMetadata
      * declared in another parent <em>entity or mapped superclass</em>. The value is the FQCN
      * of the topmost non-transient class that contains mapping information for this field.
      *
-     * @psalm-var array<string, EmbeddedClassMapping>
+     * @phpstan-var array<string, EmbeddedClassMapping>
      */
     public $embeddedClasses = [];
 
     /**
      * READ-ONLY: The named queries allowed to be called directly from Repository.
      *
-     * @psalm-var array<string, array<string, mixed>>
+     * @phpstan-var array<string, array<string, mixed>>
      */
     public $namedQueries = [];
 
@@ -397,7 +397,7 @@ class ClassMetadataInfo implements ClassMetadata
      * )
      * </pre>
      *
-     * @psalm-var array<string, array<string, mixed>>
+     * @phpstan-var array<string, array<string, mixed>>
      */
     public $namedNativeQueries = [];
 
@@ -413,7 +413,7 @@ class ClassMetadataInfo implements ClassMetadata
      * )
      * </pre>
      *
-     * @psalm-var array<string, array{
+     * @phpstan-var array<string, array{
      *                name: string,
      *                entities: mixed[],
      *                columns: mixed[]
@@ -425,7 +425,7 @@ class ClassMetadataInfo implements ClassMetadata
      * READ-ONLY: The field names of all fields that are part of the identifier/primary key
      * of the mapped entity class.
      *
-     * @psalm-var list<string>
+     * @phpstan-var list<string>
      */
     public $identifier = [];
 
@@ -433,7 +433,7 @@ class ClassMetadataInfo implements ClassMetadata
      * READ-ONLY: The inheritance mapping type used by the class.
      *
      * @var int
-     * @psalm-var self::INHERITANCE_TYPE_*
+     * @phpstan-var self::INHERITANCE_TYPE_*
      */
     public $inheritanceType = self::INHERITANCE_TYPE_NONE;
 
@@ -441,7 +441,7 @@ class ClassMetadataInfo implements ClassMetadata
      * READ-ONLY: The Id generator type used by the class.
      *
      * @var int
-     * @psalm-var self::GENERATOR_TYPE_*
+     * @phpstan-var self::GENERATOR_TYPE_*
      */
     public $generatorType = self::GENERATOR_TYPE_NONE;
 
@@ -505,7 +505,7 @@ class ClassMetadataInfo implements ClassMetadata
      * of the topmost non-transient class that contains mapping information for this field.
      *
      * @var mixed[]
-     * @psalm-var array<string, FieldMapping>
+     * @phpstan-var array<string, FieldMapping>
      */
     public $fieldMappings = [];
 
@@ -513,7 +513,7 @@ class ClassMetadataInfo implements ClassMetadata
      * READ-ONLY: An array of field names. Used to look up field names from column names.
      * Keys are column names and values are field names.
      *
-     * @psalm-var array<string, string>
+     * @phpstan-var array<string, string>
      */
     public $fieldNames = [];
 
@@ -559,7 +559,7 @@ class ClassMetadataInfo implements ClassMetadata
      * inheritance mappings.
      *
      * @var array<string, mixed>
-     * @psalm-var DiscriminatorColumnMapping|null
+     * @phpstan-var DiscriminatorColumnMapping|null
      */
     public $discriminatorColumn;
 
@@ -573,7 +573,7 @@ class ClassMetadataInfo implements ClassMetadata
      * uniqueConstraints => array
      *
      * @var mixed[]
-     * @psalm-var array{
+     * @phpstan-var array{
      *               name: string,
      *               schema?: string,
      *               indexes?: array,
@@ -587,14 +587,14 @@ class ClassMetadataInfo implements ClassMetadata
     /**
      * READ-ONLY: The registered lifecycle callbacks for entities of this class.
      *
-     * @psalm-var array<string, list<string>>
+     * @phpstan-var array<string, list<string>>
      */
     public $lifecycleCallbacks = [];
 
     /**
      * READ-ONLY: The registered entity listeners.
      *
-     * @psalm-var array<string, list<array{class: class-string, method: string}>>
+     * @phpstan-var array<string, list<array{class: class-string, method: string}>>
      */
     public $entityListeners = [];
 
@@ -670,7 +670,7 @@ class ClassMetadataInfo implements ClassMetadata
      * )
      * </pre>
      *
-     * @psalm-var array<string, AssociationMapping>
+     * @phpstan-var array<string, AssociationMapping>
      */
     public $associationMappings = [];
 
@@ -721,7 +721,7 @@ class ClassMetadataInfo implements ClassMetadata
      * </code>
      *
      * @var array<string, mixed>|null
-     * @psalm-var array{sequenceName: string, allocationSize: string, initialValue: string, quoted?: mixed}|null
+     * @phpstan-var array{sequenceName: string, allocationSize: string, initialValue: string, quoted?: mixed}|null
      * @todo Merge with tableGeneratorDefinition into generic generatorDefinition
      */
     public $sequenceGeneratorDefinition;
@@ -827,7 +827,7 @@ class ClassMetadataInfo implements ClassMetadata
      * Gets the ReflectionProperties of the mapped class.
      *
      * @return ReflectionProperty[]|null[] An array of ReflectionProperty instances.
-     * @psalm-return array<ReflectionProperty|null>
+     * @phpstan-return array<ReflectionProperty|null>
      */
     public function getReflectionProperties()
     {
@@ -902,7 +902,7 @@ class ClassMetadataInfo implements ClassMetadata
      * Populates the entity identifier of an entity.
      *
      * @param object $entity
-     * @psalm-param array<string, mixed> $id
+     * @phpstan-param array<string, mixed> $id
      *
      * @return void
      *
@@ -1254,7 +1254,7 @@ class ClassMetadataInfo implements ClassMetadata
     }
 
     /**
-     * @psalm-param array{usage?: mixed, region?: mixed} $cache
+     * @phpstan-param array{usage?: mixed, region?: mixed} $cache
      *
      * @return void
      */
@@ -1273,7 +1273,7 @@ class ClassMetadataInfo implements ClassMetadata
 
     /**
      * @param string $fieldName
-     * @psalm-param array{usage?: int, region?: string} $cache
+     * @phpstan-param array{usage?: int, region?: string} $cache
      *
      * @return void
      */
@@ -1285,10 +1285,10 @@ class ClassMetadataInfo implements ClassMetadata
     /**
      * @param string $fieldName
      * @param array  $cache
-     * @psalm-param array{usage?: int|null, region?: string|null} $cache
+     * @phpstan-param array{usage?: int|null, region?: string|null} $cache
      *
      * @return int[]|string[]
-     * @psalm-return array{usage: int, region: string|null}
+     * @phpstan-return array{usage: int, region: string|null}
      */
     public function getAssociationCacheDefaults($fieldName, array $cache)
     {
@@ -1415,7 +1415,7 @@ class ClassMetadataInfo implements ClassMetadata
      * @param string $fieldName The field name.
      *
      * @return mixed[] The field mapping.
-     * @psalm-return FieldMapping
+     * @phpstan-return FieldMapping
      *
      * @throws MappingException
      */
@@ -1437,7 +1437,7 @@ class ClassMetadataInfo implements ClassMetadata
      *                          the object model.
      *
      * @return mixed[] The mapping.
-     * @psalm-return AssociationMapping
+     * @phpstan-return AssociationMapping
      *
      * @throws MappingException
      */
@@ -1453,7 +1453,7 @@ class ClassMetadataInfo implements ClassMetadata
     /**
      * Gets all association mappings of the class.
      *
-     * @psalm-return array<string, AssociationMapping>
+     * @phpstan-return array<string, AssociationMapping>
      */
     public function getAssociationMappings()
     {
@@ -1497,7 +1497,7 @@ class ClassMetadataInfo implements ClassMetadata
      * Gets all named queries of the class.
      *
      * @return mixed[][]
-     * @psalm-return array<string, array<string, mixed>>
+     * @phpstan-return array<string, array<string, mixed>>
      */
     public function getNamedQueries()
     {
@@ -1512,7 +1512,7 @@ class ClassMetadataInfo implements ClassMetadata
      * @param string $queryName The query name.
      *
      * @return mixed[]
-     * @psalm-return array<string, mixed>
+     * @phpstan-return array<string, mixed>
      *
      * @throws MappingException
      */
@@ -1528,7 +1528,7 @@ class ClassMetadataInfo implements ClassMetadata
     /**
      * Gets all named native queries of the class.
      *
-     * @psalm-return array<string, array<string, mixed>>
+     * @phpstan-return array<string, array<string, mixed>>
      */
     public function getNamedNativeQueries()
     {
@@ -1543,7 +1543,7 @@ class ClassMetadataInfo implements ClassMetadata
      * @param string $name The result set mapping name.
      *
      * @return mixed[]
-     * @psalm-return array{name: string, entities: array, columns: array}
+     * @phpstan-return array{name: string, entities: array, columns: array}
      *
      * @throws MappingException
      */
@@ -1560,7 +1560,7 @@ class ClassMetadataInfo implements ClassMetadata
      * Gets all sql result set mappings of the class.
      *
      * @return mixed[]
-     * @psalm-return array<string, array{name: string, entities: array, columns: array}>
+     * @phpstan-return array<string, array{name: string, entities: array, columns: array}>
      */
     public function getSqlResultSetMappings()
     {
@@ -1621,7 +1621,7 @@ class ClassMetadataInfo implements ClassMetadata
     /**
      * Validates & completes the given field mapping.
      *
-     * @psalm-param array{
+     * @phpstan-param array{
      *     fieldName?: string,
      *     columnName?: string,
      *     id?: bool,
@@ -1722,10 +1722,10 @@ class ClassMetadataInfo implements ClassMetadata
      * Validates & completes the basic mapping information that is common to all
      * association mappings (one-to-one, many-ot-one, one-to-many, many-to-many).
      *
-     * @psalm-param array<string, mixed> $mapping The mapping.
+     * @phpstan-param array<string, mixed> $mapping The mapping.
      *
      * @return mixed[] The updated mapping.
-     * @psalm-return AssociationMapping
+     * @phpstan-return AssociationMapping
      *
      * @throws MappingException If something is wrong with the mapping.
      */
@@ -1852,10 +1852,10 @@ class ClassMetadataInfo implements ClassMetadata
     /**
      * Validates & completes a one-to-one association mapping.
      *
-     * @psalm-param array<string, mixed> $mapping The mapping to validate & complete.
+     * @phpstan-param array<string, mixed> $mapping The mapping to validate & complete.
      *
      * @return mixed[] The validated & completed mapping.
-     * @psalm-return AssociationMapping
+     * @phpstan-return AssociationMapping
      *
      * @throws RuntimeException
      * @throws MappingException
@@ -1950,10 +1950,10 @@ class ClassMetadataInfo implements ClassMetadata
     /**
      * Validates & completes a one-to-many association mapping.
      *
-     * @psalm-param array<string, mixed> $mapping The mapping to validate and complete.
+     * @phpstan-param array<string, mixed> $mapping The mapping to validate and complete.
      *
      * @return mixed[] The validated and completed mapping.
-     * @psalm-return AssociationMapping
+     * @phpstan-return AssociationMapping
      *
      * @throws MappingException
      * @throws InvalidArgumentException
@@ -1978,10 +1978,10 @@ class ClassMetadataInfo implements ClassMetadata
     /**
      * Validates & completes a many-to-many association mapping.
      *
-     * @psalm-param array<string, mixed> $mapping The mapping to validate & complete.
+     * @phpstan-param array<string, mixed> $mapping The mapping to validate & complete.
      *
      * @return mixed[] The validated & completed mapping.
-     * @psalm-return AssociationMapping
+     * @phpstan-return AssociationMapping
      *
      * @throws InvalidArgumentException
      */
@@ -2129,7 +2129,7 @@ class ClassMetadataInfo implements ClassMetadata
      * Sets the mapped identifier/primary key fields of this class.
      * Mainly used by the ClassMetadataFactory to assign inherited identifiers.
      *
-     * @psalm-param list<mixed> $identifier
+     * @phpstan-param list<mixed> $identifier
      *
      * @return void
      */
@@ -2158,10 +2158,10 @@ class ClassMetadataInfo implements ClassMetadata
     /**
      * Gets an array containing all the column names.
      *
-     * @psalm-param list<string>|null $fieldNames
+     * @phpstan-param list<string>|null $fieldNames
      *
      * @return mixed[]
-     * @psalm-return list<string>
+     * @phpstan-return list<string>
      */
     public function getColumnNames(?array $fieldNames = null)
     {
@@ -2175,7 +2175,7 @@ class ClassMetadataInfo implements ClassMetadata
     /**
      * Returns an array with all the identifier column names.
      *
-     * @psalm-return list<string>
+     * @phpstan-return list<string>
      */
     public function getIdentifierColumnNames()
     {
@@ -2204,7 +2204,7 @@ class ClassMetadataInfo implements ClassMetadata
      * Sets the type of Id generator to use for the mapped class.
      *
      * @param int $generatorType
-     * @psalm-param self::GENERATOR_TYPE_* $generatorType
+     * @phpstan-param self::GENERATOR_TYPE_* $generatorType
      *
      * @return void
      */
@@ -2285,7 +2285,7 @@ class ClassMetadataInfo implements ClassMetadata
      *
      * @return bool TRUE if the class uses the SEQUENCE generator, FALSE otherwise.
      *
-     * @psalm-assert-if-true !null $this->sequenceGeneratorDefinition
+     * @phpstan-assert-if-true !null $this->sequenceGeneratorDefinition
      */
     public function isIdGeneratorSequence()
     {
@@ -2406,7 +2406,7 @@ class ClassMetadataInfo implements ClassMetadata
     /**
      * Sets the mapped subclasses of this class.
      *
-     * @psalm-param list<string> $subclasses The names of all mapped subclasses.
+     * @phpstan-param list<string> $subclasses The names of all mapped subclasses.
      *
      * @return void
      */
@@ -2440,7 +2440,7 @@ class ClassMetadataInfo implements ClassMetadata
      * Sets the inheritance type used by the class and its subclasses.
      *
      * @param int $type
-     * @psalm-param self::INHERITANCE_TYPE_* $type
+     * @phpstan-param self::INHERITANCE_TYPE_* $type
      *
      * @return void
      *
@@ -2459,7 +2459,7 @@ class ClassMetadataInfo implements ClassMetadata
      * Sets the association to override association mapping of property for an entity relationship.
      *
      * @param string $fieldName
-     * @psalm-param array<string, mixed> $overrideMapping
+     * @phpstan-param array<string, mixed> $overrideMapping
      *
      * @return void
      *
@@ -2528,7 +2528,7 @@ class ClassMetadataInfo implements ClassMetadata
      * Sets the override for a mapped field.
      *
      * @param string $fieldName
-     * @psalm-param array<string, mixed> $overrideMapping
+     * @phpstan-param array<string, mixed> $overrideMapping
      *
      * @return void
      *
@@ -2651,7 +2651,7 @@ class ClassMetadataInfo implements ClassMetadata
      *
      * If a key is omitted, the current value is kept.
      *
-     * @psalm-param array<string, mixed> $table The table description.
+     * @phpstan-param array<string, mixed> $table The table description.
      *
      * @return void
      */
@@ -2716,7 +2716,7 @@ class ClassMetadataInfo implements ClassMetadata
     /**
      * Adds a mapped field to the class.
      *
-     * @psalm-param array<string, mixed> $mapping The field mapping.
+     * @phpstan-param array<string, mixed> $mapping The field mapping.
      *
      * @return void
      *
@@ -2739,7 +2739,7 @@ class ClassMetadataInfo implements ClassMetadata
      * Adds an association mapping without completing/validating it.
      * This is mainly used to add inherited association mappings to derived classes.
      *
-     * @psalm-param AssociationMapping $mapping
+     * @phpstan-param AssociationMapping $mapping
      *
      * @return void
      *
@@ -2759,7 +2759,7 @@ class ClassMetadataInfo implements ClassMetadata
      * Adds a field mapping without completing/validating it.
      * This is mainly used to add inherited field mappings to derived classes.
      *
-     * @psalm-param FieldMapping $fieldMapping
+     * @phpstan-param FieldMapping $fieldMapping
      *
      * @return void
      */
@@ -2780,7 +2780,7 @@ class ClassMetadataInfo implements ClassMetadata
      *
      * @deprecated
      *
-     * @psalm-param array<string, mixed> $queryMapping
+     * @phpstan-param array<string, mixed> $queryMapping
      *
      * @return void
      *
@@ -2825,7 +2825,7 @@ class ClassMetadataInfo implements ClassMetadata
      *
      * @deprecated
      *
-     * @psalm-param array<string, mixed> $queryMapping
+     * @phpstan-param array<string, mixed> $queryMapping
      *
      * @return void
      *
@@ -2876,7 +2876,7 @@ class ClassMetadataInfo implements ClassMetadata
      * INTERNAL:
      * Adds a sql result set mapping to this class.
      *
-     * @psalm-param array<string, mixed> $resultMapping
+     * @phpstan-param array<string, mixed> $resultMapping
      *
      * @return void
      *
@@ -2950,7 +2950,7 @@ class ClassMetadataInfo implements ClassMetadata
     /**
      * Adds a one-to-many mapping.
      *
-     * @psalm-param array<string, mixed> $mapping The mapping.
+     * @phpstan-param array<string, mixed> $mapping The mapping.
      *
      * @return void
      */
@@ -2966,7 +2966,7 @@ class ClassMetadataInfo implements ClassMetadata
     /**
      * Adds a many-to-one mapping.
      *
-     * @psalm-param array<string, mixed> $mapping The mapping.
+     * @phpstan-param array<string, mixed> $mapping The mapping.
      *
      * @return void
      */
@@ -2983,7 +2983,7 @@ class ClassMetadataInfo implements ClassMetadata
     /**
      * Adds a many-to-many mapping.
      *
-     * @psalm-param array<string, mixed> $mapping The mapping.
+     * @phpstan-param array<string, mixed> $mapping The mapping.
      *
      * @return void
      */
@@ -2999,7 +2999,7 @@ class ClassMetadataInfo implements ClassMetadata
     /**
      * Stores the association mapping.
      *
-     * @psalm-param AssociationMapping $assocMapping
+     * @phpstan-param AssociationMapping $assocMapping
      *
      * @return void
      *
@@ -3063,7 +3063,7 @@ class ClassMetadataInfo implements ClassMetadata
      * @param string $event
      *
      * @return string[]
-     * @psalm-return list<string>
+     * @phpstan-return list<string>
      */
     public function getLifecycleCallbacks($event)
     {
@@ -3101,7 +3101,7 @@ class ClassMetadataInfo implements ClassMetadata
      * Sets the lifecycle callbacks for entities of this class.
      * Any previously registered callbacks are overwritten.
      *
-     * @psalm-param array<string, list<string>> $callbacks
+     * @phpstan-param array<string, list<string>> $callbacks
      *
      * @return void
      */
@@ -3151,7 +3151,7 @@ class ClassMetadataInfo implements ClassMetadata
      * @see getDiscriminatorColumn()
      *
      * @param mixed[]|null $columnDef
-     * @psalm-param array{name: string|null, fieldName?: string, type?: string, length?: int, columnDefinition?: string|null, enumType?: class-string<BackedEnum>|null, options?: array<string, mixed>}|null $columnDef
+     * @phpstan-param array{name: string|null, fieldName?: string, type?: string, length?: int, columnDefinition?: string|null, enumType?: class-string<BackedEnum>|null, options?: array<string, mixed>}|null $columnDef
      *
      * @return void
      *
@@ -3186,7 +3186,7 @@ class ClassMetadataInfo implements ClassMetadata
 
     /**
      * @return array<string, mixed>
-     * @psalm-return DiscriminatorColumnMapping
+     * @phpstan-return DiscriminatorColumnMapping
      */
     final public function getDiscriminatorColumn(): array
     {
@@ -3415,7 +3415,7 @@ class ClassMetadataInfo implements ClassMetadata
     /**
      * Sets definition.
      *
-     * @psalm-param array<string, string|null> $definition
+     * @phpstan-param array<string, string|null> $definition
      *
      * @return void
      */
@@ -3437,7 +3437,7 @@ class ClassMetadataInfo implements ClassMetadata
      * )
      * </code>
      *
-     * @psalm-param array{sequenceName?: string, allocationSize?: int|string, initialValue?: int|string, quoted?: mixed} $definition
+     * @phpstan-param array{sequenceName?: string, allocationSize?: int|string, initialValue?: int|string, quoted?: mixed} $definition
      *
      * @return void
      *
@@ -3472,7 +3472,7 @@ class ClassMetadataInfo implements ClassMetadata
      * Sets the version field mapping used for versioning. Sets the default
      * value to use depending on the column type.
      *
-     * @psalm-param array<string, mixed> $mapping The version field mapping array.
+     * @phpstan-param array<string, mixed> $mapping The version field mapping array.
      *
      * @return void
      *
@@ -3585,7 +3585,7 @@ class ClassMetadataInfo implements ClassMetadata
      * @param AbstractPlatform $platform
      *
      * @return string[]
-     * @psalm-return list<string>
+     * @phpstan-return list<string>
      */
     public function getQuotedIdentifierColumnNames($platform)
     {
@@ -3688,7 +3688,7 @@ class ClassMetadataInfo implements ClassMetadata
      * @param string $targetClass
      *
      * @return mixed[][]
-     * @psalm-return array<string, array<string, mixed>>
+     * @phpstan-return array<string, array<string, mixed>>
      */
     public function getAssociationsByTargetClass($targetClass)
     {
@@ -3739,7 +3739,7 @@ class ClassMetadataInfo implements ClassMetadata
     /**
      * Map Embedded Class
      *
-     * @psalm-param array<string, mixed> $mapping
+     * @phpstan-param array<string, mixed> $mapping
      *
      * @return void
      *
@@ -3857,7 +3857,7 @@ class ClassMetadataInfo implements ClassMetadata
         return $sequencePrefix;
     }
 
-    /** @psalm-param AssociationMapping $mapping */
+    /** @phpstan-param AssociationMapping $mapping */
     private function assertMappingOrderBy(array $mapping): void
     {
         if (isset($mapping['orderBy']) && ! is_array($mapping['orderBy'])) {

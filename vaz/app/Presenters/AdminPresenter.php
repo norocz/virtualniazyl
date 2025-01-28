@@ -447,7 +447,7 @@ class AdminPresenter extends BasePresenter
 
     public function speciesFormSucceeded(Form $form, \stdClass $values): void
     {
-        bdump($values);
+
         if ($this->getPresenter()->getParameter('id') !== null) {
             $species = $this->speciesRepository->findOneBy(['id' => $this->getPresenter()->getParameter('id')]);
             if ($species) {

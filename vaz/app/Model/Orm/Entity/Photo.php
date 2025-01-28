@@ -55,7 +55,7 @@ class Photo
 
 
 
-    const REAL_UPLOAD_PATH = '../../upload/photos/';
+    const REAL_UPLOAD_PATH = '/upload/photos/';
     const WWW_UPLOAD_PATH = '/upload/photos/';
     const UPLOAD_PATH = '/../../../../www' . self::WWW_UPLOAD_PATH;
 
@@ -83,7 +83,7 @@ class Photo
         $pathPart = self::REAL_UPLOAD_PATH."azyl/" .$this->getAzyl()->id.'/';
         $path = __DIR__ . self::UPLOAD_PATH . "azyl/" .$this->getAzyl()->id.'/';
 
-        bdump($path);
+
         $this->setPath($pathPart);
 
         if (!file_exists($path)) {
