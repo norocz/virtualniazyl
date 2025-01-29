@@ -116,7 +116,7 @@
                         {/if}
                         <h5 class="card-header">{$new->getTitle()}</h5>
                         <div class="card-body">
-                            <p class="card-text"> {$new->getContent()|noescape}</p>
+                            <p class="card-text"> {if is_null($new->getContent())}{$new->getContent()|noescape}{/if}</p>
                             <p class="author-name card-text"><small class="text-muted">Vytvořeno: {$new->getCreatedAt()->format('d.m.Y. H:m:s')}</small></p>
 
                         </div>

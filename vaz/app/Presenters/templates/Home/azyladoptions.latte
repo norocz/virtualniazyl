@@ -83,7 +83,7 @@
                                 <img src="{$basePath}/assets/vazdata/img/pic/defaultPhoto.jpeg" alt="{$azylProfil->getAzylName()}" class="img-fluid">
                             {/if}
                         </div>
-                        <div class="sidebar-footer">{$azylProfil->getDescription()|safeHtml|noescape}</div>
+                        <div class="sidebar-footer">{if !is_null($azylProfil->getDescription())}{$azylProfil->getDescription()|safeHtml|noescape}{/if}</div>
                         <hr>
                         <span class="">Další informace:<br></span>
                         {if $azylProfil->getBankAccount() != null}
