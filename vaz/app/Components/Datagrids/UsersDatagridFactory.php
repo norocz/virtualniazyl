@@ -46,12 +46,14 @@ private RoleTypeEnum $roleTypeEnum;
             ->setSortable()
             ->setFilterText();
         $grid->addColumnStatus('role', 'Role')
+            ->setTemplate(__DIR__ .'/templates/column_status.latte')
             ->setSortable()
             ->setCaret(true)
             ->setOptions( options: $role)
             ->onChange[] = function ($id, $value) {$user = $this->usersRepository->getUserById($id); $user->setRole($value); $this->usersRepository->addUser($user); dump($id,$value);
             die;};
           $grid->addColumnStatus('verified', 'Ověřený')
+              ->setTemplate(__DIR__ .'/templates/column_status.latte')
             ->setRenderer(function ($item) {return $item->getVerified() ? 'Ano' : 'Ne';})
             ->setSortable()
             ->addOption(true, 'Ano')
@@ -65,6 +67,7 @@ private RoleTypeEnum $roleTypeEnum;
               ->endOption()
             ->onChange[] = function ($id, $value) {$user = $this->usersRepository->getUserById($id); $user->setVerified($value); $this->usersRepository->addUser($user);};
         $grid->addColumnStatus('deleted', 'Smazán')
+            ->setTemplate(__DIR__ .'/templates/column_status.latte')
             ->addOption(true, 'Ano')
             ->setClass('btn-sm btn-warning')
             ->setIcon('fa fa-warning')
@@ -76,6 +79,7 @@ private RoleTypeEnum $roleTypeEnum;
             ->endOption()
             ->onChange[] = function ($id, $value) {$user = $this->usersRepository->getUserById($id); $user->setDeleted($value); $this->usersRepository->addUser($user);};
         $grid->addColumnStatus('baned' , 'Ban?')
+            ->setTemplate(__DIR__ .'/templates/column_status.latte')
             ->setRenderer(function ($item) {return $item->isBaned() ? 'Ano' : 'Ne';})
             ->setSortable()
             ->setCaret(true)
@@ -90,6 +94,7 @@ private RoleTypeEnum $roleTypeEnum;
             ->endOption()
             ->onChange[] = function ($id, $value) {$user = $this->usersRepository->getUserById($id); $user->setBaned($value); $this->usersRepository->addUser($user);};
         $grid->addColumnStatus('mailverified', 'Email')
+            ->setTemplate(__DIR__ .'/templates/column_status.latte')
             ->setRenderer(function ($item) {return $item->isMeilVerified() ? 'Ano' : 'Ne';})
             ->setSortable()
             ->setCaret(true)
@@ -104,6 +109,7 @@ private RoleTypeEnum $roleTypeEnum;
             ->endOption()
             ->onChange[] = function ($id, $value) {$user = $this->usersRepository->getUserById($id); $user->setMailverified($value); $this->usersRepository->addUser($user);};
         $grid->addColumnStatus('phoneverified', 'Telefon ověřen')
+            ->setTemplate(__DIR__ .'/templates/column_status.latte')
            // ->setRenderer(function ($item) {return $item->isPhoneVerified() ? 'Ano' : 'Ne';})
            // ->setSortable()
             ->setCaret(false)

@@ -34,6 +34,8 @@ use libphonenumber\PhoneNumberUtil;
 use Nepada\PhoneNumberDoctrine\PhoneNumberType;
 use Nette\Forms\Form;
 use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridColumnStatusException;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class AzylPresenter extends BasePresenter
 {
@@ -580,10 +582,13 @@ class AzylPresenter extends BasePresenter
     }
 
 
-
+    /**
+     * @throws DataGridColumnStatusException
+     * @throws DataGridException
+     */
     public function createComponentNewsDatagrid(): DataGrid
     {
-
+        $this->newsDatagridFactory->setPresenter($this->getPresenter());
         $grid = $this->newsDatagridFactory->create();
         $azyl = $this->azylRepository->findOneBy(['id' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]);
 
@@ -592,7 +597,7 @@ class AzylPresenter extends BasePresenter
     }
 
     public function createComponentAnimalsAzylDatagrid(): DataGrid
-    {
+    {      $this->animalsDatagridFactory->setPresenter($this->getPresenter());
            $grid = $this->animalsDatagridFactory->create();
            $grid->setDataSource($this->animalsRepository->findBy(['azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']]));
            return $grid;

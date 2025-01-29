@@ -5,6 +5,7 @@ namespace App\Components\Datagrids;
 
 use App\Model\Orm\Entity\News;
 use App\Model\Orm\Repository\NewsRepository;
+use Nette\Application\UI\Presenter;
 use Ublaboo\DataGrid\Column\Action\Confirmation\CallbackConfirmation;
 use Ublaboo\DataGrid\Column\Action\Confirmation\StringConfirmation;
 use Ublaboo\DataGrid\DataGrid;
@@ -20,6 +21,13 @@ class NewsDatagridFactory extends DataGrid
     {
         parent::__construct();
         $this->newsRepository = $newsRepository;
+    }
+
+    private ?Presenter $presenter = null;
+
+    public function setPresenter(Presenter $presenter): void
+    {
+        $this->presenter = $presenter;
     }
 
     /**
@@ -96,7 +104,8 @@ class NewsDatagridFactory extends DataGrid
             ->onChange[] = [$this, 'deleteNewsChange'];
 */
 
-        $grid->addColumnStatus('global', 'Global')
+        $grid->addColumnStatus('global', 'Globálnost')
+            ->setTemplate(__DIR__ .'/templates/column_status.latte')
             ->addOption(true, 'Globální')
                 ->setClass('btn-sm btn-success')
                 ->setIcon('fa fa-check')
@@ -106,9 +115,10 @@ class NewsDatagridFactory extends DataGrid
                 ->setClass('btn-sm btn-warning')
                 ->setIcon('fa fa-times')
                 ->endOption()
-            ->onChange[] = [$this, 'globalNewsChange'];
+            ->onChange[] = [$this, 'updateGlobalState'];
 
-        $grid->addColumnStatus('important', 'Important')
+        $grid->addColumnStatus('important', 'Důležitost')
+            ->setTemplate(__DIR__ .'/templates/column_status.latte')
             ->addOption(true, 'Důležitá')
                 ->setClass('btn-sm btn-warning')
                 ->setIcon('fa fa-check')
@@ -123,6 +133,7 @@ class NewsDatagridFactory extends DataGrid
         $grid->addAction('edit', '', 'news', ['id' => 'id'])
             ->setIcon('pencil-alt')
             ->setClass('btn btn-sm btn-primary');
+
         $grid->addAction('delete', '', 'newsDelete!')
             ->setIcon('trash')
             ->setClass('btn btn-sm btn-danger')
@@ -132,15 +143,28 @@ class NewsDatagridFactory extends DataGrid
         return $grid;
     }
 
-    public function updateGlobalState(int $id, string $newValue): void
+    public function updateGlobalState($id, string $newValue): void
     {
-        $this->newsRepository->findOneBy(['id' => $id])->setGlobal($newValue);
-        $this->flashMessage('Změna stavu provedena', 'alert-success');
-        if ($this->isAjax()) {
-            $this->redrawControl('datagrid');
-            $this->redrawControl('flashdata');
+        $news = $this->newsRepository->findOneBy(['id' => intval($id)])->setGlobal( boolval($newValue));
+        $this->newsRepository->save($news);
+        $this->presenter->flashMessage('Změna globálnosti provedena', 'alert-success');
+        if ($this->presenter->isAjax()) {
+            $this->presenter->redrawControl('datagrid');
+            $this->presenter->redrawControl('flashdata');
         } else {
-            $this->redirect('this');
+            $this->presenter->redirect('this');
+        }
+    }
+
+    public function importantNewsChange($id, string $newValue): void
+    {
+       $news = $this->newsRepository->findOneBy(['id' => intval($id)])->setImportant( boolval($newValue));
+       $this->newsRepository->save($news);
+        $this->presenter->flashMessage('Změna důležitosti provedena', 'alert-success');
+        if ($this->presenter->isAjax()) {
+            $this->presenter->redrawControl();
+        } else {
+            $this->presenter->redirect('this');
         }
     }
 

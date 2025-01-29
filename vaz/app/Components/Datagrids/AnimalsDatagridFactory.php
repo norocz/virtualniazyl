@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace App\Components\Datagrids;
 
 use App\Model\Orm\Repository\AnimalsRepository;
+use Nette\Application\UI\Presenter;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Ublaboo\DataGrid\Column\Action\Confirmation\StringConfirmation;
 use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridColumnStatusException;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 
 class AnimalsDatagridFactory extends DataGrid
@@ -19,6 +23,16 @@ class AnimalsDatagridFactory extends DataGrid
         $this->animalsRepository = $animalsRepository;
     }
 
+    private Presenter $presenter;
+    public function setPresenter(Presenter $presenter): void
+    {
+        $this->presenter = $presenter;
+    }
+
+    /**
+     * @throws DataGridColumnStatusException
+     * @throws DataGridException
+     */
     public function create(): DataGrid
     {
         $grid = new DataGrid;
@@ -34,10 +48,19 @@ class AnimalsDatagridFactory extends DataGrid
         $grid->addColumnText('age', 'Věk');
         $grid->addColumnText('description', 'Popis')
             ->setFilterText();
-        $grid->addColumnText('toAdoption', 'K adopci')
-            ->setRenderer(function ($item) {
-                return $item->isToAdoption() ? 'Ano' : 'Ne';
-            });
+
+        $grid->addColumnStatus('toAdoption', 'K adopci')
+            ->setTemplate(__DIR__ .'/templates/column_status.latte')
+                ->addOption(true, 'Ano')
+                ->setClass('btn-sm btn-success')
+                ->setIcon('fa fa-check')
+                ->endOption()
+                ->addOption(false,'Ne')
+                ->setClass('btn-sm btn-warning')
+                ->setIcon('fa fa-times')
+                ->endOption()
+                    ->onChange[] = [$this, 'changeAdoptionStatus'];
+
 
 
 
@@ -58,5 +81,17 @@ class AnimalsDatagridFactory extends DataGrid
 
 
         return $grid;
+    }
+
+    public function changeAdoptionStatus($id, string $newValue): void
+    {
+        $news = $this->animalsRepository->findOneBy(['id' => intval($id)])->setToAdoption(boolval($newValue));
+        $this->animalsRepository->flush($news);
+        $this->presenter->flashMessage('Změna stavu adopce provedena', 'alert-success');
+        if ($this->presenter->isAjax()) {
+            $this->presenter->redrawControl();
+        } else {
+            $this->presenter->redirect('this');
+        }
     }
 }
