@@ -164,7 +164,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
     {
         $name ='';
         $adopce = $this->animalsRepository->findById(intval($id));
-        $this->getTemplate()->title = 'Adopce - ' . $name = is_null($adopce->getName()) ? 'Unknown' : $adopce->getName();
+        $this->getTemplate()->title = 'Adopce ';
         $this->getTemplate()->adopce = $adopce;
 
         if ($this->getUser()->isLoggedIn())
@@ -223,8 +223,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $azylProfil = $this->azylRepository->findById($id);
 
         $azylUser = $this->usersRepository->getUserByAzylId($id);
-        $this->getTemplate()->azylProfil = $azylProfil->toArray();
-        $this->getTemplate()->azylAdoptions = $this->adoptionsRepository->findBy(['id' => $azylProfil->getId()], ['createdAt' => 'DESC']);
+        $this->getTemplate()->azylProfil = $azylProfil;
         $this->getTemplate()->azylUser = $azylUser;
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
         $this->getTemplate()->newsCount = $this->newsRepository->count(['deleted' => false, 'author' => $azylUser->getId()]);
@@ -236,8 +235,8 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $azylProfil = $this->azylRepository->findById($id);
 
         $azylUser = $this->usersRepository->getUserByAzylId($id);
-        $this->getTemplate()->azylProfil = $azylProfil->toArray();
-        $this->getTemplate()->azylNews = $this->newsRepository->findBy(['author'=> $azylUser->id], ['createdAt' => 'DESC']);
+        $this->getTemplate()->azylProfil = $azylProfil;
+      $this->getTemplate()->azylNews = $azylProfil->getAzylNews();   // $this->newsRepository->findBy(['author'=> $azylUser->getId()], ['createdAt' => 'DESC']);
         $this->getTemplate()->azylUser = $azylUser;
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
         $this->getTemplate()->newsCount = $this->newsRepository->count(['deleted' => false, 'author' => $azylUser->getId()]);

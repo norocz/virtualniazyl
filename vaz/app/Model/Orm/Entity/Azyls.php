@@ -71,6 +71,7 @@ class Azyl
         $this->news = new ArrayCollection();
         $this->photos = new ArrayCollection();
         $this->reviewerRatings = new ArrayCollection();
+
     }
     public function toArray(): array
     {
@@ -167,7 +168,7 @@ class Azyl
         return $this->id;
     }
 
-    public function getMainPhoto(): Photo
+    public function getMainPhoto(): ?Photo
     {
         return $this->mainPhoto;
     }
@@ -188,7 +189,7 @@ class Azyl
         return $this->news->matching(Criteria::create()
             ->where(Criteria::expr()->eq("deleted", false))
             ->andWhere(Criteria::expr()->lte("visibleFrom", new \DateTimeImmutable('now')))
-            ->orderBy(["createdAt" => Criteria::DESC]));
+            ->orderBy(["createdAt" => 'DESC']));
     }
 
     public function getAdoptions(): ?Collection
