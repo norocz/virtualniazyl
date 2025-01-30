@@ -6,6 +6,7 @@ namespace App\Components\Datagrids;
 
 use App\Model\Orm\Repository\AnimalsRepository;
 use Nette\Application\UI\Presenter;
+use App\Components\Datagrids\BaseDatagridFactory;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Ublaboo\DataGrid\Column\Action\Confirmation\StringConfirmation;
 use Ublaboo\DataGrid\DataGrid;
@@ -13,7 +14,7 @@ use Ublaboo\DataGrid\Exception\DataGridColumnStatusException;
 use Ublaboo\DataGrid\Exception\DataGridException;
 
 
-class AnimalsDatagridFactory extends DataGrid
+class AnimalsDatagridFactory extends BaseDatagridFactory
 {
     private AnimalsRepository $animalsRepository;
 
@@ -21,12 +22,6 @@ class AnimalsDatagridFactory extends DataGrid
     {
         parent::__construct();
         $this->animalsRepository = $animalsRepository;
-    }
-
-    private Presenter $presenter;
-    public function setPresenter(Presenter $presenter): void
-    {
-        $this->presenter = $presenter;
     }
 
     /**

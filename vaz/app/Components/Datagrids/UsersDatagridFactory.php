@@ -11,7 +11,7 @@ use Ublaboo\DataGrid\InlineEdit\InlineEdit;
 use Ublaboo\DataGrid\DataGrid;
 use Ublaboo\DataGrid\Exception\DataGridException;
 
-class UsersDatagridFactory extends DataGrid
+class UsersDatagridFactory extends BaseDatagridFactory
 {
 private UsersRepository $usersRepository;
 private RoleTypeEnum $roleTypeEnum;

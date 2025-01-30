@@ -6,7 +6,7 @@ namespace App\Components\Datagrids;
 use App\Model\Orm\Repository\PageRepository;
 use Ublaboo\DataGrid\DataGrid;
 
-class PagesDatagridFactory extends DataGrid
+class PagesDatagridFactory extends BaseDatagridFactory
 {
 
     private $pageRepository;

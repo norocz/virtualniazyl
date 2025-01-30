@@ -8,7 +8,7 @@ use App\Model\Orm\Enums\SexTypeEnum;
 use App\Repository\SpeciesRepository;
 use Ublaboo\DataGrid\DataGrid;
 
-class SpeciesDatagridFactory extends DataGrid
+class SpeciesDatagridFactory extends BaseDatagridFactory
 {
     private SpeciesRepository $speciesRepository;
     private SexTypeEnum $sexTypeEnum;

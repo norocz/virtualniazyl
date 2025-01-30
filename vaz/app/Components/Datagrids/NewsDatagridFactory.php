@@ -13,8 +13,9 @@ use Ublaboo\DataGrid\Exception\DataGridColumnStatusException;
 use Ublaboo\DataGrid\Exception\DataGridException;
 use Ublaboo\DataGrid\Localization\SimpleTranslator;
 
-class NewsDatagridFactory extends DataGrid
+class NewsDatagridFactory extends BaseDatagridFactory
 {
+
     private NewsRepository $newsRepository;
 
     public function __construct(NewsRepository $newsRepository)
@@ -23,7 +24,6 @@ class NewsDatagridFactory extends DataGrid
         $this->newsRepository = $newsRepository;
     }
 
-    private ?Presenter $presenter = null;
 
     public function setPresenter(Presenter $presenter): void
     {
@@ -61,7 +61,7 @@ class NewsDatagridFactory extends DataGrid
             'Inserted' => 'Vloženo'
         ]);
         $grid->setTranslator($translator);
-      //  $grid->setDataSource($this->newsRepository->findAllVisibleUser($id));
+        $grid->setDataSource($this->newsRepository->findAllVisibleUser($this->presenter->getUser()->getId()));
         $grid->addColumnText('id', 'ID')
             ->setSortable()
             ->setDefaultHide()
