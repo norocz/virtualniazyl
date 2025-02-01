@@ -15,7 +15,7 @@ class SpeciesDatagridFactory extends BaseDatagridFactory
 
     public function __construct(SpeciesRepository $speciesRepository, SexTypeEnum $sexTypeEnum)
     {
-        parent::__construct();
+
         $this->speciesRepository = $speciesRepository;
         $this->sexTypeEnum = $sexTypeEnum;
     }

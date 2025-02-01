@@ -39,7 +39,11 @@
 </style>
 
 <body>
+
+
+
 <div class="toast-container position-fixed bottom-0 start-50 p-3">
+    {snippet flash}
     <div
             n:foreach="$flashes as $flash"
             id="flash-toast-{$iterator->counter}"
@@ -67,6 +71,7 @@
         </div>
     </div>
 </div>
+{/snippet}
 <div class="container-fluid position-relative bg-white d-flex p-0">
 
 
@@ -92,7 +97,7 @@
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-people me-2"></i>Uživatelé</a>
                     <div class="dropdown-menu bg-transparent border-0">
-                        <a href="{link Admin:users}" class="dropdown-item">Nové registrace</a>
+                        <a href="{link Admin:guests}" class="dropdown-item">Registrace</a>
                         <a href="{link Admin:owners}" class="dropdown-item">Uživatelé</a>
                         <a href="{link Admin:azyls}" class="dropdown-item">Azyly</a>
                     </div>
@@ -190,7 +195,7 @@
 
 
 <!-- Back to Top -->
-<a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+
 </div>
 
 <!-- JavaScript Libraries -->

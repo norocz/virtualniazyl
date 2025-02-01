@@ -13,7 +13,7 @@ class PagesDatagridFactory extends BaseDatagridFactory
 
     public function __construct(PageRepository $pageRepository)
     {
-        parent::__construct();
+
         $this->pageRepository = $pageRepository;
     }
 

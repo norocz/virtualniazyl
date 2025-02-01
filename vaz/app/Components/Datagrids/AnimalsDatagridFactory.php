@@ -6,15 +6,13 @@ namespace App\Components\Datagrids;
 
 use App\Model\Orm\Repository\AnimalsRepository;
 use Nette\Application\UI\Presenter;
-use App\Components\Datagrids\BaseDatagridFactory;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Ublaboo\DataGrid\Column\Action\Confirmation\StringConfirmation;
+
 use Ublaboo\DataGrid\DataGrid;
 use Ublaboo\DataGrid\Exception\DataGridColumnStatusException;
 use Ublaboo\DataGrid\Exception\DataGridException;
 
 
-class AnimalsDatagridFactory extends BaseDatagridFactory
+class AnimalsDatagridFactory extends DataGrid
 {
     private AnimalsRepository $animalsRepository;
 
@@ -24,27 +22,33 @@ class AnimalsDatagridFactory extends BaseDatagridFactory
         $this->animalsRepository = $animalsRepository;
     }
 
+    protected ?Presenter $presenter;
+
+    public function setPresenter(Presenter $presenter): void
+    {
+        $this->presenter = $presenter;
+    }
+
     /**
      * @throws DataGridColumnStatusException
      * @throws DataGridException
      */
-    public function create(): DataGrid
+    public function create(): void
     {
-        $grid = new DataGrid;
-        $grid->setRememberState(false);
-        $grid->setDataSource($this->animalsRepository->findAll());
+        $this->setRememberState(false);
+        $this->setDataSource($this->animalsRepository->findAll());
 
        // $grid->addColumnText('species', 'Druh')
          //   ->setFilterText();
-        $grid->addColumnText('name', 'Jméno');
-        $grid->addColumnText('breed', 'Plemeno')
+        $this->addColumnText('name', 'Jméno');
+        $this->addColumnText('breed', 'Plemeno')
             ->setFilterText();
-        $grid->addColumnDateTime('birthDate', 'Datum narození');
-        $grid->addColumnText('age', 'Věk');
-        $grid->addColumnText('description', 'Popis')
+        $this->addColumnDateTime('birthDate', 'Datum narození');
+        $this->addColumnText('age', 'Věk');
+        $this->addColumnText('description', 'Popis')
             ->setFilterText();
 
-        $grid->addColumnStatus('toAdoption', 'K adopci')
+        $this->addColumnStatus('toAdoption', 'K adopci')
             ->setTemplate(__DIR__ .'/templates/column_status.latte')
                 ->addOption(true, 'Ano')
                 ->setClass('btn-sm btn-success')
@@ -64,18 +68,16 @@ class AnimalsDatagridFactory extends BaseDatagridFactory
       //       }
 
 
-        $grid->addAction('edit', '', 'Azyl:animal', ['id' => 'id'])
+        $this->addAction('edit', '', 'Azyl:animal', ['id' => 'id'])
             ->setIcon('pencil-alt')
             ->setTitle('Upravit')
             ->setClass('btn btn-xs btn-primary');
-        $grid->addAction('delete', '', 'delete!', ['id' => 'id'])
+        $this->addAction('delete', '', 'delete!', ['id' => 'id'])
             ->setIcon('trash')
             ->setTitle('Smazat')
             ->setConfirmation(new \Ublaboo\DataGrid\Column\Action\Confirmation\StringConfirmation('Opravdu chcete smazat záznam?'))
             ->setClass('btn btn-sm btn-danger');
 
-
-        return $grid;
     }
 
     public function changeAdoptionStatus($id, string $newValue): void
@@ -84,7 +86,8 @@ class AnimalsDatagridFactory extends BaseDatagridFactory
         $this->animalsRepository->flush($news);
         $this->presenter->flashMessage('Změna stavu adopce provedena', 'alert-success');
         if ($this->presenter->isAjax()) {
-            $this->presenter->redrawControl();
+            $this->presenter->redrawControl('datagrid');
+            $this->presenter->redrawControl('flash');
         } else {
             $this->presenter->redirect('this');
         }

@@ -17,7 +17,9 @@ use App\Forms\roleFormFactory;
 use App\Forms\userDetailsFormFactory;
 use App\Model\Orm\Entity\Pages;
 use App\Model\Orm\Enums\RoleTypeEnum;
+use App\Model\Orm\Repository\adoptionsRepository;
 use App\Model\Orm\Repository\AnalyticsRepository;
+use App\Model\Orm\Repository\AnimalsRepository;
 use App\Model\Orm\Repository\PageRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use App\Model\Services\Menu;
@@ -66,7 +68,9 @@ class AdminPresenter extends BasePresenter
                                 public MessagesService              $messagesService,
                                 public SpeciesRepository            $speciesRepository,
                                 public AnimalsDatagridFactory      $animalsDatagridFactory,
-                                private AnalyticsRepository           $analyticsRepository)
+                                private AnalyticsRepository           $analyticsRepository,
+                                private AnimalsRepository              $animalsRepository,
+                                private adoptionsRepository             $adoptionsRepository,)
     {
         parent::__construct();
         $this->roleFormFactory = $roleFormFactory;
@@ -83,6 +87,8 @@ class AdminPresenter extends BasePresenter
         $this->speciesRepository = $speciesRepository;
         $this->animalsDatagridFactory = $animalsDatagridFactory;
         $this->analyticsRepository = $analyticsRepository;
+        $this->animalsRepository = $animalsRepository;
+        $this->adoptionsRepository = $adoptionsRepository;
         //$this->speciesFormFactory = $speciesFormFactory;
         //$this->speciesDatagridFactory = $speciesDatagridFactory;
 
@@ -269,6 +275,36 @@ class AdminPresenter extends BasePresenter
 
         $this->template->title = 'Novinky';
     }
+
+    public function actionAdoptions(?int $id): void
+    {
+
+        if (!is_null($id))
+        {
+            $adoption = $this->adoptionsRepository->findOneBy(['id'=>$id]);
+            $this->getTemplate()->adoption = $adoption;
+
+        }
+        else
+        {
+
+            $adoptions = $this->adoptionsRepository->fetchAll();
+
+            $this->getTemplate()->adoptions = $adoptions;
+        }
+
+    }
+
+    public function handleStopAdoption(int $id): void
+    {
+
+    }
+
+    public function handleEndAdoption(int $id): void
+    {
+
+    }
+
     public function actionPage(?int $id): void
     {
         $this->getTemplate()->Title = 'Pages';
@@ -406,16 +442,45 @@ class AdminPresenter extends BasePresenter
 
     public function createComponentAzylsDatagrid(): DataGrid
     {
-        $grid = $this->usersDatagridFactory->create();
+        $grid = new UsersDatagridFactory($this->usersRepository);
+        $grid->setPresenter($this->getPresenter());
+
+        $grid->create(); // upraví instanci, nepřepíše ji novým objektem
         $grid->setDataSource($this->usersRepository->findBy(['role' => RoleTypeEnum::ROLE_AZYL]));
+
         return $grid;
+
+    }
+
+    public function createComponentGuestsDatagrid(): DataGrid
+    {
+        $grid = new UsersDatagridFactory($this->usersRepository);
+        $grid->setPresenter($this->getPresenter());
+
+        $grid->create(); // upraví instanci, nepřepíše ji novým objektem
+        $grid->setDataSource($this->usersRepository->findBy(['role' => RoleTypeEnum::ROLE_GUEST]));
+
+        return $grid;
+
     }
 
     public function createComponentOwnersDatagrid(): DataGrid
     {
-        $grid = $this->usersDatagridFactory->create();
-        $grid->setDataSource($this->usersRepository->fetchAll());
+        $grid = new UsersDatagridFactory($this->usersRepository);
+        $grid->setPresenter($this->getPresenter());
+        $grid->setDatasource($this->usersRepository->findAll());
+        $grid->create(); // upraví instanci, nepřepíše ji novým objektem
+
         return $grid;
+    }
+    public function handleEditUser($id) : void
+    {
+        $user = $this->usersRepository->findOneBy(['id' => intval($id)]);
+    }
+
+    public function handleDeleteUser($id) : void
+    {
+        $user = $this->usersRepository->findOneBy(['id' => intval($id)]);
     }
 
     public function createComponentCitysDatagrid(): DataGrid
@@ -513,10 +578,8 @@ class AdminPresenter extends BasePresenter
     public function createComponentNewsDatagrid(): DataGrid
     {
         $grid = new NewsDatagridFactory($this->newsRepository);
-        $grid -> setPresenter($this->getPresenter());
-
-        $grid -> create();
-        $grid -> setDataSource($this->newsRepository->findAllVisible($this->getPresenter()->getUser()->getId()));
+        $grid->setPresenter($this->getPresenter());
+        $grid->create(); // upraví instanci, nepřepíše ji novým objektem
 
         return $grid;
     }
@@ -529,7 +592,11 @@ class AdminPresenter extends BasePresenter
 
     public function createComponentAnimalsAdminDatagrid(): DataGrid
     {
-        $grid = $this->animalsDatagridFactory->create();
+        $grid = new AnimalsDatagridFactory($this->animalsRepository);
+        $grid->setPresenter($this->getPresenter());
+        $grid->setDatasource($this->animalsRepository->findAll());
+        $grid->create(); // upraví instanci, nepřepíše ji novým objektem
+
         return $grid;
     }
 

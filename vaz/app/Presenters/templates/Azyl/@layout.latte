@@ -40,6 +40,7 @@
 
 <body>
 <div class="toast-container position-fixed bottom-0 start-50 p-3">
+    {snippet flash}
     <div
             n:foreach="$flashes as $flash"
             id="flash-toast-{$iterator->counter}"
@@ -67,6 +68,7 @@
         </div>
     </div>
 </div>
+{/snippet}
 <div class="container-fluid position-relative bg-white d-flex p-0">
 
     <!-- Sidebar Start -->

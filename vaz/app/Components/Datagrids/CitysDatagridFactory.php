@@ -12,8 +12,7 @@ class CitysDatagridFactory extends BaseDatagridFactory
 
     public function __construct(CityRepository $cityRepository)
     {
-        parent::__construct();
-        $this->cityRepository = $cityRepository;
+       $this->cityRepository = $cityRepository;
     }
     public function create(): DataGrid
     {

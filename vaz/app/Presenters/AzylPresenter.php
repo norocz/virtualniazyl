@@ -588,8 +588,9 @@ class AzylPresenter extends BasePresenter
      */
     public function createComponentNewsDatagrid(): DataGrid
     {
-        $this->newsDatagridFactory->setPresenter($this->getPresenter());
-        $grid = $this->newsDatagridFactory->create();
+        $grid = new NewsDatagridFactory($this->newsRepository);
+        $grid->setPresenter($this->getPresenter());
+        $grid->create(); // upraví instanci, nepřepíše ji novým objektem
         $azyl = $this->azylRepository->findOneBy(['id' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]);
 
         $grid ->setDataSource($azyl->getNews());
@@ -597,8 +598,11 @@ class AzylPresenter extends BasePresenter
     }
 
     public function createComponentAnimalsAzylDatagrid(): DataGrid
-    {      $this->animalsDatagridFactory->setPresenter($this->getPresenter());
-           $grid = $this->animalsDatagridFactory->create();
+
+    {     $grid = new AnimalsDatagridFactory($this->animalsRepository);
+            $grid->setPresenter($this->getPresenter());
+
+         $grid->create(); // upraví instanci, nepřepíše ji novým objektem
            $grid->setDataSource($this->animalsRepository->findBy(['azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']]));
            return $grid;
 

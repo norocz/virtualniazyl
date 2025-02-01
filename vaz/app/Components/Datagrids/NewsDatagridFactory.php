@@ -5,6 +5,7 @@ namespace App\Components\Datagrids;
 
 use App\Model\Orm\Entity\News;
 use App\Model\Orm\Repository\NewsRepository;
+use JetBrains\PhpStorm\NoReturn;
 use Nette\Application\UI\Presenter;
 use Ublaboo\DataGrid\Column\Action\Confirmation\CallbackConfirmation;
 use Ublaboo\DataGrid\Column\Action\Confirmation\StringConfirmation;
@@ -13,7 +14,7 @@ use Ublaboo\DataGrid\Exception\DataGridColumnStatusException;
 use Ublaboo\DataGrid\Exception\DataGridException;
 use Ublaboo\DataGrid\Localization\SimpleTranslator;
 
-class NewsDatagridFactory extends BaseDatagridFactory
+class NewsDatagridFactory extends DataGrid
 {
 
     private NewsRepository $newsRepository;
@@ -24,6 +25,7 @@ class NewsDatagridFactory extends BaseDatagridFactory
         $this->newsRepository = $newsRepository;
     }
 
+    private Presenter $presenter;
 
     public function setPresenter(Presenter $presenter): void
     {
@@ -34,9 +36,8 @@ class NewsDatagridFactory extends BaseDatagridFactory
      * @throws DataGridColumnStatusException
      * @throws DataGridException
      */
-    public function create(): DataGrid
+    public function create(): void
     {
-        $grid = new DataGrid;
 
         $translator = new SimpleTranslator([
             'ublaboo_datagrid.no_item_found_reset' => 'Žádné položky nenalezeny. Filtr můžete vynulovat',
@@ -60,33 +61,34 @@ class NewsDatagridFactory extends BaseDatagridFactory
             'Name' => 'Jméno',
             'Inserted' => 'Vloženo'
         ]);
-        $grid->setTranslator($translator);
-        $grid->setDataSource($this->newsRepository->findAllVisibleUser($this->presenter->getUser()->getId()));
-        $grid->addColumnText('id', 'ID')
+        $this->setTranslator($translator);
+       $data = $this->newsRepository->findAllVisibleUser($this->presenter->getUser()->getId());
+        $this->setDataSource($data);
+        $this->addColumnText('id', 'ID')
             ->setSortable()
             ->setDefaultHide()
             ->setFilterText();
-        $grid->addColumnText('title', 'Titulek')
+        $this->addColumnText('title', 'Titulek')
             ->setSortable()
             ->setFilterText();
-        $grid->addColumnText('content', 'Obsah')
+        $this->addColumnText('content', 'Obsah')
             ->setRenderer(function ($item) {
                 return ($item->getContent());
             })
             ->setSortable()
             ->setTemplateEscaping(FALSE)
             ->setFilterText();
-        $grid->addColumnDateTime('createdAt', 'Vytvořeno')
+        $this->addColumnDateTime('createdAt', 'Vytvořeno')
             ->setDefaultHide()
             ->setFormat('Y-m-d H:i:s')
             ->setSortable()
             ->setFilterDate();
-        $grid->addColumnDateTime('updatedAt', 'Aktualizováno')
+        $this->addColumnDateTime('updatedAt', 'Aktualizováno')
             ->setDefaultHide()
             ->setFormat('Y-m-d H:i:s')
             ->setSortable()
             ->setFilterDate();
-        $grid->addColumnDateTime('visibleFrom', 'Zveřejněno')
+        $this->addColumnDateTime('visibleFrom', 'Zveřejněno')
             ->setFormat('Y-m-d H:i:s')
             ->setSortable()
             ->setFilterDate();
@@ -104,7 +106,7 @@ class NewsDatagridFactory extends BaseDatagridFactory
             ->onChange[] = [$this, 'deleteNewsChange'];
 */
 
-        $grid->addColumnStatus('global', 'Globálnost')
+        $this->addColumnStatus('global', 'Globálnost')
             ->setTemplate(__DIR__ .'/templates/column_status.latte')
             ->addOption(true, 'Globální')
                 ->setClass('btn-sm btn-success')
@@ -117,7 +119,7 @@ class NewsDatagridFactory extends BaseDatagridFactory
                 ->endOption()
             ->onChange[] = [$this, 'updateGlobalState'];
 
-        $grid->addColumnStatus('important', 'Důležitost')
+        $this->addColumnStatus('important', 'Důležitost')
             ->setTemplate(__DIR__ .'/templates/column_status.latte')
             ->addOption(true, 'Důležitá')
                 ->setClass('btn-sm btn-warning')
@@ -130,53 +132,68 @@ class NewsDatagridFactory extends BaseDatagridFactory
                 ->endOption()
             ->onChange[] = [$this, 'importantNewsChange'];
 
-        $grid->addAction('edit', '', 'news', ['id' => 'id'])
+        $this->addAction('edit', '', 'news', ['id' => 'id'])
             ->setIcon('pencil-alt')
             ->setClass('btn btn-sm btn-primary');
 
-        $grid->addAction('delete', '', 'newsDelete!')
+        $this->addAction('delete', '', 'newsDelete!')
             ->setIcon('trash')
             ->setClass('btn btn-sm btn-danger')
             ->setConfirmation(new CallbackConfirmation(
                                 function($item) {return 'Opravdu chcete smazat novinku'.$item->getTitle().'??';}
             ));
-        return $grid;
+
     }
 
-    public function updateGlobalState($id, string $newValue): void
+    #[NoReturn] public function updateGlobalState($id, string $newValue): void
     {
         $news = $this->newsRepository->findOneBy(['id' => intval($id)])->setGlobal( boolval($newValue));
         $this->newsRepository->save($news);
         $this->presenter->flashMessage('Změna globálnosti provedena', 'alert-success');
-        if ($this->presenter->isAjax()) {
+        if($this->presenter->isAjax()) {
             $this->presenter->redrawControl('datagrid');
-            $this->presenter->redrawControl('flashdata');
-        } else {
+            $this->presenter->redrawControl('flash');
+
+        }
+        else
+        {
             $this->presenter->redirect('this');
         }
     }
 
-    public function importantNewsChange($id, string $newValue): void
+    #[NoReturn] public function importantNewsChange($id, string $newValue): void
     {
        $news = $this->newsRepository->findOneBy(['id' => intval($id)])->setImportant( boolval($newValue));
        $this->newsRepository->save($news);
         $this->presenter->flashMessage('Změna důležitosti provedena', 'alert-success');
-        if ($this->presenter->isAjax()) {
-            $this->presenter->redrawControl();
-        } else {
+
+        if($this->presenter->isAjax()) {
+            $this->presenter->redrawControl('datagrid');
+            $this->presenter->redrawControl('flash');
+
+        }
+        else
+        {
             $this->presenter->redirect('this');
         }
+
     }
 
-    private function deleteNewsChange($id, $newValue):void
+    #[NoReturn] private function deleteNewsChange($id, $newValue):void
     {
         $this->newsRepository->findOneBy(['id' => $id])->setDeleted($newValue);
         $this->flashMessage('Změna smazanosti provedena', 'alert-success');
-        if ($this->isAjax()) {
-            $this->redrawControl('datagrid');
-            $this->redrawControl('flashdata');
-        } else {
-            $this->redirect('this');
+
+
+        if($this->presenter->isAjax()) {
+            $this->presenter->redrawControl('datagrid');
+            $this->presenter->redrawControl('flash');
+
         }
+        else
+        {
+            $this->presenter->redirect('this');
+        }
+
     }
 }
