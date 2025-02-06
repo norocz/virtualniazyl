@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace App\Model\Orm\Entity;
 
 use DateTimeImmutable;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -24,7 +25,7 @@ class Collections
     private ?Users $user;
 
     #[ORM\OneToMany(mappedBy: 'collection', targetEntity: Payments::class, cascade: ['persist'])]
-    private ?Payments $payments;
+    private ?Collection $payments;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $createdAt;
@@ -35,31 +36,37 @@ class Collections
     #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $startAt;
 
-    #[ORM\Column(type: 'datetime_immutable')]
-    private DateTimeImmutable $extendTo;
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?DateTimeImmutable $extendTo = null;
     #[ORM\Column(type: 'integer', length: 10, unique: true, nullable: true)]
-    private int $collectionKey; // variabilní symbol max 10 znaků a jen čísla 5 čísel se vygeneruje 5 čísel je ID azylu doplněné o nuly
+    private ?int $collectionKey; // variabilní symbol max 10 znaků a jen čísla 5 čísel se vygeneruje 5 čísel je ID azylu doplněné o nuly
 
-    #[ORM\Column(type: 'string', length: 500, nullable: true)]
+    #[ORM\Column(type: 'string', length: 500, nullable: false)]
     private string $collectionName;
 
-    #[ORM\Column(type: 'string', length: 2048, nullable: true)]
-    private string $collectionDescription;
+    #[ORM\Column(type: 'string', length: 4096, nullable: true)]
+    private ?string $collectionDescription = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    private int $minimalAmount;
+    private ?int $minimalAmount = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    private int $resultAmount;
+    private ?int $resultAmount = null;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $extendedAmount = null;
 
     #[ORM\Column(type: 'boolean')]
-    private bool $isActive;
+    private bool $isActive = true;
 
     #[ORM\Column(type: 'boolean')]
-    private bool $extend;
+    private bool $extend = false;
 
-    #[ORM\Column(type: 'integer', options: ['Kč' => 1, 'EU' => 2, 'USD' => 3, 'RU' => 4, 'ZL' => 5])]
-    private int $currency;
+    #[ORM\Column(type: 'string', options: ['czk' => 'Kč','eur' => 'EU', 'usd' => 'USD', 'ru' => 'Рубль (Rublʹ)', 'zl' => 'Złoty'])]
+    private string $currency = 'czk';
+
+    #[ORM\ManyToOne(targetEntity: Photo::class, cascade: ['persist'], inversedBy: 'headline')]
+    private ?Photo $photo;
 
     public function getId(): int
     {
@@ -94,7 +101,7 @@ class Collections
         return $this;
     }
 
-    public function getPayments(): ?Payments
+    public function getPayments(): ?Collection
     {
         return $this->payments;
     }
@@ -132,7 +139,7 @@ class Collections
         return $this;
     }
 
-    public function getExtendTo(): DateTimeImmutable
+    public function getExtendTo(): ?DateTimeImmutable
     {
         return $this->extendTo;
     }
@@ -143,7 +150,7 @@ class Collections
         return $this;
     }
 
-    public function getCollectionKey(): int
+    public function getCollectionKey(): ?int
     {
         return $this->collectionKey;
     }
@@ -220,17 +227,37 @@ class Collections
         return $this;
     }
 
-    public function getCurrency(): int
+    public function getCurrency(): string
     {
         return $this->currency;
     }
 
-    public function setCurrency(int $currency): Collections
+    public function setCurrency(string $currency): Collections
     {
         $this->currency = $currency;
         return $this;
     }
 
+    public function getPhoto(): ?Photo
+    {
+        return $this->photo;
+    }
 
+    public function setPhoto(?Photo $photo): Collections
+    {
+        $this->photo = $photo;
+        return $this;
+    }
+
+    public function getExtendedAmount(): ?int
+    {
+        return $this->extendedAmount;
+    }
+
+    public function setExtendedAmount(int $extendedAmount): Collections
+    {
+        $this->extendedAmount = $extendedAmount;
+        return $this;
+    }
 
 }

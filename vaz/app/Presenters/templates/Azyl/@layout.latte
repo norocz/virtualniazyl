@@ -88,18 +88,29 @@
                 </div>
             </div>
             <div class="navbar-nav w-100">
-                <a href="{link Azyl:default}" class="nav-item nav-link active"><i class="fa fa-tachometer-alt me-2"></i>Přehled</a>
+                <a href="{link Azyl:default}" class="nav-item nav-link {if isLinkCurrent('Azyl:default')}active{/if}"><i class="fa fa-tachometer-alt me-2"></i>Přehled</a>
                 <div class="nav-item dropdown">
-                    <a href="{link Azyl:animals}" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Zvířata</a>
+                    <a href="{link Azyl:animals}" class="nav-link dropdown-toggle {if isLinkCurrent('Azyl:animals')}active{/if}" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Zvířata</a>
                     <div class="dropdown-menu bg-transparent border-0">
-                        <a href="{link Azyl:animal}" class="dropdown-item">Přidat zvíře</a>
-                        <a href="{link Azyl:animals}" class="dropdown-item">Vaše zvířata</a>
+                        <a href="{link Azyl:animal}" class="dropdown-item {if isLinkCurrent('Azyl:animal')}active{/if}">Přidat zvíře</a>
+                        <a href="{link Azyl:animals}" class="dropdown-item {if isLinkCurrent('Azyl:animals')}active{/if}">Vaše zvířata</a>
                     </div>
                 </div>
-                <a href="{link Azyl:adoptions}" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Adopce</a>
-                <a href="{link Azyl:messages}" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Vzkazy</a>
-                <a href="{link Azyl:news}" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Aktuality</a>
-                <a href="{link Azyl:photos}" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Fotky</a>
+                <a href="{link Azyl:adoptions}" class="nav-item nav-link {if isLinkCurrent('Azyl:adoptions')}active{/if}">
+                    <i class="fa fa-th me-2"></i>Adopce
+                </a>
+                <a href="{link Azyl:collections}" class="nav-item nav-link {if isLinkCurrent('Azyl:collections')}active{/if}">
+                    <i class="fa fa-piggy-bank me-2"></i>Sbírky
+                </a>
+                <a href="{link Azyl:messages}" class="nav-item nav-link {if isLinkCurrent('Azyl:messages')}active{/if}">
+                    <i class="fa fa-keyboard me-2"></i>Vzkazy
+                </a>
+                <a href="{link Azyl:news}" class="nav-item nav-link {if isLinkCurrent('Azyl:news')}active{/if}">
+                    <i class="bi bi-newspaper me-2"></i>Aktuality
+                </a>
+                <a href="{link Azyl:photos}" class="nav-item nav-link {if isLinkCurrent('Azyl:photos')}active{/if}">
+                    <i class="fa fa-chart-bar me-2"></i>Fotky
+                </a>
 
             </div>
 
@@ -174,10 +185,6 @@
     </div>
     <!-- Content End -->
 
-
-    <!-- Back to Top -->
-    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
-</div>
 
 <!-- JavaScript Libraries -->
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>

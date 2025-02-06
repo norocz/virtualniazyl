@@ -17,6 +17,9 @@ class Payments
     #[ORM\Column(type: 'integer')]
     private int $id;
 
+    #[ORM\Column(type: 'integer', length: 255)]
+    private int $pay;
+
     #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $createdAt;
 
@@ -41,6 +44,8 @@ class Payments
     #[ORM\ManyToOne(targetEntity: Adoption::class, cascade: ['persist'], inversedBy: "adoption")]
     private ?Adoption $adoption;
 
+    #[ORM\Column(type: 'integer', length: 10, nullable: true)]
+    private ?int $fee;
     public function getId(): int
     {
         return $this->id;
@@ -139,6 +144,19 @@ class Payments
         $this->adoption = $adoption;
         return $this;
     }
+
+    public function getFee(): ?int
+    {
+        return $this->fee;
+    }
+
+    public function setFee(?int $fee): Payments
+    {
+        $this->fee = $fee;
+        return $this;
+    }
+
+
 
 
 }

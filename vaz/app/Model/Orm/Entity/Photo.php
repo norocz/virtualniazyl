@@ -53,6 +53,10 @@ class Photo
     #[ORM\JoinColumn(name: "azyl_id", referencedColumnName: "id", nullable: true)]
     private ?Azyl $azyl;
 
+    #[ORM\ManyToOne(targetEntity: "Collections", inversedBy: "headline")]
+    #[ORM\JoinColumn(name: "collections_id", referencedColumnName: "id", nullable: true)]
+    private ?Collections $collections;
+
 
 
     const REAL_UPLOAD_PATH = '/upload/photos/';
@@ -130,8 +134,32 @@ class Photo
         $array = explode('.', $this->originalName);
         $extension = array_pop($array);
         $this->name = Random::generate(39) . "." . $extension;
-        $pathPart = self::REAL_UPLOAD_PATH."owner/" .$this->getOwner()->id.'/';
-        $path = __DIR__ . self::UPLOAD_PATH . "owner/" .$this->getOwner()->id.'/';
+        $pathPart = self::REAL_UPLOAD_PATH."owner/" .$this->getAzyl()->getId().'/';
+        $path = __DIR__ . self::UPLOAD_PATH . "owner/" .$this->getAzyl()->getId().'/';
+        $this->setPath($pathPart);
+
+        if (!file_exists($path)) {
+            if (!mkdir($path, 0755, true)) {
+                throw new IOException('Path creating error!');
+            }
+        }
+
+        $fileUpload->move($path . $this->name);
+    }
+
+    public function uploadCollectionHeadlinePhoto(FileUpload $fileUpload)
+    {
+
+
+        if (!$fileUpload->isOk()) {
+            throw new IOException('File is not OK!');
+        }
+        $this->originalName = $fileUpload->getSanitizedName();
+        $array = explode('.', $this->originalName);
+        $extension = array_pop($array);
+        $this->name = Random::generate(39) . "." . $extension;
+        $pathPart = self::REAL_UPLOAD_PATH."azyl/collection/" .$this->getAzyl()->getId().'/';
+        $path = __DIR__ . self::UPLOAD_PATH . "azyl/collection" .$this->getAzyl()->getId().'/';
         $this->setPath($pathPart);
 
         if (!file_exists($path)) {
@@ -248,4 +276,39 @@ class Photo
         , 'name' => $this->name
         , 'originalName' => $this->originalName];
     }
+
+    public function isDeleted(): bool
+    {
+        return $this->deleted;
+    }
+
+    public function setDeleted(bool $deleted): Photo
+    {
+        $this->deleted = $deleted;
+        return $this;
+    }
+
+    public function getUserRatings(): UsersRatings
+    {
+        return $this->userRatings;
+    }
+
+    public function setUserRatings(UsersRatings $userRatings): Photo
+    {
+        $this->userRatings = $userRatings;
+        return $this;
+    }
+
+    public function getCollections(): ?Collections
+    {
+        return $this->collections;
+    }
+
+    public function setCollections(?Collections $collections): Photo
+    {
+        $this->collections = $collections;
+        return $this;
+    }
+
+
 }

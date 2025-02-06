@@ -17,8 +17,10 @@ use App\Model\Orm\Enums\MessageTypeEnum;
 use App\Model\Orm\Repository\AdoptionsRepository;
 use App\Model\Orm\Repository\AnimalsRepository;
 use App\Model\Orm\Repository\AzylRepository;
+use App\Model\Orm\Repository\CollectionsRepository;
 use App\Model\Orm\Repository\MessagesRepository;
 use App\Model\Orm\Repository\NewsRepository;
+use App\Model\Orm\Repository\PaymentsRepository;
 use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use App\Model\Service\Firewall;
@@ -28,6 +30,8 @@ use App\Services\LogingService;
 use App\Services\UserAddressService;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use JetBrains\PhpStorm\NoReturn;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumberFormat;
@@ -71,7 +75,9 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                                 private logingService               $logingService,
                                 private emailService                $emailService,
                                 private AnalyticsService         $analyticsService,
-                                private Firewall                    $firewall)
+                                private Firewall                    $firewall,
+                                private CollectionsRepository      $collectionsRepository,
+                                private paymentsRepository          $paymentsRepository,)
     {
         parent::__construct();
         $this->entityManager = $entityManager;
@@ -87,6 +93,8 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->analyticsService = $analyticsService;
         $this->firewall = $firewall;
         $this->firewall->setPresenter($this->getPresenter());
+        $this->collectionsRepository = $collectionsRepository;
+        $this->paymentsRepository = $paymentsRepository;
 
     }
 
@@ -152,6 +160,24 @@ final class HomePresenter extends Nette\Application\UI\Presenter
 
         $this->getTemplate()->title = 'Všechny azyl';
         $this->getTemplate()->azyls = $this->azylRepository->fetchLast();
+    }
+
+    public function renderCollections(): void
+    {
+        $this->getTemplate()->title = 'Aktuálně běžící sbírky';
+        $this->getTemplate()->collections = $this->collectionsRepository->fetchAllActive();
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
+    public function renderCollection(int $key): void
+    {
+        $this->getTemplate()->title = 'Aktuálně běžící sbírky';
+        $this->getTemplate()->collection = $this->collectionsRepository->findOneByKey($key);
+        //$this->getTemplate()->collectionPayments = $this->paymentsRepository->getTotalPayByCollectionKey($key);
+        $this->getTemplate()->collectionPayments = 290000;
     }
 
     public function renderAdoptions($offset = 0): void

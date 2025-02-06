@@ -8,15 +8,18 @@ use App\Components\Datagrids\AnimalsDatagridFactory;
 use App\Components\Datagrids\NewsDatagridFactory;
 use App\Forms\animalFormFactory;
 use App\Forms\azylSetingsFormFactory;
+use App\Forms\collectionFormFactory;
 use App\Forms\messagesFormFactory;
 use App\Forms\newsFormFactory;
 use App\Model\Orm\Entity\Animal;
+use App\Model\Orm\Entity\Collections;
 use App\Model\Orm\Entity\News;
 use App\Model\Orm\Entity\Photo;
 use App\Model\Orm\Repository\AdoptionsRepository;
 use App\Model\Orm\Repository\AnalyticsRepository;
 use App\Model\Orm\Repository\AnimalsRepository;
 use App\Model\Orm\Repository\AzylRepository;
+use App\Model\Orm\Repository\CollectionsRepository;
 use App\Model\Orm\Repository\MessagesRepository;
 use App\Model\Orm\Repository\NewsRepository;
 use App\Model\Orm\Repository\PhotosRepository;
@@ -24,6 +27,7 @@ use App\Model\Orm\Repository\UsersRepository;
 use App\Model\Services\Menu;
 use App\Repository\SpeciesRepository;
 use App\Services\AnalyticsService;
+use App\Services\CollectionKeyService;
 use App\Services\MessagesService;
 use Contributte\Application\UI\BasePresenter;
 use DateTimeImmutable;
@@ -33,6 +37,7 @@ use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
 use Nepada\PhoneNumberDoctrine\PhoneNumberType;
 use Nette\Forms\Form;
+use Random\RandomException;
 use Ublaboo\DataGrid\DataGrid;
 use Ublaboo\DataGrid\Exception\DataGridColumnStatusException;
 use Ublaboo\DataGrid\Exception\DataGridException;
@@ -61,11 +66,15 @@ class AzylPresenter extends BasePresenter
                                 private messagesService $messagesService,
                                 private AnalyticsRepository $analyticsRepository,
                                 private AnalyticsService $analyticsService,
-                                private AdoptionsRepository $adoptionsRepository)
+                                private AdoptionsRepository $adoptionsRepository,
+                                private CollectionsRepository $collectionsRepository,
+                                private collectionFormFactory $collectionFormFactory,
+                                private collectionKeyService $collectionKeyService)
     {
         $this->animalsRepository = $animalsRepository;
         $this->animalFormFactory = $animalFormFactory;
         $this->azylSetingsFormFactory = $azylSetingsFormFactory;
+        $this->collectionFormFactory = $collectionFormFactory;
         $this->messagesRepository = $messagesRepository;
         $this->speciesRepository = $speciesRepository;
         $this->newsRepository = $newsRepository;
@@ -77,6 +86,8 @@ class AzylPresenter extends BasePresenter
         $this->analyticsRepository = $analyticsRepository;
         $this->analyticsService = $analyticsService;
         $this->adoptionsRepository = $adoptionsRepository;
+        $this->collectionsRepository = $collectionsRepository;
+        $this->collectionKeyService = $collectionKeyService;
         parent::__construct();
     }
 
@@ -110,7 +121,7 @@ class AzylPresenter extends BasePresenter
     protected function beforeRender(): void
     {
         $this->template->addFilter('safeHtml', function (string $html): string {
-            $allowedTags = ['b', 'i', 'a'];
+            $allowedTags = ['b', 'i', 'a', 'p', 'br'];
             $html = strip_tags($html, '<' . implode('><', $allowedTags) . '>');
 
             // Povolit pouze bezpečné atributy v <a>
@@ -172,6 +183,142 @@ class AzylPresenter extends BasePresenter
     {
         $this->template->title = 'Animals';
     }
+
+    public function renderCollection(): void
+    {
+        $this->getTemplate()->title = 'Collection';
+    }
+
+    public function actionCollections(?int $key = null): void
+    {
+        $this->getTemplate()->collections = $this->collectionsRepository->findByAzylActive($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']);
+    }
+
+    public function handleStopCollection(int $key): void
+    {
+    bdump('STOOP');
+    }
+
+    public function handleCollectionPayments(int $key): void
+    {
+        bdump('platby');
+        $this->getTemplate()->payments = $this->collectionsRepository->findOneByKey($key)->getPayments();
+        if($this->isAjax())
+        {
+            $this->getPresenter()->redrawControl('payments-'.$key);
+
+        }
+    }
+
+    public function createComponentCollectionForm(): Form
+    {
+        $form = $this->collectionFormFactory->create();
+        $form->onSuccess[] = [$this, 'collectionFormSucceeded'];
+
+            if (is_null($this->getPresenter()->getParameter('key')))
+            {
+            return $form;
+            }
+            else
+            {
+                $collection = $this->collectionsRepository->findOneByKey(intval($this->getPresenter()->getParameter('key')));
+                $form->setDefaults([
+                    'collectionName' => $collection->getCollectionName(),
+                    'collectionId' => $collection->getId(),
+                    'collectionDescription' => $collection->getCollectionDescription(),
+                    'minimalAmount' => $collection->getMinimalAmount() ?? 50,
+                    'resultAmount' => $collection->getResultAmount(),
+                    'extendedAmount' => $collection->getExtendedAmount() ?? 0,
+                    'startAt' => $collection->getStartAt(),
+                    'endingAt' => $collection->getEndingAt(),
+                    'extendTo' => $collection->getExtendTo(),
+                    'currency' => $collection->getCurrency(),
+                    'extend' => 'true',
+                    'isActive' => $collection->isActive()
+
+                ]);
+                return $form;
+            }
+    }
+
+    /**
+     * @throws \DateMalformedStringException
+     * @throws RandomException
+     */
+    public function collectionFormSucceeded(Form $form, $values): void
+    {
+        if (is_null($this->getPresenter()->getParameter('key')))
+        {
+            $azyl  = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
+            $user = $this->usersRepository->findOneBy(['id' =>$this->getPresenter()->getUser()->getIdentity()->getData()['User']->getId()]);
+            $collection = new Collections();
+            $collection->setAzyl($azyl);
+            $collection->setCurrency($values['currency']);
+            $collection->setCollectionDescription($values['collectionDescription']);
+            $collection->setCollectionName($values['collectionName']);
+            $collection->setMinimalAmount($values['minimalAmount']);
+            $collection->setResultAmount($values['resultAmount']);
+            $collection->setExtendedAmount($values['extendedAmount']);
+            $collection->setCreatedAt(new DateTimeImmutable('now'));
+            $collection->setEndingAt($values['endingAt']);
+            $collection->setUser($user);
+            $collection->setStartAt($values['startAt']);
+            $collection->setIsActive($values['isActive']);
+            $this->collectionsRepository->save($collection);
+            $collection->setCollectionKey($this->collectionKeyService->createCollectionKey($azyl->getId(),$collection->getId()));
+
+            $photo = new Photo();
+            $photo->setAzyl($azyl);
+            $photo->setCollections($collection);
+            $photo->setUser($user);
+            $photo->setDate(new DateTimeImmutable());
+            $photo->uploadCollectionHeadlinePhoto($values['headline']);
+
+            $this->photosRepository->save($photo);
+
+            $collection->setPhoto($photo);
+            $this->collectionsRepository->save($collection);
+            $this->flashMessage('Sbírka byla uložena, pokud je datum nastavené na dnešek ihned se spustí', 'alert-success');
+            $this->getPresenter()->redirect('Azyl:Collections');
+        }
+        else
+        {
+            $azyl  = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
+            $user = $this->usersRepository->findOneBy(['id' =>$this->getPresenter()->getUser()->getIdentity()->getData()['User']->getId()]);
+            $collection = $this->collectionsRepository->findOneByKey($this->getPresenter()->getParameter('key'));
+            $collection->setAzyl($azyl);
+            $collection->setCurrency($values['currency']);
+            $collection->setCollectionDescription($values['collectionDescription']);
+            $collection->setCollectionName($values['collectionName']);
+            $collection->setMinimalAmount($values['minimalAmount']);
+            $collection->setResultAmount($values['resultAmount']);
+            $collection->setExtendedAmount($values['extendedAmount']);
+            $collection->setCreatedAt(new DateTimeImmutable('now'));
+            $collection->setEndingAt($values['endingAt']);
+            $collection->setUser($user);
+            $collection->setStartAt($values['startAt']);
+            $collection->setIsActive($values['isActive']);
+            $this->collectionsRepository->save($collection);
+            $collection->setCollectionKey($this->collectionKeyService->createCollectionKey($azyl->getId(),$collection->getId()));
+
+            $photo = new Photo();
+            $photo->setAzyl($azyl);
+            $photo->setCollections($collection);
+            $photo->setUser($user);
+            $photo->setDate(new DateTimeImmutable());
+            $photo->uploadCollectionHeadlinePhoto($values['headline']);
+
+            $this->photosRepository->save($photo);
+
+            $collection->setPhoto($photo);
+            $this->collectionsRepository->save($collection);
+            $this->flashMessage('Sbírka byla uložena, pokud je datum nastavené na dnešek ihned se spustí', 'alert-success');
+            $this->getPresenter()->redirect('Azyl:Collections');
+        }
+    }
+
+
+
 
     public function actionAnimal(?int $id = null): void
     {

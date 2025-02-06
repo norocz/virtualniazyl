@@ -93,35 +93,61 @@
                 </div>
             </div>
             <div class="navbar-nav w-100">
-                <a href="{link admin:default}" class="nav-item nav-link active"><i class="bi bi-bar-chart me-2"></i>Přehled</a>
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-people me-2"></i>Uživatelé</a>
-                    <div class="dropdown-menu bg-transparent border-0">
-                        <a href="{link Admin:guests}" class="dropdown-item">Registrace</a>
-                        <a href="{link Admin:owners}" class="dropdown-item">Uživatelé</a>
-                        <a href="{link Admin:azyls}" class="dropdown-item">Azyly</a>
-                    </div>
-                </div>
-                <a href="{link Admin:species}" class="nav-item nav-link"><i class="bi bi-bug me-2"></i>Druhy zvířat</a>
-                <a href="{link Admin:animals}" class="nav-item nav-link"><i class="bi bi-github me-2"></i>Zvířata</a>
-                <a href="{link Admin:messages}" class="nav-item nav-link"><i class="bi bi-chat-text me-2"></i>Vzkazy</a>
-                <div class="nav-item dropdown">
-                    <a href="{link Admin:pages}" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-blockquote-right me-2"></i>Stránky</a>
-                    <div class="dropdown-menu bg-transparent border-0">
-                        <a href="{link Admin:pages}" class="dropdown-item">Stránky</a>
-                        <a href="{link Admin:page}" class="dropdown-item">Přidat stránku</a>
-                    </div>
-                </div>
-
-                <a href="{link Admin:photos}" class="nav-item nav-link"><i class="bi bi-images me-2"></i>Fotky</a>
-                <a href="{link Admin:news}" class="nav-item nav-link"><i class="bi bi-newspaper me-2"></i>Novinky</a>
-                <a href="{link Admin:adoptions}" class="nav-item nav-link"><i class="bi bi-clipboard me-2"></i>Adopce</a>
-                <hr>
-                <a href="{link Admin:citys}" class="nav-item nav-link"><i class="bi bi-compass me-2"></i>Lokality</a>
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-alarm me-2"></i>Update</a>
-                    <div class="dropdown-menu bg-transparent border-0">
-                        <a href="{link Admin:updateMessagesAddress}" class="dropdown-item">Messages Address Update</a>
+                <a href="{link admin:default}" class="nav-item nav-link {if isLinkCurrent('admin:default')}active{/if}">
+    <i class="bi bi-bar-chart me-2"></i>Přehled
+</a>
+<div class="nav-item dropdown">
+    <a href="#" class="nav-link dropdown-toggle {if isLinkCurrent('Admin:guests') || isLinkCurrent('Admin:owners') || isLinkCurrent('Admin:azyls')}active{/if}" data-bs-toggle="dropdown">
+        <i class="bi bi-people me-2"></i>Uživatelé
+    </a>
+    <div class="dropdown-menu bg-transparent border-0">
+        <a href="{link Admin:guests}" class="dropdown-item {if isLinkCurrent('Admin:guests')}active{/if}">Registrace</a>
+        <a href="{link Admin:owners}" class="dropdown-item {if isLinkCurrent('Admin:owners')}active{/if}">Uživatelé</a>
+        <a href="{link Admin:azyls}" class="dropdown-item {if isLinkCurrent('Admin:azyls')}active{/if}">Azyly</a>
+    </div>
+</div>
+<a href="{link Admin:species}" class="nav-item nav-link {if isLinkCurrent('Admin:species')}active{/if}">
+    <i class="bi bi-bug me-2"></i>Druhy zvířat
+</a>
+<a href="{link Admin:animals}" class="nav-item nav-link {if isLinkCurrent('Admin:animals')}active{/if}">
+    <i class="bi bi-github me-2"></i>Zvířata
+</a>
+<a href="{link Admin:messages}" class="nav-item nav-link {if isLinkCurrent('Admin:messages')}active{/if}">
+    <i class="bi bi-chat-text me-2"></i>Vzkazy
+</a>
+<div class="nav-item dropdown">
+    <a href="{link Admin:pages}" class="nav-link dropdown-toggle {if isLinkCurrent('Admin:pages') || isLinkCurrent('Admin:page')}active{/if}" data-bs-toggle="dropdown">
+        <i class="bi bi-blockquote-right me-2"></i>Stránky
+    </a>
+    <div class="dropdown-menu bg-transparent border-0">
+        <a href="{link Admin:pages}" class="dropdown-item {if isLinkCurrent('Admin:pages')}active{/if}">Stránky</a>
+        <a href="{link Admin:page}" class="dropdown-item {if isLinkCurrent('Admin:page')}active{/if}">Přidat stránku</a>
+    </div>
+</div>
+<a href="{link Admin:photos}" class="nav-item nav-link {if isLinkCurrent('Admin:photos')}active{/if}">
+    <i class="bi bi-images me-2"></i>Fotky
+</a>
+<a href="{link Admin:news}" class="nav-item nav-link {if isLinkCurrent('Admin:news')}active{/if}">
+    <i class="bi bi-newspaper me-2"></i>Novinky
+</a>
+<a href="{link Admin:adoptions}" class="nav-item nav-link {if isLinkCurrent('Admin:adoptions')}active{/if}">
+    <i class="bi bi-clipboard me-2"></i>Adopce
+</a>
+<a href="{link Admin:collections}" class="nav-item nav-link {if isLinkCurrent('Azyl:collections')}active{/if}">
+                    <i class="fa fa-piggy-bank me-2"></i>Sbírky
+                </a>
+<hr>
+<a href="{link Admin:citys}" class="nav-item nav-link {if isLinkCurrent('Admin:citys')}active{/if}">
+    <i class="bi bi-compass me-2"></i>Lokality
+</a>
+<div class="nav-item dropdown">
+    <a href="#" class="nav-link dropdown-toggle {if isLinkCurrent('Admin:updateMessagesAddress')}active{/if}" data-bs-toggle="dropdown">
+        <i class="bi bi-alarm me-2"></i>Update
+    </a>
+    <div class="dropdown-menu bg-transparent border-0">
+        <a href="{link Admin:updateMessagesAddress}" class="dropdown-item {if isLinkCurrent('Admin:updateMessagesAddress')}active{/if}">Messages Address Update</a>
+    </div>
+</div>
 
                     </div>
 

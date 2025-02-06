@@ -1,0 +1,182 @@
+{block content}
+<style>
+.progress {
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  transition: width 1s linear;
+}
+
+    .countdown-container {
+        text-align: center;
+    }
+
+    .hourglass {
+        width: 100px;
+        height: 200px;
+        position: relative;
+        background-color: #e0e0e0;
+        border: 5px solid #ccc;
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 0 auto 20px;
+    }
+
+    .sand {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background-color: #f39c12;
+        transition: height 1s linear;
+    }
+
+    .countdown {
+        font-size: 2em;
+        color: #333;
+    }
+</style>
+
+<main class="main" id="top">
+    <div class="bg">
+        <div class="content">
+            <div class="row">
+                <div class="col-xl-12 col-md-12 m-2  flex-column">
+                  <div class="collection">
+
+                            <div class="card collection-card text-dark bg-light">
+                                <img class="card-img-top" src="{$collection->getPhoto()->getPath()}{$collection->getPhoto()->getName()}" alt="Card image cap">
+                                <div class="card-img-overlay">
+                                    <h4 class="card-title">{$collection->getCollectionName()}</h4>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text"> {$collection->getCollectionDescription()|safeHtml|noescape}</p>
+
+                                {* Výpočet průběhu *}
+                                {var $progressWidth = min(($collectionPayments / $collection->getResultAmount()) * 100, 100)}
+                                {var $excessWidth = max((($collectionPayments - $collection->getResultAmount()) / $collection->getResultAmount()) * 100, 0)}
+                                {var $isTargetExceeded = $collectionPayments > $collection->getResultAmount()}
+
+                                <div class="container mt-5">
+                                  <div class="text-center">
+                                    {* Progress bar *}
+                                    <div class="progress" style="height: 30px; position: relative;">
+                                      {* Část progress baru do cílové částky *}
+                                      <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: {$progressWidth}%;"></div>
+
+                                      {* Část progress baru nad cílovou částku *}
+                                      {if $isTargetExceeded}
+                                        <div class="progress-bar progress-bar-striped bg-danger" role="progressbar" style="width: {$excessWidth}%;"></div>
+                                      {/if}
+
+                                      {* Značka pro cíl, pokud je překročen *}
+                                      {if $isTargetExceeded}
+                                        <div style="position: absolute; top: -20px; left: 100%; transform: translateX(-50%);">
+                                          <span class="badge bg-danger">Cíl: {$collection->getResultAmount()} Kč, Nasbíráno: {$collectionPayments} Kč</span>
+                                        </div>
+                                      {/if}
+                                    </div>
+
+
+
+
+                                    {* Zobrazení aktuálního stavu *}
+                                    <h3 class="mt-3">
+                                      Nasbíráno: {$collectionPayments } Kč / Cíl: {$collection->getResultAmount()} Kč
+                                    </h3>
+                                  </div>
+
+
+                                    <div class="container mt-5">
+                                      <div class="text-center">
+                                        {* Progress bar časový*}
+                                        <div class="progress" style="height: 30px;">
+                                          <div id="progressBar" class="progress-bar progress-bar-striped bg-warning" role="progressbar" style="width: 100%;"></div>
+                                        </div>
+
+                                        {* Odpočet *}
+                                        <h2 class="mt-3" id="countdown">
+                                        Do konce sbírky zbívá: <span id="days">00</span> dní,
+                                          <span id="hours">00</span>:<span id="minutes">00</span>:<span id="seconds">00</span>
+                                        </h2>
+                                      </div>
+
+
+                                    <a href="{link Home:collection, $collection->getCollectionKey()}" class="btn btn-outline-info btn-sm">Dataily sbírky</a>
+                                </div>
+
+                                <div class="card-footer">
+
+                                    Sdílet na:
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
+                                            <i class="bi bi-facebook"></i> Facebook
+                                    </a>
+
+                                    {* Odkaz na sdílení na Instagram *}
+                                    <a href="https://www.instagram.com/?url={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
+                                            <i class="bi bi-instagram"></i>Instagram
+                                    </a>
+
+                                    {* Odkaz na sdílení na X (Twitter) *}
+                                    <a href="https://twitter.com/intent/tweet?url={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
+                                            <i class="bi bi-twitter-x"></i>Twitter
+                                    </a>
+
+                                    {* Odkaz na sdílení na LinkedIn *}
+                                    <a href="https://www.linkedin.com/shareArticle?url={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
+                                        <i class="bi bi-linkedin"></i> LinkedIn
+                                    </a>
+                                    <br>
+                                    Odkaz: {link Home:collection, $collection->getCollectionKey()}
+                                </div>
+
+                            </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        {/block}
+        {block scripts-user}
+        <script>
+        // Datum konce akce (nahraďte svým datem)
+        {var $date = $collection->getEndingAt()->format('Y-m-d\TH:i:s')}
+       // Datum konce akce (předáno z Latte)
+        const endDate = new Date({$date}).getTime();
+
+        function updateCountdown() {
+          const now = new Date().getTime();
+          const timeLeft = endDate - now;
+
+        // Výpočet dnů, hodin, minut a sekund
+          const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+          // Zobrazení času
+          document.getElementById('days').textContent = String(days).padStart(2, '0');
+          document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+          document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+          document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+
+          // Aktualizace progress baru
+          const totalTime = endDate - new Date('2023-01-01T00:00:00').getTime();
+          const progressWidth = (timeLeft / totalTime) * 100;
+          document.getElementById('progressBar').style.width = `${ progressWidth }%`;
+
+          // Pokud čas vypršel
+          if (timeLeft < 0) {
+            clearInterval(interval);
+            document.getElementById('countdown').textContent = 'Čas vypršel!';
+            document.getElementById('progressBar').style.width = '0%';
+          }
+        }
+
+        // Spuštění odpočtu každou sekundu
+        const interval = setInterval(updateCountdown, 1000);
+        updateCountdown(); // Okamžitá inicializace
+        </script>
+{/block}

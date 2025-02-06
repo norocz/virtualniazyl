@@ -47,6 +47,7 @@ services:
 	- App\Services\UserAddressService
 	- App\Services\MessagesService
 	- App\Services\AdoptionKeyService
+	- App\Services\CollectionKeyService
 	- App\Services\AnalyticsService
 	- Defr\QRPlatba\QRPlatba
 	- App\Services\LogingService

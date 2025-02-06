@@ -4,8 +4,11 @@ declare(strict_types=1);
 namespace App\Presenters;
 
 
+use App\Forms\collectionFormFactory;
+use App\Forms\systemSettingsFormFactory;
 use App\Model\Orm\Repository\AnalyticsRepository;
 use App\Model\Orm\Repository\AzylRepository;
+use App\Model\Orm\Repository\CollectionsRepository;
 use App\Model\Orm\Repository\FirewallLogsRepository;
 use App\Services\IpInfoService;
 use Contributte\Application\UI\BasePresenter;
@@ -22,11 +25,18 @@ class SuperAdminPresenter extends BasePresenter
     private FirewallLogsRepository $firewallLogsRepository;
     private analyticsRepository $analyticsRepository;
     private ipInfoService $ipInfoService;
+    private systemSettingsFormFactory $systemSettingsFormFactory;
+
+    private collectionsRepository $collectionsRepository;
+    private collectionFormFactory $collectionFormFactory;
     public function __construct(setAzylFormFactory $setAzylFormFactory,
                                 azylRepository $azylRepository,
                                 firewallLogsRepository $firewallLogsRepository,
                                 analyticsRepository $analyticsRepository,
-                                ipInfoService $ipInfoService)
+                                ipInfoService $ipInfoService,
+                                systemSettingsFormFactory $systemSettingsFormFactory,
+                                collectionFormFactory $collectionFormFactory,
+                                CollectionsRepository $collectionsRepository)
     {
         parent::__construct();
         $this->setAzylFormFactory = $setAzylFormFactory;
@@ -34,6 +44,9 @@ class SuperAdminPresenter extends BasePresenter
         $this->firewallLogsRepository = $firewallLogsRepository;
         $this->analyticsRepository = $analyticsRepository;
         $this->ipInfoService = $ipInfoService;
+        $this->systemSettingsFormFactory = $systemSettingsFormFactory;
+        $this->collectionsRepository = $collectionsRepository;
+        $this->collectionFormFactory = $collectionFormFactory;
 
     }
 
@@ -98,6 +111,11 @@ class SuperAdminPresenter extends BasePresenter
         }
     }
 
+    public function actionCollections(?int $id = null): void
+    {
+        $this->getTemplate()->collections = $this->collectionsRepository->findByAzyl($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']);
+    }
+
     public function renderSetAzyl(): void
     {
         $this->template->title = 'Nastavení azylu';
@@ -121,6 +139,11 @@ class SuperAdminPresenter extends BasePresenter
     public function renderOwner(): void
     {
         $this->template->title = 'Owner';
+    }
+
+    public function renderSystemSettings(): void
+    {
+        $this->template->title = 'System Settings';
     }
 
     public function renderSendmessages(): void
@@ -210,6 +233,13 @@ class SuperAdminPresenter extends BasePresenter
         $form->onSuccess[] = [$this, 'azylSetFormSuccessed'];
         return $form;
 
+    }
+
+    public function createComponentSystemSettingsForm(): Form
+    {
+        $form = $this->systemSettingsFormFactory->create();
+        $form->onSuccess[] = [$this, 'systemSetingsFormSuccessed'];
+        return $form;
     }
 
     public function azylSetFormSuccessed(Form $form, \stdClass $values) : void

@@ -1,0 +1,89 @@
+{block azylContent}
+<main class="main" id="top">
+    <div class="bg">
+        <div class="content">
+            <div class="row">
+            {control collectionForm}
+            </div>
+
+            <div class="row">
+                <h3>Aktivní sbírky</h3>
+                <div class="col-xl-12 col-md-12">
+
+                    <div class="row">
+                    {snippetArea collections}
+
+
+                        {foreach $collections as $collection}
+                        <div class="col-xl-6 col-md-12 flex-column">
+                            <div class="card collection-card text-dark bg-light m-2" style="width:550px;" >
+                                 <img class="card-img-top" src="{$collection->getPhoto()->getPath()}{$collection->getPhoto()->getName()}" alt="Headline image">
+
+                                    <h3 class="card-title">{$collection->getCollectionName()}</h3>
+
+                                <div class="card-body">
+                                    <p class="card-text"> {$collection->getCollectionDescription()|safeHtml|noescape}</p>
+
+                                    <a href="{link Azyl:collections $collection->getCollectionKey()}" class="btn btn-outline-info btn-sm">Editovat sbírku</a>
+                                    <a n:href="stopCollection!, $collection->getCollectionKey()" class="btn btn-outline-warning btn-sm ajax">Zastavit sbírku</a>
+                                    <a n:href="collectionPayments!, $collection->getCollectionKey()" class="btn btn-outline-warning btn-sm ajax">Platby</a>
+
+                                </div>
+                                {snippet 'payments-'.$collection->getCollectionKey()}
+                                    {ifset $payments}
+                                        <div class="payments">
+                                        {foreach $payments as $payment}
+                                        {$payment->getPayedAt()->format('D:m:y H:m:s')} |
+                                        {$payment->getPay()} {$payment->getCurrency()}
+
+
+                                        {/foreach}
+                                        </div>
+                                    {/ifset}
+                                {/snippet}
+                                <div class="card-footer">
+
+                                    Sdílet:
+                                    <a class = "m-1" href="https://www.facebook.com/sharer/sharer.php?u={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
+                                            <i class="bi bi-facebook"></i>
+                                    </a>
+
+                                    <a class = "m-1" href="https://www.instagram.com/?url={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
+                                            <i class="bi bi-instagram"></i>
+                                    </a>
+
+                                    <a class = "m-1" href="https://twitter.com/intent/tweet?url={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
+                                            <i class="bi bi-twitter"></i>
+                                    </a> <br>
+
+                                    Odkaz pro sdílení: <a class = "" href="{link Home:collection, $collection->getCollectionKey()}" target="_blank" class="text-decoration-none">
+                                        {link Home:collection, $collection->getCollectionKey()}
+                                    </a>
+
+                                </div>
+
+                            </div>
+                        </div>
+                        {/foreach}
+                    {/snippetArea}
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+        </div>
+        </main>
+        {/block}
+{block scripts}
+        <script src="{$basePath}/vendors/tinymce/tinymce.js"></script>
+    <script>
+        tinymce.init({
+            selector: '#collectionDescription',
+            plugins: ['link code', 'lists'],
+            width: '800px',
+            menubar: false,
+            toolbar: 'undo redo | bold italic | bullist numlist outdent indent |',
+        });
+    </script>
+{/block}
