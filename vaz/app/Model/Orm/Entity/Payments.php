@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace App\Model\Orm\Entity;
 
-use App\Enum\PaymentStatusEnum;
+use App\Model\Orm\Enums\PaymentStatusEnum;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
