@@ -8,7 +8,7 @@ use App\Components\Datagrids\AnimalsDatagridFactory;
 use App\Components\Datagrids\NewsDatagridFactory;
 use App\Forms\animalFormFactory;
 use App\Forms\azylSetingsFormFactory;
-use App\Forms\collectionFormFactory;
+use App\Forms\CollectionFormFactory;
 use App\Forms\messagesFormFactory;
 use App\Forms\newsFormFactory;
 use App\Model\Orm\Entity\Animal;
@@ -64,28 +64,16 @@ class AzylPresenter extends BasePresenter
                                 private AnalyticsService $analyticsService,
                                 private AdoptionsRepository $adoptionsRepository,
                                 private CollectionsRepository $collectionsRepository,
-                                private collectionFormFactory $collectionFormFactory,
+                                private CollectionFormFactory $collectionFormFactory,
                                 private collectionKeyService $collectionKeyService)
     {
+        parent::__construct();
         $this->animalsRepository = $animalsRepository;
         $this->animalFormFactory = $animalFormFactory;
         $this->azylSetingsFormFactory = $azylSetingsFormFactory;
-        $this->collectionFormFactory = $collectionFormFactory;
-        $this->messagesRepository = $messagesRepository;
-        $this->speciesRepository = $speciesRepository;
-        $this->newsRepository = $newsRepository;
-        $this->newsFormFactory = $newsFormFactory;
-        $this->newsDatagridFactory = $newsDatagridFactory;
-        $this->azylRepository = $azylRepository;
-        $this->messagesFormFactory = $messagesFormFactory;
-        $this->messagesService = $messagesService;
-        $this->analyticsRepository = $analyticsRepository;
-        $this->analyticsService = $analyticsService;
-        $this->adoptionsRepository = $adoptionsRepository;
-        $this->collectionsRepository = $collectionsRepository;
-        $this->collectionKeyService = $collectionKeyService;
 
-        parent::__construct();
+
+
     }
 
     public function startup(): void
