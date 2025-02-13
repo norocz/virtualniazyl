@@ -171,13 +171,22 @@ class UserPresenter extends BasePresenter
         $this->getTemplate()->adoptions = $user->getAdoptions();
         $this->getTemplate()->photos = $user->getPhotos();
 
-       $city = $this->cityRepository->findOneBy(['id' => $this->getUser()->getIdentity()->getData()['User']->getCity()]);
+        $city = $this->cityRepository->findOneBy(['id' => $this->getUser()->getIdentity()->getData()['User']->getCity()]);
+        if (is_null($city)) {
+            $this->getTemplate()->regions = $this->cityRepository->findRegionByCountry($city->getCountry());
+            $this->getTemplate()->cities = $this->cityRepository->findCityByRegionArray($city->getRegion());
 
-        $this->getTemplate()->regions = $this->cityRepository->findRegionByCountry($city->getCountry());
-        $this->getTemplate()->cities = $this->cityRepository->findCityByRegionArray($city->getRegion());
+            $this->getTemplate()->city = $city->getId();
+            $this->getTemplate()->region = $city->getRegion();
+        }
+        else
+        {
+            $this->getTemplate()->regions = $this->cityRepository->fetchCountries();
+            $this->getTemplate()->cities = $this->cityRepository->findCityByRegionArray('Kroměříž');
 
-        $this->getTemplate()->city = $city->getId();
-        $this->getTemplate()->region = $city->getRegion();
+            $this->getTemplate()->city = null;
+            $this->getTemplate()->region = null;
+        }
     }
 
     public function actionMessages($id): void
