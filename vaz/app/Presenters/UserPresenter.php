@@ -171,7 +171,7 @@ class UserPresenter extends BasePresenter
         $this->getTemplate()->adoptions = $user->getAdoptions();
         $this->getTemplate()->photos = $user->getPhotos();
 
-        $city = $this->cityRepository->findOneBy(['id' => $user->getCity()]);
+        $city = $this->cityRepository->findOneBy(['id' => $user->getCity()]); //co to tady je
         if ($city !== null) {
             $this->getTemplate()->regions = $this->cityRepository->findRegionByCountry($city->getCountry());
             $this->getTemplate()->cities = $this->cityRepository->findCityByRegionArray($city->getRegion());

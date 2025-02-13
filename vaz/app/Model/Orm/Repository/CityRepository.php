@@ -124,7 +124,6 @@ class CityRepository extends EntityRepository
             $kole[$country] = $country;
         }
 
-
         return $kole;
 
     }
