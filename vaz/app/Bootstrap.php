@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Doctrine\Type\PaymentStatusType;
+use App\Enum\PaymentStatus;
 use App\Model\Doctrine\JsonExtract;
 use Brick\PhoneNumber\PhoneNumber;
 use Nepada\PhoneNumberDoctrine\PhoneNumberType;
@@ -47,6 +49,7 @@ class Bootstrap
         Type::addType('adoptionsTypeEnum', 'App\Model\Orm\Enums\AdoptionsTypeEnum');
         Type::addType('sexTypeEnum', 'App\Model\Orm\Enums\SexTypeEnum');
         Type::addType(PhoneNumber::class,PhoneNumberType::class);
+        Type::addType(PaymentStatusType::PAYMENT_STATUS, PaymentStatusType::class);
 
 		return $configurator;
 	}

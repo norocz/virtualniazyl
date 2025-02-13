@@ -6,7 +6,7 @@ namespace App\Forms;
 use App\Model\Orm\Repository\CityRepository;
 use App\Presenters\UserPresenter;
 use Nepada\PhoneNumberInput\PhoneNumberInput;
-use Nepada\Bridges\PhoneNumberInputForms\PhoneNumberInputMixin;
+use Nepada\Bridges\PhoneNumberInputForms;
 use Nette\Application\UI\Form;
 use Nette\Application\UI\InvalidLinkException;
 
@@ -33,7 +33,7 @@ class userDetailsFormFactory extends Form
         $form = new Form;
         $form->addProtection('S formulářem nebo daty bylo manipulováno!');
 
-        $form->addPhoneNumber('phone', 'Telefon:', 'CZ')
+        $form->addPhoneNumber('phone', 'Telefon:')
         //$form->addPhoneNumber('phone', 'Telefon:', 'CZ')
             ->setHtmlAttribute('class', 'form-control')
             ->addRule(PhoneNumberInput::REGION, 'Prosím zadejte platný telefonní číslo. Pro ČR nebo SR začíná na +420 nebo +421.',['CZ', 'SK'])
@@ -60,10 +60,12 @@ class userDetailsFormFactory extends Form
 
         $country = $form->addSelect('country', 'Země:', $this->cityRepository->fetchCountries())
             ->setPrompt('Vyberte zemi')
-            ->setHtmlAttribute('class', 'form-control ajax');
+            ->setHtmlAttribute('class', 'form-control ajax')
+            ->setHtmlAttribute('id', 'country');
 
         $region = $form ->addSelect('region', 'Region:')
             ->setHtmlAttribute('class', 'form-control ajax')
+            ->setHtmlAttribute('id', 'region')
             ->setPrompt('Vyberte region')
 
             ->setHtmlAttribute('data-depends', $country->getHtmlName())
@@ -72,12 +74,13 @@ class userDetailsFormFactory extends Form
 
         $city = $form->addSelect('city','Město:')
             ->setHtmlAttribute('class', 'form-control ajax')
+            ->setHtmlAttribute('id', 'city')
             ->setOption('description', ' ')
             ->setPrompt('Vyberte obec')
 
             ->setHtmlAttribute('data-depends', $region->getHtmlName())
             ->setHtmlAttribute('data-url', $userPresenter->link('Json:city', '#'));
-        $form->onAnchor[] = fn() => $city->setItems($region->getValue() ? $this->cityRepository->findCityByRegion($region->getValue()['0']) : []);
+        $form->onAnchor[] = fn() => $city->setItems($region->getValue() ? $this->cityRepository->findCityByRegionArray($region->getValue()['0']) : []);
 
         $form->addSubmit('send', 'Uložit')
             ->setHtmlAttribute('class', 'btn btn-success form-control');

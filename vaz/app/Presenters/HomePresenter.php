@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\Presenters;
 
+use App\Enum\PaymentStatusEnum;
 use App\Forms\adoptionFormFactory;
+use App\Forms\paymentFormFactory;
 use App\Forms\registerFormFactory;
 use App\Forms\SignInFormFactory;
 use App\Model\Orm\Entity\Adoption;
 use App\Model\Orm\Entity\AdoptionAction;
 use App\Model\Orm\Entity\Azyl;
 use App\Model\Orm\Entity\Messages;
+use App\Model\Orm\Entity\Payments;
 use App\Model\Orm\Entity\Users;
 use App\Model\Orm\Enums\ActionTypeEnum;
 use App\Model\Orm\Enums\MessageTypeEnum;
@@ -29,6 +32,7 @@ use App\Services\AnalyticsService;
 use App\Services\LogingService;
 use App\Services\UserAddressService;
 use DateTimeImmutable;
+use Defr\QRPlatba\QRPlatbaException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -44,6 +48,7 @@ use Nette\Security\AuthenticationException;
 use Nette\Security\Passwords;
 use App\Model\Services\Menu;
 use Defr\QRPlatba\QRPlatba;
+use Nette\SmartObject;
 
 final class HomePresenter extends Nette\Application\UI\Presenter
 {
@@ -174,10 +179,15 @@ final class HomePresenter extends Nette\Application\UI\Presenter
      */
     public function renderCollection(int $key): void
     {
-        $this->getTemplate()->title = 'Aktuálně běžící sbírky';
+        $this->getTemplate()->title = 'Sbírka pro';
         $this->getTemplate()->collection = $this->collectionsRepository->findOneByKey($key);
-        //$this->getTemplate()->collectionPayments = $this->paymentsRepository->getTotalPayByCollectionKey($key);
-        $this->getTemplate()->collectionPayments = 290000;
+
+        $kolik = $this->paymentsRepository->getTotalPayByCollectionKey($key);
+
+
+        $this->getTemplate()->collectionPayments = intval($this->paymentsRepository->getTotalPayByCollectionKey($key));
+        //$this->getTemplate()->collectionPayments = 104000;
+
     }
 
     public function renderAdoptions($offset = 0): void
@@ -229,19 +239,8 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
         $this->getTemplate()->adoptions = $this->animalsRepository->findBy(['azyl' => $azylProfil, 'toAdoption' => true], ['id' => 'DESC']);
 
-        /* Blbne na pHP 8.4 dokud se neopraví a to se musí vymyslet jak ;-)
-        if (!is_null($azylProfil->getBankAccount())){
-        $qrPlatba =New QRPlatba();
-        $qrPlatba->setAccount($azylProfil->getBankAccount().'/'.$azylProfil->getBankCode())
-                    ->setMessage('Peníze pro '.$azylProfil->getAzylName())
-                    ->setVariableSymbol($azylProfil->getBankSpecificCode())
-                    ->setCurrency('CZK')
-                    ->setAmount((float)'101.11')
-                    ->setDueDate(new \DateTime('now'));
-            }
 
-        $this->getTemplate()->qrkodazyl = $qrPlatba->getQRCodeImage();
-        */
+
     }
 
     public function actionAzylAdoptions(int $id) : void
@@ -385,6 +384,71 @@ final class HomePresenter extends Nette\Application\UI\Presenter
             $this->getPresenter()->flashMessage('Email nebo heslo jsou špatně', 'alert-warning');
 
         }
+    }
+
+    public function handleSupportCollection(string $key)
+    {
+
+    }
+
+    public function createComponentPaymentForm(): Form
+    {
+        $form = new PaymentFormFactory();
+        $form -> setCurrency('czk');
+        $form -> setMinimalAmount(100);
+        $form -> setCollctionKey(intval($this->getParameter('key')));
+        $return = $form -> create();
+        $return -> onSuccess[] = [$this, 'paymentFormSuccess'];
+        return $return;
+
+    }
+
+    /**
+     * @throws QRPlatbaException
+     */
+    public function paymentFormSuccess($form, $values): void
+    {
+        if ($collection = $this->collectionsRepository->findOneByKey(intval($this->getPresenter()->getParameter('key')))) {
+            $qr = $this->QRPlatba->setCurrency(mb_strtoupper($collection->getCurrency()));
+            $qr->setMessage($values['comment']);
+            $qr->setVariableSymbol(strval($collection->getCollectionKey()));
+            $qr->setSpecificSymbol(strval($collection->getId()));
+            $qr->setAmount($values['pay']);
+            $qr->setDueDate(new \DateTime('now'));
+            $qr->setAccount('112233445566/0066');//TODO: správné číslo účtu
+            //$qr ->setLabel($collection->getCollectionName().': '.$values['pay']);  --kontrola instalce Freetype
+
+            $image = $qr->getQRCodeImage();
+
+            $payment = new Payments();
+            $payment->setComment($values['comment']);
+            $payment->setVariableSymbol($collection->getCollectionKey());
+            $payment->setCurrency($collection->getCurrency());
+            $payment->setCollections($collection);
+            $payment->setCreatedAt(new DateTimeImmutable('now'));
+            $payment->setFee(null); //TODO: Doplnit Feečko ze systemSetings
+            $payment->setPay($values['pay']);
+            $payment->setPaymentStatus(PaymentStatusEnum::Expected);
+            $payment->setAzyl($collection->getAzyl());
+            $this->paymentsRepository->save($payment);
+
+            $this->getTemplate()->qr = $image;
+            if ($this->isAjax()) {
+
+                $this->redrawControl('qr');
+            }
+        }
+        else
+        {
+            $this->getTemplate()->qr = 'Nastal problém s generováním QR kódu!!! ';
+            $this->analyticsService->setComment('KURVA!!! chyba při generování QR kódu');
+            if ($this->isAjax()) {
+
+                $this->redrawControl('qr');
+            }
+
+        }
+
     }
 
     public function createComponentRegisterForm(): Form

@@ -4,7 +4,9 @@ declare(strict_types = 1);
 
 namespace App\Model\Orm\Entity;
 
+use App\Enum\PaymentStatusEnum;
 use DateTimeImmutable;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -23,8 +25,8 @@ class Payments
     #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $createdAt;
 
-    #[ORM\Column(type: 'datetime_immutable')]
-    private DateTimeImmutable $payedAt;
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?DateTimeImmutable $payedAt = null;
 
     #[ORM\Column(type: 'integer', length: 10)]
     private int $variableSymbol;
@@ -32,8 +34,8 @@ class Payments
     #[ORM\Column(type: 'string', length: 255)]
     private string $comment;
 
-    #[ORM\Column(type: 'integer', options: ['Kč' => 1, 'EU' => 2, 'USD' => 3, 'RU' => 4, 'ZL' => 5])]
-    private int $currency;
+    #[ORM\Column(type: 'string', length: 6)]
+    private string $currency;
 
     #[ORM\ManyToOne(targetEntity: Collections::class, inversedBy: 'payments')]
     private ?Collections $collections;
@@ -44,8 +46,13 @@ class Payments
     #[ORM\ManyToOne(targetEntity: Adoption::class, cascade: ['persist'], inversedBy: "adoption")]
     private ?Adoption $adoption;
 
-    #[ORM\Column(type: 'integer', length: 10, nullable: true)]
-    private ?int $fee;
+    #[ORM\Column(type: 'float', length: 10, nullable: true)]
+    private ?float $fee;
+
+    #[ORM\Column(type: Types::STRING, enumType: PaymentStatusEnum::class)]
+    private PaymentStatusEnum $paymentStatus;
+
+
     public function getId(): int
     {
         return $this->id;
@@ -56,6 +63,29 @@ class Payments
         $this->id = $id;
         return $this;
     }
+
+    public function getPay(): int
+    {
+        return $this->pay;
+    }
+
+    public function setPay(int $pay): Payments
+    {
+        $this->pay = $pay;
+        return $this;
+    }
+
+    public function getPaymentStatus(): PaymentStatusEnum
+    {
+        return $this->paymentStatus;
+    }
+
+    public function setPaymentStatus(PaymentStatusEnum $paymentStatus): Payments
+    {
+        $this->paymentStatus = $paymentStatus;
+        return $this;
+    }
+
 
     public function getCreatedAt(): DateTimeImmutable
     {
@@ -68,12 +98,12 @@ class Payments
         return $this;
     }
 
-    public function getPayedAt(): DateTimeImmutable
+    public function getPayedAt(): ?DateTimeImmutable
     {
         return $this->payedAt;
     }
 
-    public function setPayedAt(DateTimeImmutable $payedAt): Payments
+    public function setPayedAt(?DateTimeImmutable $payedAt): Payments
     {
         $this->payedAt = $payedAt;
         return $this;
@@ -101,12 +131,12 @@ class Payments
         return $this;
     }
 
-    public function getCurrency(): int
+    public function getCurrency(): string
     {
         return $this->currency;
     }
 
-    public function setCurrency(int $currency): Payments
+    public function setCurrency(string $currency): Payments
     {
         $this->currency = $currency;
         return $this;
@@ -145,12 +175,12 @@ class Payments
         return $this;
     }
 
-    public function getFee(): ?int
+    public function getFee(): ?float
     {
         return $this->fee;
     }
 
-    public function setFee(?int $fee): Payments
+    public function setFee(?float $fee): Payments
     {
         $this->fee = $fee;
         return $this;

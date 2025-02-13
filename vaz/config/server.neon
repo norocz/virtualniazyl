@@ -6,3 +6,6 @@ parameters:
         port: 465
         secure: "ssl"
         timeout: 600
+
+    payments:
+        account: '123456789/0100'

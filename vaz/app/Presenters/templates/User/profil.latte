@@ -159,8 +159,8 @@
                 </div>
 
                 <div class="tab-pane fade show active" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-                    <div class="row">
-                        <div class="col-8">
+                    <div class="row ">
+                        <div class="col-8 bg-light p-2">
                             Jméno a příjmení:
                             <form class="row" n:name=userDetailsForm>
 
@@ -197,16 +197,36 @@
                                     </div>
 
                                 <div class="col-4">
-                                    Země:
-                                    <select class="form-control"  n:name=country></select>
+                                    <div class="form-group ">
+                                        <label n:name="country">Země:
+                                        <select n:name="country" class="form-control"></select>
+                                        </label>
+                                    </div>
                                 </div>
                                 <div class="col-8">
-                                   Region:
-                                    <select  class="form-control"  n:name=region></select>
+                                    <label n:name="region">Region:
+                                    {snippet regionSelect}
+                                        <select class="ajax form-control" id="region" n:name="region">
+                                            <option value="">Vyberte region</option>
+                                            {foreach $regions as $id => $name}
+                                                <option {if $id == $region} selected {/if} value="{$id}">{$name}</option>
+                                            {/foreach}
+                                        </select>
+                                    {/snippet}
+                                    </label>
                                 </div>
                                 <div class="col-12">
-                                    Město:
-                                    <select class="form-control"  n:name=city></select>
+
+                                    <label n:name="city">Město:
+                                    {snippet citySelect}
+                                        <select class="ajax form-control form-floating" id="city" n:name="city">
+                                            <option value="">Vyberte město</option>
+                                            {foreach $cities as $id => $name}
+                                                <option {if $id == $city} selected {/if} value="{$id}">{$name}</option>
+                                            {/foreach}
+                                        </select>
+                                    {/snippet}
+                                    </label>
                                 </div>
 
                                 <div class="col-4" style="padding-top: 2em; ">
@@ -228,29 +248,29 @@
 
                 <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
                     <div class="row">
-                        <div class="col-8 col">
-                            <form class="row"  n:name=userUpdateForm>
+                        <div class="col-xl-7 col-sm-12 bg-light p-2">
+                            <form class="row" n:name=userUpdateForm>
                                 <div class="col-6">
                                     Uživatelské jméno:
-                                <input class="form-control" n:name=username readonly>
+                                    <input class="form-control" n:name=username readonly>
                                 </div><div class="col-6">Email: <input class="form-control" n:name=email></div>
                                 <div class="col-6">Heslo: <input class="form-control" n:name=password></div><div class="col-6">Heslo znovu:<input class="form-control" n:name=password2></div>
                                 <div class="col-6">
                                     Profilová fotka:
-                                <input class="form-control" n:name=personalPhoto>
+                                    <input class="form-control" n:name=personalPhoto>
                                 </div>
                                 <div class="col-6 personalPhoto">
-                                {if $personalPhoto != null}
-                                    <img src="{$basePath}{$personalPhoto->gatPath()}{$personalPhoto->getName()}" class="img-fluid img-thumbnail rounded card-img-top personalPhoto" alt="{$personalPhoto->getName()}">
-                                {else}
-                                    <img src="{$basePath}/assets/vazdata/img/pic/love1.jpeg" class="img-fluid img-thumbnail rounded card-img-top personalPhoto" alt="Happy dino" />
-                                {/if}
+                                    {if $personalPhoto != null}
+                                        <img src="{$basePath}{$personalPhoto->getPath()}{$personalPhoto->getName()}" class="img-fluid img-thumbnail rounded card-img-top personalPhoto" alt="{$personalPhoto->getName()}">
+                                    {else}
+                                        <img src="{$basePath}/assets/vazdata/img/pic/love1.jpeg" class="img-fluid img-thumbnail rounded card-img-top personalPhoto" alt="Happy dino" />
+                                    {/if}
 
 
                                 </div>
 
                                 <div class="col-4" style="padding-top: 2em; ">
-                                <button class="form-control btn btn-success" n:name=send>Aktualizovat</button>
+                                    <input type="submit" class="form-control btn btn-success" value="Aktualizovat" n:name=aktualization>
                                 </div>
                             </form>
                         </div>
@@ -312,6 +332,10 @@
 
 {block scripts-user}
 <script>
+    console.log(typeof naja);
+    console.log('HEJ HOU');
+    console.log(typeof $);
+
 
     function showImageModal(src) {
     const modal = document.getElementById("imageModal");
@@ -325,40 +349,44 @@
 }
     document.getElementById("imageModal").addEventListener('click', closeModal);
 
-document.querySelectorAll('select[data-depends]').forEach((childSelect) => {
-let parentSelect = childSelect.form[childSelect.dataset.depends]; // nadřízený <select>
-    let url = childSelect.dataset.url; // atribut data-url
-    let items = JSON.parse(childSelect.dataset.items || 'null'); // atribut data-items
-
-    // když uživatel změní vybranou položku v nadřízeném selectu...
-    parentSelect.addEventListener('change', () => {
-    // pokud existuje atribut data-items...
-    if (items) {
-    // nahrajeme rovnou do podřízeného selectboxu nové položky
-    updateSelectbox(childSelect, items[parentSelect.value]);
-    }
-
-    // pokud existuje atribut data-url...
-    if (url) {
-    // uděláme AJAXový požadavek na endpoint s vybranou položkou místo placeholderu
-    fetch(url.replace(encodeURIComponent('#'), encodeURIComponent(parentSelect.value)))
-    .then((response) => response.json())
-    // a nahrajeme do podřízeného selectboxu nové položky
-    .then((data) => updateSelectbox(childSelect, data));
-    }
-    });
-    });
-
-
-    function updateSelectbox(select, items)
-    {
-    select.innerHTML = ''; // odstraníme vše
-    for (let id in items) { // vložíme nové
-    let el = document.createElement('option');
-    el.setAttribute('value', id);
-    el.innerText = items[id];
-    select.appendChild(el);
-    }
-    }
     </script>
+    <script>
+        $(document).ready(function() {
+            $('#country').change(function() {
+                var countryId = $(this).val();
+                if (countryId) {
+                    console.log(countryId);
+                    $.ajax({
+                        url: "{link getRegions! country}", // URL pro získání měst
+                        type: 'GET',
+                        success: function(data) {
+                            $('#region').html(data);
+                            $('#city').html('<option value="">Vyberte město</option>');
+                        }
+                    });
+                } else {
+                    $('#region').html('<option value="">Vyberte region</option>');
+                    $('#city').html('<option value="">Vyberte město</option>');
+                }
+            });
+
+            $('#region').change(function() {
+                var regionId = $(this).val();
+
+                if (regionId) {
+                    console.log(regionId);
+                    $.ajax({
+                        url: "{link getCities! regionId}", // URL pro získání měst
+                        type: 'GET',
+                        success: function(data) {
+                            $('#city').html(data);
+                        }
+                    });
+                } else {
+                    $('#city').html('<option value="">Vyberte město</option>');
+                }
+            });
+        });
+    </script>
+
 {/block}

@@ -4,8 +4,6 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/spec" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/vaz/spec" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/vaz/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/vaz/vendor/composer" />
       <excludeFolder url="file://$MODULE_DIR$/vaz/vendor/contributte/application" />
       <excludeFolder url="file://$MODULE_DIR$/vaz/vendor/contributte/console" />
@@ -88,6 +86,9 @@
       <excludeFolder url="file://$MODULE_DIR$/vaz/vendor/jschaedl/iban-validation" />
       <excludeFolder url="file://$MODULE_DIR$/vaz/vendor/symfony/options-resolver" />
       <excludeFolder url="file://$MODULE_DIR$/vaz/vendor/symfony/yaml" />
+      <excludeFolder url="file://$MODULE_DIR$/vaz/vendor/brick/phonenumber-doctrine" />
+      <excludeFolder url="file://$MODULE_DIR$/vaz/vendor/nepada/phone-number-doctrine" />
+      <excludeFolder url="file://$MODULE_DIR$/vaz/vendor/symfony/type-info" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

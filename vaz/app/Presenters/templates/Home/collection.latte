@@ -53,10 +53,12 @@
                                 <div class="card-body">
                                     <p class="card-text"> {$collection->getCollectionDescription()|safeHtml|noescape}</p>
 
+
+
                                 {* Výpočet průběhu *}
-                                {var $progressWidth = min(($collectionPayments / $collection->getResultAmount()) * 100, 100)}
-                                {var $excessWidth = max((($collectionPayments - $collection->getResultAmount()) / $collection->getResultAmount()) * 100, 0)}
-                                {var $isTargetExceeded = $collectionPayments > $collection->getResultAmount()}
+                                {var $progressWidth = min(round(($collectionPayments / $collection->getResultAmount()) * 100), 100)}
+                                {var $excessWidth = max(round((($collectionPayments - $collection->getResultAmount()) / $collection->getResultAmount()) * 100), 0)}
+                                {var $isTargetExceeded = $collectionPayments > intval($collection->getResultAmount())}
 
                                 <div class="container mt-5">
                                   <div class="text-center">
@@ -81,6 +83,7 @@
 
 
 
+
                                     {* Zobrazení aktuálního stavu *}
                                     <h3 class="mt-3">
                                       Nasbíráno: {$collectionPayments } Kč / Cíl: {$collection->getResultAmount()} Kč
@@ -97,38 +100,57 @@
 
                                         {* Odpočet *}
                                         <h2 class="mt-3" id="countdown">
-                                        Do konce sbírky zbívá: <span id="days">00</span> dní,
+                                        Do konce sbírky zbývá: <span id="days">00</span> dní,
                                           <span id="hours">00</span>:<span id="minutes">00</span>:<span id="seconds">00</span>
                                         </h2>
                                       </div>
+                                    <div class="row">
+                                        <!-- Levý sloupec s formulářem -->
+                                        <div class="col-xl-6 col-sm-12">
+                                            {control paymentForm}
+                                        </div>
 
-
-                                    <a href="{link Home:collection, $collection->getCollectionKey()}" class="btn btn-outline-info btn-sm">Dataily sbírky</a>
+                                        <!-- Pravý sloupec s QR kódem -->
+                                        <div class="col-xl-6 col-sm-12">
+                                            {snippet qr}
+                                                {ifset $qr}
+                                                    {$qr|noescape}
+                                                    <p>Naskenujte QR kód Vaší bankovní aplikací, po převodu se platba spáruje se sbírkou. Platba by se měla připsat nejpozději do 24 hodin.</p>
+                                                {else}
+                                                    <p></p>
+                                                {/ifset}
+                                            {/snippet}
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>
+                                </div>
                                 </div>
 
-                                <div class="card-footer">
+                               <div class="bg-light border rounded p-3 mt-5">
 
                                     Sdílet na:
                                     <a href="https://www.facebook.com/sharer/sharer.php?u={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
-                                            <i class="bi bi-facebook"></i> Facebook
+                                        <i class="bi bi-facebook"></i>
                                     </a>
 
                                     {* Odkaz na sdílení na Instagram *}
                                     <a href="https://www.instagram.com/?url={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
-                                            <i class="bi bi-instagram"></i>Instagram
+                                            <i class="bi bi-instagram"></i>
                                     </a>
 
                                     {* Odkaz na sdílení na X (Twitter) *}
                                     <a href="https://twitter.com/intent/tweet?url={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
-                                            <i class="bi bi-twitter-x"></i>Twitter
+                                            <i class="bi bi-twitter-x"></i>
                                     </a>
 
                                     {* Odkaz na sdílení na LinkedIn *}
                                     <a href="https://www.linkedin.com/shareArticle?url={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
-                                        <i class="bi bi-linkedin"></i> LinkedIn
+                                            <i class="bi bi-linkedin"></i>
                                     </a>
                                     <br>
                                     Odkaz: {link Home:collection, $collection->getCollectionKey()}
+
                                 </div>
 
                             </div>

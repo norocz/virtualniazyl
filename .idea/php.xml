@@ -93,6 +93,9 @@
       <path value="$PROJECT_DIR$/vaz/vendor/giggsey/locale" />
       <path value="$PROJECT_DIR$/vaz/vendor/brick/phonenumber" />
       <path value="$PROJECT_DIR$/vaz/vendor/nepada/phone-number-input" />
+      <path value="$PROJECT_DIR$/vaz/vendor/nepada/phone-number-doctrine" />
+      <path value="$PROJECT_DIR$/vaz/vendor/brick/phonenumber-doctrine" />
+      <path value="$PROJECT_DIR$/vaz/vendor/symfony/type-info" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.3" />

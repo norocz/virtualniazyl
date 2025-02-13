@@ -36,7 +36,7 @@ class Photo
 
     #[ORM\ManyToOne(targetEntity: "Animal", inversedBy: "photos")]
     #[ORM\JoinColumn(name: "animal_id", referencedColumnName: "id", nullable: true)]
-    private ?Animal $animal;
+    private ?Animal $animal = null;
 
     #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: "photos")]
     #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id")]
@@ -44,20 +44,18 @@ class Photo
 
     #[ORM\ManyToOne(targetEntity: "Owner", inversedBy: "photos")]
     #[ORM\JoinColumn(name: "owner_id", referencedColumnName: "id",nullable: true)]
-    private ?Owner $owner;
+    private ?Owner $owner = null;
 
     #[ORM\ManyToOne (targetEntity: "UsersRatings", inversedBy: "photos")]
     private UsersRatings $userRatings;
 
     #[ORM\ManyToOne(targetEntity: "Azyl", inversedBy: "photos")]
     #[ORM\JoinColumn(name: "azyl_id", referencedColumnName: "id", nullable: true)]
-    private ?Azyl $azyl;
+    private ?Azyl $azyl = null;
 
     #[ORM\ManyToOne(targetEntity: "Collections", inversedBy: "headline")]
     #[ORM\JoinColumn(name: "collections_id", referencedColumnName: "id", nullable: true)]
-    private ?Collections $collections;
-
-
+    private ?Collections $collections = null;
 
     const REAL_UPLOAD_PATH = '/upload/photos/';
     const WWW_UPLOAD_PATH = '/upload/photos/';
@@ -74,8 +72,6 @@ class Photo
 
     public function uploadAzylPhoto(FileUpload $fileUpload) : void
     {
-
-
         if (!$fileUpload->isOk()) {
             throw new IOException('File is not OK!');
         }
@@ -99,10 +95,8 @@ class Photo
         $fileUpload->move($path . $this->name);
     }
 
-    public function uploadUserPhoto(FileUpload $fileUpload)
+    public function uploadUserPhoto(FileUpload $fileUpload):void
     {
-
-
         if (!$fileUpload->isOk()) {
             throw new IOException('File is not OK!');
         }
@@ -123,9 +117,30 @@ class Photo
         $fileUpload->move($path . $this->name);
     }
 
+    public function uploadUserPersonalPhoto(FileUpload $fileUpload):void
+    {
+        if (!$fileUpload->isOk()) {
+            throw new IOException('File is not OK!');
+        }
+        $this->originalName = $fileUpload->getSanitizedName();
+        $array = explode('.', $this->originalName);
+        $extension = array_pop($array);
+        $this->name = Random::generate(39) . "." . $extension;
+        $pathPart = self::REAL_UPLOAD_PATH."user/personal/" .$this->getUser()->getId().'/';
+        $path = __DIR__ . self::UPLOAD_PATH . "user/personal/" .$this->getUser()->getId().'/';
+        $this->setPath($pathPart);
+
+        if (!file_exists($path)) {
+            if (!mkdir($path, 0755, true)) {
+                throw new IOException('Path creating error!');
+            }
+        }
+
+        $fileUpload->move($path . $this->name);
+    }
+
     public function uploadOwnerPhoto(FileUpload $fileUpload)
     {
-
 
         if (!$fileUpload->isOk()) {
             throw new IOException('File is not OK!');
@@ -149,8 +164,6 @@ class Photo
 
     public function uploadCollectionHeadlinePhoto(FileUpload $fileUpload)
     {
-
-
         if (!$fileUpload->isOk()) {
             throw new IOException('File is not OK!');
         }

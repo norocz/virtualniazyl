@@ -154,7 +154,7 @@
                     Jméno:  {$adoption->getUser()->getFirstName()}
                     {$adoption->getUser()->getLastName()}<br>
                 Email: {$adoption->getUser()->getEmail()}<br>
-                    Telefon:  {$adoption->getUser()->getPhone()}
+                    Telefon:  {$adoption->getUser()->getPhone()->get}
                     <div class="w-auto mt-2 border rounded">
                             {$adoption->getDescription()}
                     </div>

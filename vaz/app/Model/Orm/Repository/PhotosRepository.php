@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use App\Model\Orm\Entity\Users;
+use Doctrine\ORM\NonUniqueResultException;
 
 class PhotosRepository extends EntityRepository
 {
@@ -71,6 +72,19 @@ class PhotosRepository extends EntityRepository
     {
         $this->getEntityManager()->persist($photoUpload);
         $this->getEntityManager()->flush();
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     */
+    public function findById(?int $id): ?Photo
+    {
+        return $this->createQueryBuilder('p')
+            ->where('p.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+
     }
 
 }

@@ -42,7 +42,9 @@ class PaymentsRepository extends EntityRepository
         $query = $this->createQueryBuilder('p')
             ->select('SUM(p.pay)')
             ->where('p.variableSymbol = :variableSymbol')
+            ->andWhere('p.paymentStatus = :paymentStatus')
             ->setParameter('variableSymbol', $collectionKey)
+            ->setParameter('paymentStatus', 'paired')
             ->getQuery();
             return $this->getTotalPayResult($query);
     }

@@ -18,8 +18,8 @@ class SystemSettings
     #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $relevantFrom;
 
-    #[ORM\Column(type: 'integer')]
-    private int $fee; //procento poplatek z platby kvůli platební bráně
+    #[ORM\Column(type: 'float')]
+    private float $fee; //procento poplatek z platby kvůli platební bráně
 
     #[ORM\Column(type: 'integer')]
     private int $dph; //ppřípadné DPH na služby
@@ -73,12 +73,12 @@ class SystemSettings
         return $this;
     }
 
-    public function getFee(): int
+    public function getFee(): float
     {
         return $this->fee;
     }
 
-    public function setFee(int $fee): SystemSettings
+    public function setFee(float $fee): SystemSettings
     {
         $this->fee = $fee;
         return $this;

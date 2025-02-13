@@ -4,16 +4,12 @@ declare(strict_types=1);
 namespace App\Model\Orm\Entity;
 
 use App\Model\Orm\Enums\RoleTypeEnum;
+use Brick\PhoneNumber\Doctrine\Types\PhoneNumberType;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use libphonenumber\NumberParseException;
-use libphonenumber\PhoneMetadata;
-use libphonenumber\PhoneNumber;
-use libphonenumber\PhoneNumberFormat;
-use libphonenumber\PhoneNumberUtil;
-use Nepada\PhoneNumberDoctrine\PhoneNumberType;
+
 
 #[ORM\Entity]
 #[ORM\Table(name: 'users')]
@@ -130,9 +126,8 @@ class Users
    #[ORM\Column(type: 'integer', length: 255, nullable: true)]
     private ?int $azyl = null;
 
-    #[ORM\OneToOne(targetEntity: Photo::class)]
-    #[ORM\JoinColumn(name: "personal_photo_id", referencedColumnName: "id", nullable: true)]
-    private ?Photo $personalPhoto = null;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $personalPhoto = null;
 
    #[ORM\Column(type: 'string', length: 2048, nullable: true)]
    private ?string $review = null;
@@ -494,20 +489,21 @@ class Users
         return $this;
     }
 
+
     /**
      * @throws NumberParseException
      */
-    public function getPhone(): ?PhoneNumber
+    public function getPhone(): ?String
     {
-        $phone = PhoneNumberUtil::getInstance();
-        return is_null($this->phone)? null : $phone->parse($this->phone, 'CZ');
+      return $this->phone;
+
 
     }
 
     /**
      * @throws NumberParseException
      */
-    public function setPhone(?PhoneNumber $phone) : void
+    public function setPhone(?String $phone) : void
     {
         $this->phone = $phone;
     }
@@ -586,12 +582,12 @@ class Users
         return $this->photos;
     }
 
-    public function getPersonalPhoto(): ?Photo
+    public function getPersonalPhoto(): ?int
     {
         return $this->personalPhoto;
     }
 
-    public function setPersonalPhoto(?Photo $personalPhoto): self
+    public function setPersonalPhoto(?int $personalPhoto): self
     {
         $this->personalPhoto = $personalPhoto;
         return $this;

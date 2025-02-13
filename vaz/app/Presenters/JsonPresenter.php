@@ -12,7 +12,9 @@ class JsonPresenter extends Presenter
 {
 
 
+
     private CityRepository $cityRepository;
+
 
     public function __construct(CityRepository $cityRepository)
     {
@@ -20,10 +22,19 @@ class JsonPresenter extends Presenter
         $this->cityRepository = $cityRepository;
 
     }
-
-    public function actionCity($region): void
+    public function startup(): void
     {
-        $city = $this->cityRepository->findCityByRegion($region);
+        parent::startup();
+        if ($this->isAjax()) {
+            $this->checkRequirements(null); // Zruší povinné přihlášení pro AJAX
+        }
+    }
+
+
+
+    public function actionCity($id): void
+    {
+        $city = $this->cityRepository->findCityByRegionArray($id);
         $this->sendJson($city);
     }
 
@@ -33,10 +44,11 @@ class JsonPresenter extends Presenter
         $this->sendJson($states);
     }
 
-    public function actionRegion($country): void
+    public function actionRegion($id): void
     {
-        $regions = $this->cityRepository->findRegionByCountry($country);
+        $regions = $this->cityRepository->findRegionByCountry($id);
         $this->sendJson($regions);
+
     }
 }
 

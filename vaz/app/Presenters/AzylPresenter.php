@@ -31,6 +31,7 @@ use App\Services\CollectionKeyService;
 use App\Services\MessagesService;
 use Contributte\Application\UI\BasePresenter;
 use DateTimeImmutable;
+use Doctrine\ORM\NonUniqueResultException;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumber;
 use libphonenumber\PhoneNumberFormat;
@@ -118,6 +119,9 @@ class AzylPresenter extends BasePresenter
         }
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
     protected function beforeRender(): void
     {
         $this->template->addFilter('safeHtml', function (string $html): string {
@@ -132,6 +136,7 @@ class AzylPresenter extends BasePresenter
                 return '<a>';
             }, $html);
         });
+        $this->getTemplate()->personalPhoto = $this->photosRepository->findById($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId())->getId());
 
     }
 
@@ -262,6 +267,7 @@ class AzylPresenter extends BasePresenter
             $collection->setCreatedAt(new DateTimeImmutable('now'));
             $collection->setEndingAt($values['endingAt']);
             $collection->setUser($user);
+            $collection->setExtend($values['extend']);
             $collection->setStartAt($values['startAt']);
             $collection->setIsActive($values['isActive']);
             $this->collectionsRepository->save($collection);
@@ -296,10 +302,9 @@ class AzylPresenter extends BasePresenter
             $collection->setCreatedAt(new DateTimeImmutable('now'));
             $collection->setEndingAt($values['endingAt']);
             $collection->setUser($user);
+            $collection->setExtend($values['extend']);
             $collection->setStartAt($values['startAt']);
             $collection->setIsActive($values['isActive']);
-            $this->collectionsRepository->save($collection);
-            $collection->setCollectionKey($this->collectionKeyService->createCollectionKey($azyl->getId(),$collection->getId()));
 
             $photo = new Photo();
             $photo->setAzyl($azyl);

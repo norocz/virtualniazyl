@@ -21,6 +21,9 @@ use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use App\Components\Messenger\ChatControl;
 use App\Services\AnalyticsService;
+use Brick\PhoneNumber\PhoneNumberFormat;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
+use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Model\Services\Menu;
 use Contributte\Application\UI\BasePresenter;
@@ -30,11 +33,15 @@ use JetBrains\PhpStorm\NoReturn;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumber;
 use libphonenumber\PhoneNumberUtil;
+use Nepada\Bridges\PhoneNumberInputDI\PhoneNumberInputExtension;
+use Nepada\PhoneNumberDoctrine\PhoneNumberType;
+use Nepada\PhoneNumberInput\PhoneNumberInput;
 use Nette;
 use Nette\Application\UI\Form;
 use App\Model\Orm\Entity\Owner;
 use App\Services\MessagesService;
 use Nette\Application\UI\InvalidLinkException;
+use Nextras\Dbal\Platforms\MySqlPlatform;
 
 
 class UserPresenter extends BasePresenter
@@ -58,7 +65,8 @@ class UserPresenter extends BasePresenter
                         private messagesFormFactory             $messagesFormFactory,
                         private messagesService                 $messagesService,
                         private analyticsService                $analyticsService,
-                        private photosRepository                  $photosRepository,)
+                        private photosRepository                  $photosRepository,
+                        private readonly Nette\Security\Passwords $passwords,)
     {
         parent::__construct();
         $this->roleFormFactory = $roleFormFactory;
@@ -69,6 +77,7 @@ class UserPresenter extends BasePresenter
         $this->messagesService = $messagesService;
         $this->messagesFormFactory = $messagesFormFactory;
         $this->photosRepository = $photosRepository;
+
     }
 
     public function startup(): void
@@ -78,6 +87,9 @@ class UserPresenter extends BasePresenter
         {
             $this->redirect('Home:signIn');
 
+        }
+        if ($this->isAjax()) {
+            $this->checkRequirements(null); // Zruší povinné přihlášení pro AJAX
         }
 
         $this->analyticsService->setPresenter($this);
@@ -153,10 +165,19 @@ class UserPresenter extends BasePresenter
 
     public function renderProfil(): void
     {
-        $this->template->title = 'Profil';
-        $this->getTemplate()->personalPhoto = $this->usersRepository->getUserById($this->getUser()->getId())->getPersonalPhoto();
-        $this->getTemplate()->adoptions = $this->usersRepository->getUserById($this->getUser()->getId())->getAdoptions();
-        $this->getTemplate()->photos = $this->usersRepository->getUserById($this->getUser()->getId())->getPhotos();
+        $user = $this->usersRepository->getUserById($this->getUser()->getId());
+        $this->getTemplate()->title = 'Uživatelský Profil';
+        $this->getTemplate()->personalPhoto = $this->photosRepository->findById($user->getPersonalPhoto());
+        $this->getTemplate()->adoptions = $user->getAdoptions();
+        $this->getTemplate()->photos = $user->getPhotos();
+
+       $city = $this->cityRepository->findOneBy(['id' => $this->getUser()->getIdentity()->getData()['User']->getCity()]);
+
+        $this->getTemplate()->regions = $this->cityRepository->findRegionByCountry($city->getCountry());
+        $this->getTemplate()->cities = $this->cityRepository->findCityByRegionArray($city->getRegion());
+
+        $this->getTemplate()->city = $city->getId();
+        $this->getTemplate()->region = $city->getRegion();
     }
 
     public function actionMessages($id): void
@@ -185,6 +206,30 @@ class UserPresenter extends BasePresenter
         $this->redrawControl('messagesCount');
         $this->redrawControl('chats');
         $this->redrawControl('messages');
+    }
+
+    public function handleUpdateRegions(string $country): void
+    {
+        $this->getTemplate()->regions = $this->cityRepository->findRegionByCountry($country);
+        $this->redrawControl('regionSelect');
+    }
+
+    public function handleUpdateCities(string $region): void
+    {
+        $this->getTemplate()->cities = $this->cityRepository->findCityByRegionArray($region);
+        $this->redrawControl('citySelect');
+    }
+
+    public function handleGetRegions(string $country): void
+    {
+        $this->getTemplate()->regions = $this->cityRepository->findRegionByCountry($country);
+        $this->redrawControl('regionSelect');
+    }
+
+    public function handleGetCities(string $region): void
+    {
+        $this->getTemplate()->cities = $this->cityRepository->findCityByRegionArray($region);
+        $this->redrawControl('citySelect');
     }
 
     public function handleDeleteMsg(int $id): void
@@ -331,7 +376,7 @@ class UserPresenter extends BasePresenter
         $form->onSuccess[] = [$this, 'roleFormSucceeded'];
         return $form;
     }
-
+    /*
     #[NoReturn] public function userDetailsFormSucceeded(Form $form, \stdClass $values) : void
     {
         $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
@@ -344,7 +389,7 @@ class UserPresenter extends BasePresenter
         $this->getPresenter()->flashMessage('Detaily byly úspěšně uloženy!', 'alert-success');
         $this->getPresenter()->redirect('User:profil');
     }
-
+        */
     /**
      * @throws InvalidLinkException
      * @throws NumberParseException
@@ -364,11 +409,11 @@ class UserPresenter extends BasePresenter
             $form->removeComponent($form->getComponent('country'));
             $form->addSelect('country', 'Země', $this->cityRepository->fetchCountries());
             $form->addSelect('region', 'Region', $this->cityRepository->findRegionByCountry($city->getCountry()));
-            $form->addSelect('city','Město',$this->cityRepository->findCityByRegion($city->getRegion()));
+            $form->addSelect('city','Město',$this->cityRepository->findCityByRegionArray($city->getRegion()));
 
 /*
             $form->getComponent('region')->setItems($this->cityRepository->findRegionByCountry($user->getCity()->getCountry()));
-            $form->getComponent('city')->setItems($this->cityRepository->findCityByRegion($user->getCity()->getRegion()));
+            $form->getComponent('city')->setItems($this->cityRepository->findCityByRegionArray($user->getCity()->getRegion()));
   */
         }
 
@@ -388,31 +433,37 @@ class UserPresenter extends BasePresenter
         $form['send']->setHtmlAttribute('class', 'btn btn-primary');
         $form['send']->setCaption('Uložit změny');
 
-        $form->onSuccess[] = [$this, 'userUpdateFormSucceeded'];
+        $form->onSuccess[] = [$this, 'userDetailsFormSucceeded'];
+        bdump($form);
         return $form;
     }
 
     /**
      * @throws NonUniqueResultException
      * @throws NumberParseException
+     * @throws ConversionException
      */
-    public function userUpdateFormSucceeded(Form $form, \stdClass $values) : void
+    public function userDetailsFormSucceeded(Form $form, \stdClass $values) : void
     {
 
         $post = $this->getPresenter()->getHttpRequest()->getPost();
-
         $user = $this->usersRepository->getUserById($this->getUser()->getId());
-
 
         if (!is_null($user))
             {
-                $pn = PhoneNumberUtil::getInstance();
+                $phoneNumber = \Brick\PhoneNumber\PhoneNumber::parse($post['phone']);
 
+                $phoneNumber->format(PhoneNumberFormat::INTERNATIONAL);
+
+
+
+
+                bdump($phoneNumber);
                 $user->setFirstName($post['firstName']);
                 $user->setLastName($post['lastName']);
                 $user->setUpdatedAt(new DateTimeImmutable());
                 $user->setUpdatedBy($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()));
-                $user->setPhone(empty($post['phone']) ? null : $values->phone->phoneNumber->getNumber());
+                $user->setPhone(empty($post['phone']) ? null : $phoneNumber->format(PhoneNumberFormat::INTERNATIONAL));
                 $user->setOrientationNumber($post['orientation']);
                 $user->setStreet($values->street);
                 $user->setDescription($values->description);
@@ -420,6 +471,7 @@ class UserPresenter extends BasePresenter
                 $user->setCity(intval($post['city']));
                // $user->setCity($this->cityRepository->findCityById(intval($post['city'])));
                 $this->usersRepository->save($user);
+                $this->flashMessage('Uživatelské informace aktualizovány.', 'alert-success');
 
             }
 
@@ -432,7 +484,53 @@ class UserPresenter extends BasePresenter
        $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
        $form->setDefaults($user->toArray());
        $form->addUpload('personalPhoto','Profilová fotka');
+       $pass = $form->getComponent('password');
+       $pass->setRequired(false);
+       $pass2 = $form->getComponent('password2');
+       $pass2->setRequired(false);
+       $form->removeComponent($form->getComponent('phone'));
+        $form->removeComponent($form->getComponent('legalTerms'));
+        $form->removeComponent($form->getComponent('send'));
+        $form->removeComponent($form->getComponent('adoptionVerification'));
+       $form->addSubmit('aktualization','Aktualizovat');
+       $form->onSuccess[] = [$this, 'userUpdateFormSucceeded'];
+
        return $form;
+    }
+
+    #[NoReturn] public function userUpdateFormSucceeded(Form $form, \stdClass $values) : void
+    {
+
+       $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
+       $user->setUpdatedAt(new DateTimeImmutable('now'));
+       $user->setUpdatedBy($user);
+       $user->setEmail($values->email);
+        $this->flashMessage('Email aktualizován!', 'alert-success');
+       if (!empty($values->password))
+       {
+           if($values->password == $values->password2)
+           {
+               $user->setPassword($this->passwords->hash($values->password));
+               $this->flashMessage('POZOR! Heslo bylo aktualizováno!', 'alert-success');
+           }
+           else
+           {
+               $this->flashMessage('POZOR! Problém při aktualizaci hesla!', 'alert-danger');
+           }
+       }
+       if (!is_null($values->personalPhoto))
+       {
+           $photo = new Photo();
+           $photo->setUser($user);
+           $photo->setDate(new DateTimeImmutable('now'));
+           $photo->uploadUserPersonalPhoto($values->personalPhoto);
+           $this->photosRepository->save($photo);
+           $user->setPersonalPhoto($photo->getId());
+                 $this->flashMessage('Osobní fotka nastavena!', 'alert-success');
+       }
+        $this->usersRepository->save($user);
+        $this->flashMessage('Nastavení uživatele aktualizováno', 'alert-success');
+        $this->redirect('this');
     }
 
     public function createComponentOwnerPhotoUploadForm(): Form

@@ -62,6 +62,9 @@ class Collections
     #[ORM\Column(type: 'boolean')]
     private bool $extend = false;
 
+    #[ORM\Column(type: 'boolean')]
+    private bool $approved = false;
+
     #[ORM\Column(type: 'string', options: ['czk' => 'Kč','eur' => 'EU', 'usd' => 'USD', 'ru' => 'Рубль (Rublʹ)', 'zl' => 'Złoty'])]
     private string $currency = 'czk';
 
@@ -259,5 +262,18 @@ class Collections
         $this->extendedAmount = $extendedAmount;
         return $this;
     }
+
+    public function isApproved(): bool
+    {
+        return $this->approved;
+    }
+
+    public function setApproved(bool $approved): Collections
+    {
+        $this->approved = $approved;
+        return $this;
+    }
+
+
 
 }

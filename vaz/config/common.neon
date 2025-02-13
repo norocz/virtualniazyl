@@ -1,4 +1,6 @@
 parameters:
+    payments:
+        account: '123456789/0100'
 
 application:
 	errorPresenter: Error

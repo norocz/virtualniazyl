@@ -52,6 +52,7 @@ services:
 	- Defr\QRPlatba\QRPlatba
 	- App\Services\LogingService
 	- App\Model\Service\Firewall
+	- App\Services\QrCodeService(%payments.account%)
 	ipInfoService:
 	    factory: App\Services\IpInfoService(%tempDir%)
 	emailService:

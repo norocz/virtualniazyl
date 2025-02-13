@@ -21,6 +21,7 @@ use App\Model\Orm\Repository\adoptionsRepository;
 use App\Model\Orm\Repository\AnalyticsRepository;
 use App\Model\Orm\Repository\AnimalsRepository;
 use App\Model\Orm\Repository\PageRepository;
+use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use App\Model\Services\Menu;
 use App\Repository\SpeciesRepository;
@@ -70,7 +71,8 @@ class AdminPresenter extends BasePresenter
                                 public AnimalsDatagridFactory      $animalsDatagridFactory,
                                 private AnalyticsRepository           $analyticsRepository,
                                 private AnimalsRepository              $animalsRepository,
-                                private adoptionsRepository             $adoptionsRepository,)
+                                private adoptionsRepository             $adoptionsRepository,
+                                private PhotosRepository                $photosRepository,)
     {
         parent::__construct();
         $this->roleFormFactory = $roleFormFactory;
@@ -89,8 +91,10 @@ class AdminPresenter extends BasePresenter
         $this->analyticsRepository = $analyticsRepository;
         $this->animalsRepository = $animalsRepository;
         $this->adoptionsRepository = $adoptionsRepository;
-        //$this->speciesFormFactory = $speciesFormFactory;
-        //$this->speciesDatagridFactory = $speciesDatagridFactory;
+
+
+        $this->usersDatagridFactory = $usersDatagridFactory;
+        $this->photosRepository = $photosRepository;
 
     }
 
@@ -115,6 +119,7 @@ class AdminPresenter extends BasePresenter
 
     protected function beforeRender(): void
     {
+
         $this->template->addFilter('safeHtml', function (string $html): string {
             $allowedTags = ['b', 'i', 'a'];
             $html = strip_tags($html, '<' . implode('><', $allowedTags) . '>');
@@ -127,6 +132,7 @@ class AdminPresenter extends BasePresenter
                 return '<a>';
             }, $html);
         });
+        $this->getTemplate()->personalPhoto = $this->photosRepository->findById($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId())->getId());
     }
 
     private function getMonthName(int $month): string
@@ -143,10 +149,10 @@ class AdminPresenter extends BasePresenter
     public function renderDefault(): void
     {
         $lastMonths = 24;
-        $this->template->title = 'Admin';
-        $this->template->newUsersCount = $this->usersRepository->CountNewUsers();
-        $this->template->usersCount = $this->usersRepository->CountUsers();
-        $this->template->azylsCount = $this->usersRepository->CountAzyls();
+        $this->getTemplate()->title = 'Admin';
+        $this->getTemplate()->newUsersCount = $this->usersRepository->CountNewUsers();
+        $this->getTemplate()->usersCount = $this->usersRepository->CountUsers();
+        $this->getTemplate()->azylsCount = $this->usersRepository->CountAzyls();
 
         $registrations = $this->usersRepository->getUsersByMonthOfRegistration(6);
         $visitorsByDay = $this->analyticsRepository->countUniqueVisitsPerDay(30);
@@ -219,45 +225,45 @@ class AdminPresenter extends BasePresenter
     {
         $this->setView('default');
         $this->getTemplate()->title = 'Aktualizace a migrace';
-        $this->template->newUsersCount = $this->usersRepository->CountNewUsers();
-        $this->template->usersCount = $this->usersRepository->CountUsers();
-        $this->template->azylsCount = $this->usersRepository->CountAzyls();
+        $this->getTemplate()->newUsersCount = $this->usersRepository->CountNewUsers();
+        $this->getTemplate()->usersCount = $this->usersRepository->CountUsers();
+        $this->getTemplate()->azylsCount = $this->usersRepository->CountAzyls();
         $this->messagesService->UpdateMessages();
         $this->flashMessage('Aktualizace a migrace proběhly', 'alert-success');
     }
     public function renderAnimals(): void
     {
-        $this->template->title = 'Animals';
+        $this->getTemplate()->title = 'Animals';
     }
 
     public function renderSpecies(): void
     {
-        $this->template->title = 'Species';
+        $this->getTemplate()->title = 'Species';
     }
 
     public function renderAzyls(): void
     {
-        $this->template->title = 'Azyls';
+        $this->getTemplate()->title = 'Azyls';
     }
 
     public function renderOwner(): void
     {
-        $this->template->title = 'Owner';
+        $this->getTemplate()->title = 'Owner';
     }
 
     public function renderSendmessages(): void
     {
-        $this->template->title = 'Sendmessage';
+        $this->getTemplate()->title = 'Sendmessage';
     }
 
     public function renderAdoptions(): void
     {
-        $this->template->title = 'Adoptions';
+        $this->getTemplate()->title = 'Adoptions';
     }
 
     public function renderCitys(): void
     {
-        $this->template->title = 'Citys';
+        $this->getTemplate()->title = 'Citys';
     }
 
     public function actionNews(?int $id): void
@@ -273,7 +279,7 @@ class AdminPresenter extends BasePresenter
             $newsForm->setDefaults($news->toArray());
         }
 
-        $this->template->title = 'Novinky';
+        $this->getTemplate()->title = 'Novinky';
     }
 
     public function actionAdoptions(?int $id): void
@@ -330,7 +336,7 @@ class AdminPresenter extends BasePresenter
             */
         }
 
-        $this->template->title = 'Pages';
+        $this->getTemplate()->title = 'Pages';
     }
 
 
