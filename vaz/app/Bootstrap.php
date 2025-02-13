@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App;
 
 use App\Doctrine\Type\PaymentStatusType;
-use App\Enum\PaymentStatus;
+use App\Model\Orm\Enums\PaymentStatusEnum;
 use App\Model\Doctrine\JsonExtract;
 use Brick\PhoneNumber\PhoneNumber;
 use Nepada\PhoneNumberDoctrine\PhoneNumberType;
