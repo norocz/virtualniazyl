@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="cz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuální azyl.... děláme na tom!</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 50px; /* Přidání místa pro horní lištu */
+        }
+	.social-icons:hover {
+	    text-decoration: none;
+            transform: scale(1.03); /* Zvětšení o 1% při najetí myší */
+        }
+        .social-icons {
+            font-size: 24px;
+            margin-right: 10px;
+	    text-decoration: none; 
+            transition: transform 0.2s ease-in-out;
+        }
+	.beta {
+            font-size: 24px;
+            margin-right: 10px;
+	    text-decoration: none; 
+            transition: transform 0.2s ease-in-out;
+        }
+        .progress-container {
+            width: 70%;
+            margin: 0 auto;
+            margin-top: 50px;
+        }
+        .progress-bar {
+            background-color: #007bff;
+            height: 40px;
+        }
+        .qr-code-container {
+            text-align: center;
+            margin-top: 50px;
+        }
+        /* Úprava velikosti QR kódu podle potřeby */
+        .qr-code {
+            width: 200px;
+            height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container text-center">
+    <h1><img src="logo2.svg" alt="Logo Virtualní azyl s dynosaurem"></h1> 
+        <h2>Nekupuj, adoptuj!</h2>
+        <p>Pokud Vás zajímá pokrok v našem vývoji, mrkněte na náš Instagram a Faceboook. Děláme co můžeme!</p>
+        <a style="font-size:5em;" href="https://www.instagram.com/virtualniazylcz" target="_blank" class="social-icons fab fa-instagram"></a>
+        <a style="font-size:5em;" href="https://www.facebook.com/virtualniazyl" target="_blank" class="social-icons fab fa-facebook"></a> <br>
+	<a style="font-size:3em;" href="#" target="_blank" class="beta">BETA RC 1</a> (už brzy! ;-)
+    </div>
+    
+    <!-- Ukazatel procent -->
+    <div class="progress-container">
+        <div class="progress">
+	    
+
+            <div class="progress-bar" role="progressbar" style="width: 87%;" aria-valuenow="87" aria-valuemin="0" aria-valuemax="100">87%</div>
+        </div>
+<p>Už máme hotovo 82%</p>
+<p>Alfa verze při 75%. <br> První BETA verze 85%!! <br> Pokud se chcete zapojit do testovaní napište na FB nebo Instagram!</p>
+<p>21.06.2024 - Beta verze je na dosah ruky! Alfa je zatím vypnutá. Změn je příliš, aby to teď mělo smysl udržovat, ale už je to blízko. Stále platí, pokud se chcete zapojit do testovaní pošte! Počet testerů bude omezený kvůli zátěži serveru. </p>
+<p>25.09.2024 3:00 BETA JEDE!!! </p>
+    </div>
+
+    <!-- Prostor pro QR kód -->
+    <div class="qr-code-container">
+         <p>Vím že toho zatím není moc vidět, ale pokud máte zájem nás jakkoliv podpořit, můžete přispět našemu týmu na kafe (<b>s rostlinným mlékem</b>).<br> Děkujeme a pokud zanecháte jméno, budete zvěčnění v naší síni slávy. <br><b>Nekupujte adoptujte!</b></p>
+        <img src="azylqrcode.jpeg" alt="QR Code" class="qr-code">
+    </div>
+<div class="footer container">
+<p>Virtuální azyl (c) 2024</p>
+</div>
+    <!-- Bootstrap JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Font Awesome ikony -->
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+</body>
+</html>
