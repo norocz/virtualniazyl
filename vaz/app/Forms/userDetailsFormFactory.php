@@ -54,7 +54,7 @@ class userDetailsFormFactory extends Form
             ->setHtmlAttribute('class', 'form-control form-inline');
         $form->addInteger('house', 'Čp:')
             ->setHtmlAttribute('class', 'form-control form-inline');
-        $form->addInteger('orientation','Čo:')
+        $form->addText('orientation','Čo:')
             ->setHtmlAttribute('class', 'form-control form-inline');
 
 

@@ -18,6 +18,7 @@ services:
 	- App\Model\Orm\Entity\Citys
 	- App\Model\Orm\Entity\UsersRatings
 	- App\Model\Orm\Entity\Analytics
+	- App\Command\Test
 
 	##Enum##
 	- App\Model\Orm\Enums\RoleTypeEnum

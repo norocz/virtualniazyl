@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Presenters;
 
-use App\Enum\PaymentStatusEnum;
 use App\Forms\adoptionFormFactory;
 use App\Forms\paymentFormFactory;
 use App\Forms\registerFormFactory;
@@ -17,6 +16,7 @@ use App\Model\Orm\Entity\Payments;
 use App\Model\Orm\Entity\Users;
 use App\Model\Orm\Enums\ActionTypeEnum;
 use App\Model\Orm\Enums\MessageTypeEnum;
+use App\Model\Orm\Enums\PaymentStatusEnum;
 use App\Model\Orm\Repository\AdoptionsRepository;
 use App\Model\Orm\Repository\AnimalsRepository;
 use App\Model\Orm\Repository\AzylRepository;
@@ -524,7 +524,9 @@ final class HomePresenter extends Nette\Application\UI\Presenter
 
                 $now = new DateTimeImmutable();
                 $token = md5($values->email.$now->format('Y-m-d H:i:s'));
-                $pn = PhoneNumberUtil::getInstance();
+                $phoneNumber = \Brick\PhoneNumber\PhoneNumber::parse($this->getRequest()->post['phone']);
+
+                $phoneNumber->format(\Brick\PhoneNumber\PhoneNumberFormat::INTERNATIONAL);
                 $user = new Users();
                 $user->setUserName(strval($values->username));
                 $user->setEmail(strval($values->email));
@@ -532,7 +534,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                 $user->setRole('user');
                 $user->setCreatedAt($now);
                 $user->setVerified(FALSE);
-                $user->setPhone($pn->parse(($values->phone),PhoneNumberFormat::E164));
+                $user->setPhone(empty($this->getRequest()->post['phone']) ? null : $phoneNumber->format(\Brick\PhoneNumber\PhoneNumberFormat::INTERNATIONAL));
                 $user->setLegalTerms($values->legalTerms);
                 $user->setAdoptionVerification($values->adoptionVerification);
                 $user->setMailverified(FALSE);
@@ -583,7 +585,6 @@ final class HomePresenter extends Nette\Application\UI\Presenter
             } catch (AuthenticationException $e) {
                 $form->addError('Registrace se nezdařila možná jméno nebo email jsou již registrovány');
             } catch (Nette\Application\UI\InvalidLinkException $e) {
-            } catch (NumberParseException $e) {
             }
         }
 

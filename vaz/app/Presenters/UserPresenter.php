@@ -22,6 +22,7 @@ use App\Model\Orm\Repository\UsersRepository;
 use App\Components\Messenger\ChatControl;
 use App\Services\AnalyticsService;
 use Brick\PhoneNumber\PhoneNumberFormat;
+use Brick\PhoneNumber\PhoneNumberParseException;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -407,43 +408,52 @@ class UserPresenter extends BasePresenter
     {
         $form = $this->userDetailsFormFactory->create($this->getPresenter());
         $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
-
+        bdump($user);
         if (!is_null($user->getCity()))
         {
             $test = $form->components;
             $city = $this->cityRepository->findOneBy(['id'=>$user->getCity()]);
+            if (!is_null($city)) {
+                $form->removeComponent($form->getComponent('city'));
+                $form->removeComponent($form->getComponent('region'));
+                $form->removeComponent($form->getComponent('country'));
 
-            $form->removeComponent($form->getComponent('city'));
-            $form->removeComponent($form->getComponent('region'));
-            $form->removeComponent($form->getComponent('country'));
-            $form->addSelect('country', 'Země', $this->cityRepository->fetchCountries());
-            $form->addSelect('region', 'Region', $this->cityRepository->findRegionByCountry($city->getCountry()));
-            $form->addSelect('city','Město',$this->cityRepository->findCityByRegionArray($city->getRegion()));
+                $form->addSelect('country', 'Země', $this->cityRepository->fetchCountries());
+                $form->addSelect('region', 'Region', $this->cityRepository->findRegionByCountry($city->getCountry()));
+                $form->addSelect('city', 'Město', $this->cityRepository->findCityByRegionArray($city->getRegion()));
+                $form->getComponent('region')->setItems($this->cityRepository->findRegionByCountry($city->getCountry()));
+                $form->getComponent('city')->setItems($this->cityRepository->findCityByRegionArray($city->getRegion()));
 
-/*
-            $form->getComponent('region')->setItems($this->cityRepository->findRegionByCountry($user->getCity()->getCountry()));
-            $form->getComponent('city')->setItems($this->cityRepository->findCityByRegionArray($user->getCity()->getRegion()));
-  */
+
+                $form->setDefaults(['firstName' => $user->getFirstName(),
+                                    'lastName' => $user->getLastName(),
+                                    'phone' => $user->getPhone(),
+                                    'street' => $user->getStreet(),
+                                    'city' => is_null($user->getCity()) ? null : $city->getId(),
+                                    'country' => is_null($user->getCity()) ? null : $city->getCountry(),
+                                    'region' => is_null($user->getCity()) ? null : $city->getRegion(),
+                                    'orientation' => $user->getOrientationNumber(),
+                                    'house' => $user->getHouseNumber(),
+                                    'description' => $user->getDescription()
+                    ]);
+            }
+
+            $form->setDefaults(['firstName' => $user->getFirstName(),
+                'lastName' => $user->getLastName(),
+                'phone' => $user->getPhone(),
+                'street' => $user->getStreet(),
+
+                'orientation' => $user->getOrientationNumber(),
+                'house' => $user->getHouseNumber(),
+                'description' => $user->getDescription()
+            ]);
+
         }
-
-        $pn = New PhoneNumber();
-        $form->setDefaults(['firstName' => $user->getFirstName(),
-                            'lastName' => $user->getLastName(),
-                            'phone' => $user->getPhone(),
-                            'street' => $user->getStreet(),
-                            'city' => is_null($user->getCity()) ? null : $city->getId(),
-                            'country' => is_null($user->getCity()) ? null : $city->getCountry(),
-                            'region' => is_null($user->getCity()) ? null : $city->getRegion(),
-                            'orintation' => $user->getOrientationNumber(),
-                            'house' => $user->getHouseNumber(),
-                            'description' => $user->getDescription()
-        ]);
 
         $form['send']->setHtmlAttribute('class', 'btn btn-primary');
         $form['send']->setCaption('Uložit změny');
 
         $form->onSuccess[] = [$this, 'userDetailsFormSucceeded'];
-        bdump($form);
         return $form;
     }
 
@@ -451,6 +461,7 @@ class UserPresenter extends BasePresenter
      * @throws NonUniqueResultException
      * @throws NumberParseException
      * @throws ConversionException
+     * @throws PhoneNumberParseException
      */
     public function userDetailsFormSucceeded(Form $form, \stdClass $values) : void
     {
@@ -462,17 +473,12 @@ class UserPresenter extends BasePresenter
             {
                 $phoneNumber = \Brick\PhoneNumber\PhoneNumber::parse($post['phone']);
 
-                $phoneNumber->format(PhoneNumberFormat::INTERNATIONAL);
-
-
-
-
-                bdump($phoneNumber);
+                $phone = $phoneNumber->format(PhoneNumberFormat::INTERNATIONAL);
                 $user->setFirstName($post['firstName']);
                 $user->setLastName($post['lastName']);
                 $user->setUpdatedAt(new DateTimeImmutable());
                 $user->setUpdatedBy($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()));
-                $user->setPhone(empty($post['phone']) ? null : $phoneNumber->format(PhoneNumberFormat::INTERNATIONAL));
+                $user->setPhone(phone: empty($post['phone']) ? null : $phone);
                 $user->setOrientationNumber($post['orientation']);
                 $user->setStreet($values->street);
                 $user->setDescription($values->description);
@@ -513,8 +519,21 @@ class UserPresenter extends BasePresenter
        $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
        $user->setUpdatedAt(new DateTimeImmutable('now'));
        $user->setUpdatedBy($user);
-       $user->setEmail($values->email);
-        $this->flashMessage('Email aktualizován!', 'alert-success');
+
+       if($user->getEmail() !== $values->email) {
+
+           if ($this->usersRepository->findBy(['email' => $values->email]))
+           {
+
+               $this->flashMessage('Email už je v systému nebyl aktualizován!', 'alert-success');
+           }
+           else
+           {
+               $user->setEmail($values->email);
+               $this->flashMessage('Email byl aktualizován. <b>POZOR!</b> email se používá pro přihlašovíní!! Email byl nastaven na: '.$values->email.'.', 'alert-success');
+           }
+       }
+
        if (!empty($values->password))
        {
            if($values->password == $values->password2)
@@ -527,7 +546,8 @@ class UserPresenter extends BasePresenter
                $this->flashMessage('POZOR! Problém při aktualizaci hesla!', 'alert-danger');
            }
        }
-       if (!is_null($values->personalPhoto))
+
+       if (!empty($this->getRequest()->files['personalPhoto']))
        {
            $photo = new Photo();
            $photo->setUser($user);
@@ -535,7 +555,7 @@ class UserPresenter extends BasePresenter
            $photo->uploadUserPersonalPhoto($values->personalPhoto);
            $this->photosRepository->save($photo);
            $user->setPersonalPhoto($photo->getId());
-                 $this->flashMessage('Osobní fotka nastavena!', 'alert-success');
+           $this->flashMessage('Osobní fotka nastavena!', 'alert-success');
        }
         $this->usersRepository->save($user);
         $this->flashMessage('Nastavení uživatele aktualizováno', 'alert-success');

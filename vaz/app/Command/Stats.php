@@ -4,7 +4,6 @@ namespace App\Command;
 
 use AllowDynamicProperties;
 use App\Model\Orm\Repository\UsersRepository;
-use Doctrine\ORM\EntityManager;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,13 +18,13 @@ use Symfony\Component\Console\Output\OutputInterface;
     aliases: ['a:s']
 )]
 
-#[AllowDynamicProperties] class Stats extends Command
+class StatsCommand extends Command
 {
-    public function __construct(UsersRepository $usersRepository)
+    public function __construct()
     {
         parent::__construct();
 
-        $this->usersRepository = $usersRepository;
+
     }
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
