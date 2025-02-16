@@ -1,0 +1,21 @@
+<versions>
+    <version>
+        <number>0.9.7</number>
+        <description>
+            Funkcionality:
+            - Kompletace všech funkcionalit pro přihlášeného a nepřihlášeného uživatele.
+            - Všechny funkcionality pro Azyly.
+            - doplněna správa uživatelů pro Admina
+            - upravená správa fotek
+
+        </description>
+
+    </version>
+    <version>
+        <number>0.9.8</number>
+        <description>
+
+            Přidána podpora pro XML import.
+        </description>
+    </version>
+</versions>
