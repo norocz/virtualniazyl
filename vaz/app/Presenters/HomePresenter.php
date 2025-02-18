@@ -27,6 +27,7 @@ use App\Model\Orm\Repository\PaymentsRepository;
 use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use App\Model\Service\Firewall;
+use App\Model\VersionService;
 use App\Services\AdoptionKeyService;
 use App\Services\AnalyticsService;
 use App\Services\LogingService;
@@ -82,7 +83,8 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                                 private AnalyticsService         $analyticsService,
                                 private Firewall                    $firewall,
                                 private CollectionsRepository      $collectionsRepository,
-                                private paymentsRepository          $paymentsRepository,)
+                                private paymentsRepository          $paymentsRepository,
+                                private readonly VersionService              $versionService,)
     {
         parent::__construct();
         $this->entityManager = $entityManager;
@@ -100,6 +102,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->firewall->setPresenter($this->getPresenter());
         $this->collectionsRepository = $collectionsRepository;
         $this->paymentsRepository = $paymentsRepository;
+
 
     }
 
@@ -134,6 +137,8 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                 return '<a>';
             }, $html);
         });
+
+        $this->getTemplate()->version = $this->versionService->getLastVersion();
     }
 
     public function renderDefault(): void
@@ -233,7 +238,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $now = new DateTimeImmutable();
         $azylNews = $azylProfil->getAzylNews();
         $azylUser = $this->usersRepository->getUserByAzylId($id);
-        $this->getTemplate()->azylProfil = $azylProfil->toArray();
+        $this->getTemplate()->azylProfil = $azylProfil;
         $this->getTemplate()->azylNews = $azylNews;
         $this->getTemplate()->azylUser = $azylUser;
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
@@ -273,7 +278,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $azylProfil = $this->azylRepository->findById($id);
 
         $azylUser = $this->usersRepository->getUserByAzylId($id);
-        $this->getTemplate()->azylProfil = $azylProfil->toArray();
+        $this->getTemplate()->azylProfil = $azylProfil;
         $this->getTemplate()->azylPhotos = $this->photosRepository->fetchByAzylId($id);
         $this->getTemplate()->azylUser = $azylUser;
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();

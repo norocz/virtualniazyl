@@ -24,6 +24,7 @@ use App\Model\Orm\Repository\PageRepository;
 use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use App\Model\Services\Menu;
+use App\Model\VersionService;
 use App\Repository\SpeciesRepository;
 use App\Services\MessagesService;
 use Contributte\Application\UI\BasePresenter;
@@ -72,7 +73,8 @@ class AdminPresenter extends BasePresenter
                                 private AnalyticsRepository           $analyticsRepository,
                                 private AnimalsRepository              $animalsRepository,
                                 private adoptionsRepository             $adoptionsRepository,
-                                private PhotosRepository                $photosRepository,)
+                                private PhotosRepository                $photosRepository,
+                                private readonly VersionService         $versionService,)
     {
         parent::__construct();
         $this->roleFormFactory = $roleFormFactory;
@@ -120,7 +122,7 @@ class AdminPresenter extends BasePresenter
     protected function beforeRender(): void
     {
 
-        $this->template->addFilter('safeHtml', function (string $html): string {
+        $this->getTemplate()->addFilter('safeHtml', function (string $html): string {
             $allowedTags = ['b', 'i', 'a'];
             $html = strip_tags($html, '<' . implode('><', $allowedTags) . '>');
 
@@ -132,7 +134,24 @@ class AdminPresenter extends BasePresenter
                 return '<a>';
             }, $html);
         });
+
+        $this->getTemplate()->addFilter('formatDescription', function (string $text): string {
+            // Nahrazení *Nadpis* za <strong>Nadpis</strong><br>
+            $text = preg_replace('/^\*([^\n]+)/m', '<strong>$1</strong><br>', $text);
+
+            // Nahrazení - Odrážka za <li>Odrážka</li>
+            $text = preg_replace('/^- (.+)/m', '<li>$1</li>', $text);
+
+            // Obalení odrážek do <ul>, pokud nějaké existují
+            if (strpos($text, '<li>') !== false) {
+                $text = '<ul>' . $text . '</ul>';
+            }
+
+            return nl2br($text); // Zachování odřádkování
+        });
+
         $this->getTemplate()->personalPhoto = $this->photosRepository->findById($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId())->getId());
+        $this->getTemplate()->version = $this->versionService->getLastVersion();
     }
 
     private function getMonthName(int $month): string
@@ -219,6 +238,15 @@ class AdminPresenter extends BasePresenter
         $this->getTemplate()->data = $data ; //[xx,yyy,zzz] data
         $this->getTemplate()->label = 'Počty registrovaných uživatelů' ; //nazev grafu
 
+    }
+
+    public function renderVersions(): void
+    {
+        $this->getTemplate()->title = 'Aktualizace a migrace';
+        $this->getTemplate()->versions = $this->versionService->getVersions();
+        $this->getTemplate()->newUsersCount = $this->usersRepository->CountNewUsers();
+        $this->getTemplate()->usersCount = $this->usersRepository->CountUsers();
+        $this->getTemplate()->azylsCount = $this->usersRepository->CountAzyls();
     }
 
     public function renderUpdateMessagesAddress(): void

@@ -83,7 +83,7 @@
 </style>
 <div class="container">
     <div class="row">
-        <h2>{$azylProfil['azylName']}</h2>
+        <h2>{$azylProfil->getAzylName()}</h2>
         <div class="col-3 info">
             <div class="sidebar">
                 <div class="sidebar-container">
@@ -130,17 +130,15 @@
                             </a>
                         </div>
                         <hr>
-                        <span class="sidebar-brand">{$azylProfil['azylName']} </span>
+                        <span class="sidebar-brand">{$azylProfil->getAzylName()} </span>
                         <div class="photo sidebar">
-                            {ifset $azylProfil['mainPhoto']}
-                            <img src="{$azylProfil['mainPhoto']}" alt="{$azylProfil['azylName']}" class="img-fluid">
+                            {if $azylProfil->getMainPhoto() !== null}
+                                <img src="{$azylProfil->getMainPhoto()->getPath().$azylProfil->getMainPhoto()->getName()}" alt="{$azylProfil->getAzylName()}" class="img-fluid">
                             {else}
-                            <img src="{$basePath}/assets/vazdata/img/pic/defaultPhoto.jpeg" alt="{$azylProfil['azylName']}" class="img-fluid">
-                            {/ifset}
+                                <img src="{$basePath}/assets/vazdata/img/pic/defaultPhoto.jpeg" alt="{$azylProfil->getAzylName()}" class="img-fluid">
+                            {/if}
                         </div>
-                        <div class="sidebar-footer">{$azylProfil['description']|noescape}</div>
-                        <hr>
-                        <span class="">Další informace:<br></span>
+                        <div class="sidebar-footer">{$azylProfil->getDescription()|noescape}</div>
 
 
                     </div>

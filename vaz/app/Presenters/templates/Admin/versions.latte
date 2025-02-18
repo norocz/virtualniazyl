@@ -1,0 +1,40 @@
+{block adminContent}
+    {ifset $versions}
+
+        <table class="table table-hover">
+            <thead class="table-striped-columns">
+            <tr>
+                <th>
+                    Z Data
+                </th>
+                <th>
+                    Verze
+                </th>
+                <th>
+                    Popis
+                </th>
+            </tr>
+            </thead>
+        {foreach $versions as $versi}
+
+            <tr>
+                <td>{$versi['date']}</td>
+                <td>{$versi['number']}</td>
+                <td>{$versi['description']|formatDescription|noescape}</td>
+
+
+
+            </tr>
+
+        {/foreach}
+
+        </table>
+
+
+
+    {/ifset}
+
+{/block}
+
+{block scripts}
+{/block}

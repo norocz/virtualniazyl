@@ -28,6 +28,7 @@ class PhotosRepository extends EntityRepository
     {
         return $this->createQueryBuilder('p')
             ->where('p.azyl = :azylId')
+            ->andWhere('p.deleted = false') // Přidání podmínky pro smazané položky
             ->setParameter('azylId', $azylId)
             ->getQuery()
             ->getResult();
@@ -78,6 +79,17 @@ class PhotosRepository extends EntityRepository
      * @throws NonUniqueResultException
      */
     public function findById(?int $id): ?Photo
+    {
+        return $this->createQueryBuilder('p')
+            ->where('p.id = :id')
+            ->andWhere('p.deleted = false') // Přidání podmínky pro smazané položky
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+    }
+
+    public function findByIdAdmin(?int $id): ?Photo
     {
         return $this->createQueryBuilder('p')
             ->where('p.id = :id')

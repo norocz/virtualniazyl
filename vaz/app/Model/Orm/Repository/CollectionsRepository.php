@@ -33,8 +33,19 @@ class CollectionsRepository extends EntityRepository
 
     public function findByAzylActive($azyl): array
     {
-        return $this->findBy(['azyl' => $azyl, 'isActive' => true]);
+        return $this->findBy(['azyl' => $azyl, 'isActive' => true, 'approved' => true]);
 
+    }
+
+    public function findByAzylNoActive($azyl): array
+    {
+        return $this->findBy(['azyl' => $azyl, 'isActive' => false, 'approved' => true]);
+
+    }
+
+    public function findByAzylWaiting($azyl): array
+    {
+        return $this->findBy(['azyl' => $azyl, 'approved' => false]);
 
     }
 

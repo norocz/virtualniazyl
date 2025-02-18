@@ -20,6 +20,7 @@ use App\Model\Orm\Repository\OwnersRepository;
 use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use App\Components\Messenger\ChatControl;
+use App\Model\VersionService;
 use App\Services\AnalyticsService;
 use Brick\PhoneNumber\PhoneNumberFormat;
 use Brick\PhoneNumber\PhoneNumberParseException;
@@ -53,21 +54,23 @@ class UserPresenter extends BasePresenter
     private AzylRepository $azylRepository;
     private Users $currentUser; // Aktuálně přihlášený uživatel
 
+
     public function __construct(roleFormFactory                 $roleFormFactory,
                                 UsersRepository                 $usersRepository,
                                 AzylRepository                  $azylRepository,
                                 EntityManagerInterface          $entityManager,
                         private readonly UserDetailsFormFactory $userDetailsFormFactory,
-                        private readonly registerFormFactory    $registerFormFactory,
-                        private readonly PhotoUploadFormFactory $photoUploadFormFactory,
-                        private OwnersRepository                $ownerRepository,
-                        private readonly CityRepository         $cityRepository,
-                        private readonly MessagesRepository     $messagesRepository,
-                        private messagesFormFactory             $messagesFormFactory,
-                        private messagesService                 $messagesService,
-                        private analyticsService                $analyticsService,
+                        private readonly registerFormFactory      $registerFormFactory,
+                        private readonly PhotoUploadFormFactory   $photoUploadFormFactory,
+                        private OwnersRepository                  $ownerRepository,
+                        private readonly CityRepository           $cityRepository,
+                        private readonly MessagesRepository       $messagesRepository,
+                        private messagesFormFactory               $messagesFormFactory,
+                        private messagesService                   $messagesService,
+                        private analyticsService                  $analyticsService,
                         private photosRepository                  $photosRepository,
-                        private readonly Nette\Security\Passwords $passwords,)
+                        private readonly Nette\Security\Passwords $passwords,
+                        private readonly VersionService           $versionService,)
     {
         parent::__construct();
         $this->roleFormFactory = $roleFormFactory;
@@ -118,6 +121,8 @@ class UserPresenter extends BasePresenter
                 return '<a>';
             }, $html);
         });
+
+        $this->getTemplate()->version = $this->versionService->getLastVersion();
     }
 
 #[NoReturn] public function actionDefault(): void

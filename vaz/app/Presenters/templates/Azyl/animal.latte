@@ -16,10 +16,10 @@
         position: absolute;
         top: 5px;
         right: 5px;
-        background-color: rgba(0, 0, 0, 0.7);
+        background-color: rgba(0, 0, 0, 0.1);
         color: #fff;
         padding: 5px;
-        border-radius: 50%;
+
         cursor: pointer;
     }
 
@@ -68,6 +68,9 @@
 <h3>Fotografie zvířátka</h3>
     <p>První fotografie se zobrazuje jako náhledová fotografie zvířátka</p>
     <div id="photos" class="row g-1 gallery">
+        {snippet photos}
+
+
         {ifset $photos}
         {if $photos == null || $photos == []}
             <p>Žádné fotografie</p>
@@ -76,28 +79,25 @@
             {if $iterator->first}
                         <div class="col-4 gallery-item large">
                             <div class="position-relative">
-                                <img src="{$basePath}{$photo->getPath()}/{$photo->getName()}" alt="{$photo->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
-                                <span class="delete-icon" onclick="deleteImage(this)">✖</span>
+                                <img src="{$basePath}{$photo->getPath()}.{$photo->getName()}" alt="{$photo->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
+                                <span class="delete-icon"><a class = "ajax btn btn-sm btn-sm-square btn-danger" href="{link deleteAzylPhoto!, $photo->getId()}"><i class="bi bi-trash"></i></a></span>
                             </div>
                         </div>
                     {else}
                         <div class="col-2 gallery-item">
                             <div class="position-relative">
-                                <img src="{$basePath}{$photo->getPath()}/{$photo->getName()}" alt="{$photo->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
-                                <span class="delete-icon" onclick="deleteImage(this)">✖</span>
+                                <img src="{$basePath}{$photo->getPath()}.{$photo->getName()}" alt="{$photo->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
+                                <span class="delete-icon"><a class = "ajax btn btn-sm btn-sm-square btn-danger" href="{link deleteAzylPhoto!, $photo->getId()}"><i class="bi bi-trash"></i></a></span>
                             </div>
                         </div>
                     {/if}
                 {/foreach}
-
-
-
        {/if}
             {else}
             <p>Žádné fotografie</p>
       {/ifset}
 
-
+        {/snippet}
     </div>
 
 

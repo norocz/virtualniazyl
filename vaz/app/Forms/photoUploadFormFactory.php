@@ -6,12 +6,11 @@ namespace App\Forms;
 use Nette\Application\UI\Form;
 
 
-class PhotoUploadFormFactory extends Form
+class PhotoUploadFormFactory
 {
     public function create(): Form
     {
         $form = new Form;
-
         $form->addMultiUpload('photos', 'Vyberte fotografie: ')
             ->setHtmlAttribute('class', 'form-control inputfile')
             ->setRequired('Vyberte alespoň jednu fotku')
@@ -20,9 +19,10 @@ class PhotoUploadFormFactory extends Form
             ->setHtmlAttribute('multiple');
 
 
-        $form->addSubmit('uploadPhotos', 'Nahrát')
+        $form->addSubmit('send', 'Nahrát')
             ->setHtmlAttribute('class', 'btn btn-success form-control');
 
         return $form;
     }
+
 }

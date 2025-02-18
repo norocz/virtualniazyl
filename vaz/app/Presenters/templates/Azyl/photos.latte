@@ -59,9 +59,21 @@
         }
     </style>
     <div class="container">
+
         <div class="row">
+
             <div class="col-md-12">
-               {ifset $photos}
+            Nahrát nové fotky:
+                <div class="bg-light p-2 m-2">
+                    <form n:name=azylPhotoUploadForm>
+                        <input type="file" n:name=photos>
+                        <input type="submit" n:name=send>
+                    </form>
+
+                </div>
+
+            {snippet photos}
+            {ifset $photos}
 
                <h2>Vaše fotografie</h2>
                     <div class="d-flex flex-wrap gap-2">
@@ -71,8 +83,8 @@
                  <div class="card-header bg-dark text-white">{$photo->getOriginalName()} </div>
                     <div class="card-body">
                         <img  class = "w-25" src="{$photo->getPath()}{$photo->getName()}" alt="{$photo->getOriginalName()}" class="img-fluid" onclick="showImageModal(this.src)"><hr>
-                        <a class = "btn btn-sm btn-sm-square btn-danger" href="{link deletePhoto!, $photo->getId()}"><i class="bi bi-trash-fill"></i></a>
-                        <a class = "btn btn-sm btn-sm-square btn-primary" href="{link setHomePhoto!, $photo->getId()}"><i class="fa fa-home"></i></a>
+                        <a class = "btn btn-sm btn-sm-square btn-danger" href="{link deleteAzylPhoto!, $photo->getId()}"><i class="bi bi-trash-fill"></i></a>
+                        <a class = "btn btn-sm btn-sm-square btn-primary" href="{link setHomeAzylPhoto!, $photo->getId()}"><i class="fa fa-home"></i></a>
                     </div>
                     </div>
 
@@ -81,6 +93,7 @@
 
             </div>
                 {/ifset}
+                {/snippet}
             </div>
         </div>
     </div>

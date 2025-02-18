@@ -1,5 +1,67 @@
 <versions>
     <version>
+        <date>18.02.2025</date>
+        <number>0.9.8.2</number>
+        <description>
+            Změny:
+            - odstraněn odkaz na nastavení v Administraci
+            - Přidány verze do Administrace
+            - Patička v adminu má verzi
+            - Web jako takový dostal verzi a datum sestavení do patičky
+            - Nahrávání fotek k azylu
+            - Mazání fotek
+            - Nastavení fotky azylu jako fotky na hlavní stránce (logo)
+            - překopání šablony pro home:AzylPhotos
+            - překopání šablony pro home:Azyl
+            - Mazání fotek zvířat
+            - Editace sbírky -> zneplatnění
+            - Zastavení sbírky -> neactivní
+            - Nová sbírka čeká na schválení
+
+            Příprava:
+            - sitemap.xml generátor
+            - app:test - command test - příprava na příkazy pro symfony console
+            - Registrovaný uživatel může poslat dotaz (admin by měl vidět ty dotazy a měl by na ně odpovědět). Tabulka HELP a FAQ
+
+
+            Dodělat:
+            - Komunikace azyl
+            - Systém settings pro SAdmina
+            - System setings pro Consoli
+            - Schválení sbírky
+            - Sbírky co nejsou aktivní
+
+        </description>
+    </version>
+    <version>
+        <date>17.02.2025</date>
+        <number>0.9.8.1</number>
+        <description>
+            Přidána podpora pro XML verzování aby jsme v tom neměli bordel :-).
+        </description>
+    </version>
+    <version>
+        <date>17.02.2025</date>
+        <number>0.9.8.1</number>
+        <description>
+            Přidána podpora pro XML verzování aby jsme v tom neměli bordel :-).
+        </description>
+    </version>
+    <version>
+        <data>14.02.2025</data>
+        <number>0.9.7.1</number>
+        <description>
+            Novinky:
+            - nasazené sbírky
+
+            Opravy:
+            - chyba při registraci
+            - chyba při nastavení
+            Oprava chyb na registraci
+        </description>
+    </version>
+    <version>
+        <date>10.02.2025</date>
         <number>0.9.7</number>
         <description>
             Funkcionality:
@@ -7,15 +69,36 @@
             - Všechny funkcionality pro Azyly.
             - doplněna správa uživatelů pro Admina
             - upravená správa fotek
-
         </description>
-
     </version>
     <version>
-        <number>0.9.8</number>
+        <date>28.02.2024</date>
+        <number>0.2</number>
         <description>
+            Funkcionality:
+            - Přihlašování
+            - Registrace uživatele
+            - Šablona pro web a pro
 
-            Přidána podpora pro XML import.
+            Opravy:
+            - Chyba v registraci
+            - Přidána položka do DB
+            - Chyba pro mapování Konstant
+        </description>
+    </version>
+    <version>
+        <date>28.02.2024</date>
+        <number>0.2</number>
+        <description>
+            Funkcionality:
+            - Přihlašování
+            - Registrace uživatele
+            - Šablona pro web a pro
+
+            Opravy:
+            - Chyba v registraci
+            - Přidána položka do DB
+            - Chyba pro mapování Konstant
         </description>
     </version>
 </versions>

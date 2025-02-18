@@ -17,7 +17,7 @@ class Faq
     #[ORM\Id]
     private $id;
 
-    #[ORM\Column(type: "string", length: 1024)]
+    #[ORM\Column(type: "string", length: 2024)]
     private ?string $question;
 
     #[ORM\Column(type: "string", length: 2048)]

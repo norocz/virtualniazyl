@@ -11,6 +11,7 @@ use App\Forms\azylSetingsFormFactory;
 use App\Forms\CollectionFormFactory;
 use App\Forms\messagesFormFactory;
 use App\Forms\newsFormFactory;
+use App\Forms\PhotoUploadFormFactory;
 use App\Model\Orm\Entity\Animal;
 use App\Model\Orm\Entity\Collections;
 use App\Model\Orm\Entity\News;
@@ -22,6 +23,7 @@ use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\CollectionsRepository;
 use App\Model\Orm\Repository\MessagesRepository;
 use App\Model\Orm\Repository\NewsRepository;
+use App\Model\Orm\Repository\PaymentsRepository;
 use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use App\Model\Services\Menu;
@@ -45,33 +47,34 @@ class AzylPresenter extends BasePresenter
     private AzylSetingsFormFactory $azylSetingsFormFactory;
 
 
-    public function __construct(AnimalsRepository      $animalsRepository,
-                                AnimalFormFactory      $animalFormFactory,
-                                AzylSetingsFormFactory $azylSetingsFormFactory,
-                                public NewsRepository  $newsRepository,
-                                public NewsFormFactory $newsFormFactory,
-                                public NewsDatagridFactory $newsDatagridFactory,
-                                public AnimalsDatagridFactory $animalsDatagridFactory,
-                                public Photo $photos,
-                                public PhotosRepository $photosRepository,
-                                public SpeciesRepository $speciesRepository,
-                                public UsersRepository $usersRepository,
-                                public AzylRepository $azylRepository,
-                                private MessagesRepository $messagesRepository,
-                                private messagesFormFactory $messagesFormFactory,
-                                private messagesService $messagesService,
-                                private AnalyticsRepository $analyticsRepository,
-                                private AnalyticsService $analyticsService,
-                                private AdoptionsRepository $adoptionsRepository,
-                                private CollectionsRepository $collectionsRepository,
-                                private CollectionFormFactory $collectionFormFactory,
-                                private collectionKeyService $collectionKeyService)
+    public function __construct(AnimalsRepository              $animalsRepository,
+                                AnimalFormFactory              $animalFormFactory,
+                                AzylSetingsFormFactory         $azylSetingsFormFactory,
+                                public NewsRepository          $newsRepository,
+                                public NewsFormFactory         $newsFormFactory,
+                                public NewsDatagridFactory     $newsDatagridFactory,
+                                public AnimalsDatagridFactory  $animalsDatagridFactory,
+                                public Photo                   $photos,
+                                public PhotosRepository        $photosRepository,
+                                public SpeciesRepository       $speciesRepository,
+                                public UsersRepository         $usersRepository,
+                                public AzylRepository          $azylRepository,
+                                private MessagesRepository          $messagesRepository,
+                                private messagesFormFactory         $messagesFormFactory,
+                                private messagesService             $messagesService,
+                                private AnalyticsRepository         $analyticsRepository,
+                                private AnalyticsService            $analyticsService,
+                                private AdoptionsRepository         $adoptionsRepository,
+                                private CollectionsRepository       $collectionsRepository,
+                                private CollectionFormFactory       $collectionFormFactory,
+                                private collectionKeyService        $collectionKeyService,
+                                private PhotoUploadFormFactory      $photoUploadFormFactory,
+                                private readonly PaymentsRepository $paymentsRepository,)
     {
         parent::__construct();
         $this->animalsRepository = $animalsRepository;
         $this->animalFormFactory = $animalFormFactory;
         $this->azylSetingsFormFactory = $azylSetingsFormFactory;
-
 
 
     }
@@ -85,7 +88,7 @@ class AzylPresenter extends BasePresenter
             if (!($this->getPresenter()->getUser()->isInRole('azyl') || $this->getPresenter()->getUser()->isInRole('superadmin'))) {
                 $this->flashMessage('Nemáte dostatečná oprávnění pro tuto akci. Akce byla zalogována!', 'alert-danger');
                 $this->analyticsService->setPresenter($this);
-                $this->analyticsService->setComment('Azyl presenter, nepovolený přístup|'.$this->getPresenter()->getAction().' | '.$this->getPresenter()->getUser()->getIdentity()->getId());
+                $this->analyticsService->setComment('Azyl presenter, nepovolený přístup|' . $this->getPresenter()->getAction() . ' | ' . $this->getPresenter()->getUser()->getIdentity()->getId());
                 $this->analyticsService->logVisit();
                 $this->redirect('Home:default');
             } else {
@@ -94,9 +97,9 @@ class AzylPresenter extends BasePresenter
                     $menu = new Menu();
                     $this->getTemplate()->mainMenuItems = $menu->getMenu();
                     $this->analyticsService->setPresenter($this);
-                    $this->analyticsService->setComment('Azyl presenter |'.$this->getPresenter()->getAction().' | '.$this->getPresenter()->getUser()->getIdentity()->getId());
+                    $this->analyticsService->setComment('Azyl presenter |' . $this->getPresenter()->getAction() . ' | ' . $this->getPresenter()->getUser()->getIdentity()->getId());
                     $this->analyticsService->logVisit();
-                }else{
+                } else {
                     $this->getPresenter()->redirect('SuperAdmin:SetAzyl');
                 }
             }
@@ -125,7 +128,6 @@ class AzylPresenter extends BasePresenter
     }
 
 
-
     public function handleDelete(int $id): void
     {
         $animal = $this->animalsRepository->findById($id);
@@ -138,13 +140,13 @@ class AzylPresenter extends BasePresenter
     public function handleStopAdoption(int $id): void
     {
 
+
     }
 
     public function handleEndAdoption(int $id): void
     {
 
     }
-
 
 
     public function renderDefault(): void
@@ -162,10 +164,9 @@ class AzylPresenter extends BasePresenter
         }
 
 
-
-      //  $this->template->newUsersCount = $this->usersRepository->CountNewUsers();
-      //  $this->template->usersCount = $this->usersRepository->CountUsers();
-      //  $this->template->azylsCount = $this->usersRepository->CountAzyls();
+        //  $this->template->newUsersCount = $this->usersRepository->CountNewUsers();
+        //  $this->template->usersCount = $this->usersRepository->CountUsers();
+        //  $this->template->azylsCount = $this->usersRepository->CountAzyls();
     }
 
     public function renderAnimals(): void
@@ -180,21 +181,31 @@ class AzylPresenter extends BasePresenter
 
     public function actionCollections(?int $key = null): void
     {
+        if ($key === null) {
+        $this->getTemplate()->collectionsNoActive = $this->collectionsRepository->findByAzylNoActive($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']);
         $this->getTemplate()->collections = $this->collectionsRepository->findByAzylActive($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']);
+        $this->getTemplate()->collectionsWaiting = $this->collectionsRepository->findByAzylWaiting($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']);
+        }
+        else
+        {
+            $this->getTemplate()->collectionsNoActive = $this->collectionsRepository->findByAzylNoActive($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']);
+            $this->getTemplate()->collections = $this->collectionsRepository->findByAzylActive($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']);
+            $this->getTemplate()->collectionsWaiting = $this->collectionsRepository->findByAzylWaiting($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']);
+            $this->getTemplate()->paymentsAll = $this->paymentsRepository->findBy(['variableSymbol'=> $key, 'azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']]);
+        }
     }
 
     public function handleStopCollection(int $key): void
     {
-    bdump('STOOP');
+        bdump('STOOP');
     }
 
     public function handleCollectionPayments(int $key): void
     {
         bdump('platby');
         $this->getTemplate()->payments = $this->collectionsRepository->findOneByKey($key)->getPayments();
-        if($this->isAjax())
-        {
-            $this->getPresenter()->redrawControl('payments-'.$key);
+        if ($this->isAjax()) {
+            $this->getPresenter()->redrawControl('payments-' . $key);
 
         }
     }
@@ -202,32 +213,32 @@ class AzylPresenter extends BasePresenter
     public function createComponentCollectionForm(): Form
     {
         $form = $this->collectionFormFactory->create();
+        $form ->removeComponent($form->getComponent('send'));
+        $form ->addSubmit('send','Uložit sbírku')->setHtmlAttribute('class', 'btn btn-primary');
+
         $form->onSuccess[] = [$this, 'collectionFormSucceeded'];
 
-            if (is_null($this->getPresenter()->getParameter('key')))
-            {
+        if (is_null($this->getPresenter()->getParameter('key'))) {
             return $form;
-            }
-            else
-            {
-                $collection = $this->collectionsRepository->findOneByKey(intval($this->getPresenter()->getParameter('key')));
-                $form->setDefaults([
-                    'collectionName' => $collection->getCollectionName(),
-                    'collectionId' => $collection->getId(),
-                    'collectionDescription' => $collection->getCollectionDescription(),
-                    'minimalAmount' => $collection->getMinimalAmount() ?? 50,
-                    'resultAmount' => $collection->getResultAmount(),
-                    'extendedAmount' => $collection->getExtendedAmount() ?? 0,
-                    'startAt' => $collection->getStartAt(),
-                    'endingAt' => $collection->getEndingAt(),
-                    'extendTo' => $collection->getExtendTo(),
-                    'currency' => $collection->getCurrency(),
-                    'extend' => 'true',
-                    'isActive' => $collection->isActive()
+        } else {
+            $collection = $this->collectionsRepository->findOneByKey(intval($this->getPresenter()->getParameter('key')));
+            $form->setDefaults([
+                'collectionName' => $collection->getCollectionName(),
+                'collectionId' => $collection->getId(),
+                'collectionDescription' => $collection->getCollectionDescription(),
+                'minimalAmount' => $collection->getMinimalAmount() ?? 50,
+                'resultAmount' => $collection->getResultAmount(),
+                'extendedAmount' => $collection->getExtendedAmount() ?? 0,
+                'startAt' => $collection->getStartAt(),
+                'endingAt' => $collection->getEndingAt(),
+                'extendTo' => $collection->getExtendTo(),
+                'currency' => $collection->getCurrency(),
+                'extend' => 'true',
+                'isActive' => $collection->isActive()
 
-                ]);
-                return $form;
-            }
+            ]);
+            return $form;
+        }
     }
 
     /**
@@ -236,10 +247,9 @@ class AzylPresenter extends BasePresenter
      */
     public function collectionFormSucceeded(Form $form, $values): void
     {
-        if (is_null($this->getPresenter()->getParameter('key')))
-        {
-            $azyl  = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
-            $user = $this->usersRepository->findOneBy(['id' =>$this->getPresenter()->getUser()->getIdentity()->getData()['User']->getId()]);
+        if (is_null($this->getPresenter()->getParameter('key'))) {
+            $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
+            $user = $this->usersRepository->findOneBy(['id' => $this->getPresenter()->getUser()->getIdentity()->getData()['User']->getId()]);
             $collection = new Collections();
             $collection->setAzyl($azyl);
             $collection->setCurrency($values['currency']);
@@ -254,8 +264,9 @@ class AzylPresenter extends BasePresenter
             $collection->setExtend($values['extend']);
             $collection->setStartAt($values['startAt']);
             $collection->setIsActive($values['isActive']);
+            $collection->setApproved(false);
             $this->collectionsRepository->save($collection);
-            $collection->setCollectionKey($this->collectionKeyService->createCollectionKey($azyl->getId(),$collection->getId()));
+            $collection->setCollectionKey($this->collectionKeyService->createCollectionKey($azyl->getId(), $collection->getId()));
 
             $photo = new Photo();
             $photo->setAzyl($azyl);
@@ -270,12 +281,10 @@ class AzylPresenter extends BasePresenter
             $this->collectionsRepository->save($collection);
             $this->flashMessage('Sbírka byla uložena, pokud je datum nastavené na dnešek ihned se spustí', 'alert-success');
             $this->getPresenter()->redirect('Azyl:Collections');
-        }
-        else
-        {
-            $azyl  = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
-            $user = $this->usersRepository->findOneBy(['id' =>$this->getPresenter()->getUser()->getIdentity()->getData()['User']->getId()]);
-            $collection = $this->collectionsRepository->findOneByKey($this->getPresenter()->getParameter('key'));
+        } else {
+            $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
+            $user = $this->usersRepository->findOneBy(['id' => $this->getPresenter()->getUser()->getIdentity()->getData()['User']->getId()]);
+            $collection = $this->collectionsRepository->findOneByKey(intval($this->getPresenter()->getParameter('key')));
             $collection->setAzyl($azyl);
             $collection->setCurrency($values['currency']);
             $collection->setCollectionDescription($values['collectionDescription']);
@@ -289,6 +298,7 @@ class AzylPresenter extends BasePresenter
             $collection->setExtend($values['extend']);
             $collection->setStartAt($values['startAt']);
             $collection->setIsActive($values['isActive']);
+            $collection->setApproved(false);
 
             $photo = new Photo();
             $photo->setAzyl($azyl);
@@ -307,23 +317,17 @@ class AzylPresenter extends BasePresenter
     }
 
 
-
-
     public function actionAnimal(?int $id = null): void
     {
-        if ($id === null)
-        {
+        if ($id === null) {
             $this->getTemplate()->title = 'Azyl - Přidání nového zvířátka';
-        }
-        else {
+        } else {
             if (!$animal = $this->animalsRepository->findById($id)) {
                 $this->getTemplate()->title = 'Azyl - Přidání nového zvířátka';
 
-            }
-            else
-            {   $this->getTemplate()->photos = $animal->getPhotos();
-                if($animal->getAdoption())
-                {
+            } else {
+                $this->getTemplate()->photos = $animal->getPhotos();
+                if ($animal->getAdoption()) {
                     $this->getTemplate()->adoptions = $animal->getAdoption();
                 }
                 $this->getTemplate()->title = 'Azyl - Editace zvířátka';
@@ -334,14 +338,13 @@ class AzylPresenter extends BasePresenter
 
     public function actionMessages($id): void
     {
-        $this->template->title = 'Zprávy';
-        $recieverUser = $this->usersRepository->findOneBy(['azyl'=>$this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']]);
-        $messages =  $this->messagesService->getUserContacts($recieverUser->getId());
-        foreach($messages as $message)
-        {
+        $this->getTemplate()->title = 'Zprávy';
+        $recieverUser = $this->usersRepository->findOneBy(['azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']]);
+        $messages = $this->messagesService->getUserContacts($recieverUser->getId());
+        foreach ($messages as $message) {
             $chats[$message->getSenderAddress()] = $message->getSender()->getUsername();
         }
-        $this->template->chats = $chats;
+        $this->getTemplate()->chats = $chats;
         $this->redrawControl('chats');
         $this->redrawControl('messagesCount');
         $this->redrawControl('messages');
@@ -350,16 +353,13 @@ class AzylPresenter extends BasePresenter
     public function actionAdoptions(?int $id): void
     {
 
-        if (!is_null($id))
-        {
-            $adoption = $this->adoptionsRepository->findOneBy(['id'=>$id]);
+        if (!is_null($id)) {
+            $adoption = $this->adoptionsRepository->findOneBy(['id' => $id]);
             $this->getTemplate()->adoption = $adoption;
 
-        }
-         else
-        {
+        } else {
 
-            $adoptions = $this->adoptionsRepository->findBy(['azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']],['updatedAt'=>'DESC']);
+            $adoptions = $this->adoptionsRepository->findBy(['azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']], ['updatedAt' => 'DESC']);
 
             $this->getTemplate()->adoptions = $adoptions;
         }
@@ -369,7 +369,7 @@ class AzylPresenter extends BasePresenter
 
     public function handleChat(string $id): void
     {
-        $recieverUser = $this->usersRepository->findOneBy(['azyl'=>$this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']]);
+        $recieverUser = $this->usersRepository->findOneBy(['azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']]);
         $messages = $this->messagesRepository->getMessagesBySenderReceiverAddress(senderAddress: $id, receiverAddress: $recieverUser->getMessageAddress());
 
         $this->getTemplate()->messages = $messages;
@@ -383,19 +383,17 @@ class AzylPresenter extends BasePresenter
     public function handleDeleteMsg(int $id): void
     {
         $redirectAddress = $this->messagesRepository->getMessagesById($id)->getReceiverAddress();
-        if($this->messagesService->deleteMessage($id,$this->getPresenter()))
-        {
+        if ($this->messagesService->deleteMessage($id, $this->getPresenter())) {
             $this->flashMessage('Vzkaz byl smazán.', 'alert-success');
         } else {
 
             $this->flashMessage('Při mazání vzkazu nastala chyba.', 'alert-danger');
         }
-        if($this->isAjax()){
+        if ($this->isAjax()) {
             $this->redrawControl('messagesCount');
             $this->redrawControl('chats');
             $this->redrawControl('messages');
-        }
-        else {
+        } else {
             $chat = "?do=chat";
             $url = $this->link('User:messages', $redirectAddress) . $chat;
             $this->redirectUrl($url);
@@ -403,7 +401,7 @@ class AzylPresenter extends BasePresenter
 
     }
 
-    public function messagesFormSucceeded(\Nette\Application\UI\Form $form, \stdClass $values) : void
+    public function messagesFormSucceeded(\Nette\Application\UI\Form $form, \stdClass $values): void
     {
         $this->getPresenter()->isAjax();
         $this->messagesService->messagesFormSucceeded($form, $values, $this->getPresenter());
@@ -418,10 +416,9 @@ class AzylPresenter extends BasePresenter
         $message->setReaded(false);
         $this->messagesRepository->save($message);
         */
-        if($this->isAjax()){
+        if ($this->isAjax()) {
             $this->redrawControl('messages');
-        }
-        else {
+        } else {
             $chat = "?do=chat";
             $url = $this->link('this', $values->id) . $chat;
             $this->redirectUrl($url);
@@ -429,51 +426,95 @@ class AzylPresenter extends BasePresenter
         }
 
     }
+
     public function actionNews(): void
     {
-        $this->template->title = 'News';
+        $this->getTemplate()->title = 'News';
     }
 
     public function renderPhotos(): void //TODO: Zobrazení Fotek azylu
     {
-        $this->template->title = 'Photos';
+        $this->getTemplate()->title = 'Photos';
         $this->getTemplate()->basepath = '';
         $this->getTemplate()->photos = $this->photosRepository->fetchByAzylId($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
     }
 
     public function renderMessages(): void
     {
-        $this->template->title = 'Message';
+        $this->getTemplate()->title = 'Message';
     }
 
     public function renderSettings(): void
     {
-        $this->template->title = 'Settings';
+        $this->getTemplate()->title = 'Settings';
     }
 
     public function renderAdoptions(): void
     {
-        $this->template->title = 'Adoptions - Azyl: '.$this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getAzylName();
-
+        $this->getTemplate()->title = 'Adoptions - Azyl: ' . $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getAzylName();
 
     }
 
     // Actions
 
     // Handle
-    public function handleDeletePhoto(int $id): void
+    public function handleDeleteAzylPhoto(int $photoId): void  // označí fotku jako smazanou kontroluje ID fotky a ID azylu, aby nemohl fotku smazat někdo jiný podvrhnutím IDfotky
     {
+        $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
+        $photo = $this->photosRepository->findOneBy(['id' => $photoId, 'azyl' => $azyl]);
+        if(!empty($photo))
+        {
+            $photo->setDeleted(true);
+            $this->photosRepository->save($photo);
+            $this->flashMessage('Fotka smazána', 'alert-success');
+            if ($this->isAjax()) {
 
+                $this->redrawControl('photos');
+            }
+            else
+            {
+                $this->redirect('this');
+            }
+        }
+        else
+        {
+            $this->flashMessage('Fotku nelze smazat', 'alert-danger');
+            if ($this->isAjax()) {
+
+                $this->redrawControl('photos');
+            }
+            else
+            {
+                $this->redirect('this');
+            }
+
+        }
     }
-    public function handleSetHomePhoto(int $id): void
+
+    public function handleSetHomeAzylPhoto(int $id): void //nastaví fotku jako hlavní fotku Azylového profilu kontorluje to azyl podle profilu a id fotky
     {
+        $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
+        $photo = $this->photosRepository->findOneBy(['id' => $id, 'azyl' => $azyl]);
+
+        if(!empty($photo))
+        {bdump($photo);
+                        $azyl->setMainPhoto($photo);
+                        bdump($azyl);
+                        $this->azylRepository->saveAzyl($azyl);
+                        $this->flashMessage('Fotka nastavena', 'alert-success');
+        }
+        else
+        {
+            $this->flashMessage('Fotku nelze nastavit', 'alert-danger');
+
+        }
 
     }
 
 
     public function handleNewsDelete(?int $id): void
     {
-        $news = $this->newsRepository->findOneBy(['id' => $id]);
+        $news = $this->newsRepository->findOneBy(['id' => $id, 'azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']]);
         if ($news === null) {
             $this->flashMessage('Novinka nebyla nalezena.', 'alert-warning');
             if ($this->isAjax()) {
@@ -504,20 +545,21 @@ class AzylPresenter extends BasePresenter
     {
         $form = $this->animalFormFactory->create();
         $form->onSuccess[] = [$this, 'animalFormSucceeded'];
-        if ($this->getPresenter()->getParameter('id') !== null){
-            $animal = $this->animalsRepository->findById(intval($this->getPresenter()->getParameter('id')));
-
+        if ($this->getPresenter()->getParameter('id') !== null) {
+          //  $animal = $this->animalsRepository->findById(intval($this->getPresenter()->getParameter('id')));
+            $animal = $this->animalsRepository->findOneBy(['id' => intval($this->getPresenter()->getParameter('id')), 'azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']]);
+bdump($animal);
             $form->setDefaults([
-               'name' => $animal->getName(),
-                'description' => $animal->getDescription(),
-                'species' => $animal->getSpecies()->getId(),
+                    'name' => $animal->getName(),
+                    'description' => $animal->getDescription(),
+                    'species' => $animal->getSpecies()->getId(),
                     'birthDate' => $animal->getBirthdate()->format('d-m-Y'),
                     'breed' => $animal->getBreed(),
                     'toAdoption' => $animal->isToAdoption(),
                     'adoptionType' => $animal->getAdoptionType(),
                     'multiAdoption' => $animal->getMultiAdoption(),
                     'howMuch' => $animal->getHowMuch()]
-                    );
+            );
 
 
         }
@@ -536,7 +578,7 @@ class AzylPresenter extends BasePresenter
         return $form;
     }
 
-    public function azylSettingsFormSucceeded(Form $form, $values) :void
+    public function azylSettingsFormSucceeded(Form $form, $values): void
     {
 
         $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
@@ -558,10 +600,9 @@ class AzylPresenter extends BasePresenter
 
         $id = $this->getParameter('id');
         //todo: ověření práv uživatele na úpravu zvířátka
-        if (is_null($id))
-        {
-            
-            $animal = New Animal();
+        if (is_null($id)) {
+
+            $animal = new Animal();
             $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
 
             $animal->setAzyl($azyl);
@@ -577,10 +618,9 @@ class AzylPresenter extends BasePresenter
             $animal->setHowMuch($values->howMuch);
             $animal->setMultiAdoption($values->multiAdoption);
             $this->animalsRepository->persist($animal);
-            foreach ($values->photos as $photo)
-            {
+            foreach ($values->photos as $photo) {
 
-                $photoUpload = New Photo();
+                $photoUpload = new Photo();
                 $photoUpload->setAzyl($azyl);
                 $photoUpload->setDate(new DateTimeImmutable('now'));
                 $photoUpload->setAnimal($animal);
@@ -590,9 +630,7 @@ class AzylPresenter extends BasePresenter
             $this->animalsRepository->flush($animal);
             $this->flashMessage('Zvířátko bylo úspěšně přidáno.', 'alert-success');
             $this->redirect('azyl:animals');
-        }
-        else
-        {
+        } else {
 
             $animal = $this->animalsRepository->findById(intval($id));
             $animal->setName($values->name);
@@ -605,10 +643,9 @@ class AzylPresenter extends BasePresenter
             $animal->setHowMuch($values->howMuch);
             $animal->setMultiAdoption($values->multiAdoption);
 
-            foreach ($values->photos as $photo)
-            {
+            foreach ($values->photos as $photo) {
                 $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
-                $photoUpload = New Photo();
+                $photoUpload = new Photo();
                 $photoUpload->setAnimal($animal);
                 $photoUpload->setDate(new DateTimeImmutable('now'));
                 $photoUpload->setAzyl($azyl);
@@ -643,22 +680,21 @@ class AzylPresenter extends BasePresenter
 
                     ]);
 
-                $form->onSuccess[] = [ $this, 'newsFormSucceededUpdate'];
+                $form->onSuccess[] = [$this, 'newsFormSucceededUpdate'];
                 return $form;
 
-            }
-            else
-            {
+            } else {
                 $this->flashMessage('Novinka nebyla nalezena.', 'alert-danger');
                 $this->redirect('Azyl:news');
             }
         } else {
 
-        $form->onSuccess[] = [ $this, 'newsFormSucceeded'];
+            $form->onSuccess[] = [$this, 'newsFormSucceeded'];
 
-        return $form;
+            return $form;
         }
     }
+
     public function createComponentMessagesForm(): Form
     {
         $form = $this->messagesFormFactory->create();
@@ -669,33 +705,33 @@ class AzylPresenter extends BasePresenter
     public function newsFormSucceeded(Form $form, \stdClass $values): void
     {
 
-            $news = new News();
-            $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getIdentity()->getId());
+        $news = new News();
+        $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getIdentity()->getId());
 
-            $azyl = $this->azylRepository->findOneBy(['id' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]);
+        $azyl = $this->azylRepository->findOneBy(['id' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]);
 
-            $news->setAuthor($user);
-            $news->setTitle($values->title);
-            $news->setContent($values->content);
-            $news->setGlobal($values->global);
-            $news->setVisibleFrom($values->visibleFrom);
-            $news->setImportant($values->important);
-            $news->setCreatedAt(new DateTimeImmutable());
-            $news->setDeleted(false);
-            $news->setAzyl($azyl);
+        $news->setAuthor($user);
+        $news->setTitle($values->title);
+        $news->setContent($values->content);
+        $news->setGlobal($values->global);
+        $news->setVisibleFrom($values->visibleFrom);
+        $news->setImportant($values->important);
+        $news->setCreatedAt(new DateTimeImmutable());
+        $news->setDeleted(false);
+        $news->setAzyl($azyl);
 
-            $this->newsRepository->save($news);
+        $this->newsRepository->save($news);
 
 
-            $this->flashMessage('Novinka byla uložena.', 'alert-success');
-            $this->redirect('Azyl:news');
+        $this->flashMessage('Novinka byla uložena.', 'alert-success');
+        $this->redirect('Azyl:news');
 
     }
 
     public function newsFormSucceededUpdate(Form $form, \stdClass $values): void
     {
         $id = $this->getPresenter()->getParameter('id');
-        if ($id !== null)  {
+        if ($id !== null) {
             $news = $this->newsRepository->findOneBy(['id' => $id]);
 
             if ($news) {
@@ -729,18 +765,53 @@ class AzylPresenter extends BasePresenter
         $grid->create(); // upraví instanci, nepřepíše ji novým objektem
         $azyl = $this->azylRepository->findOneBy(['id' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]);
 
-        $grid ->setDataSource($azyl->getNews());
+        $grid->setDataSource($azyl->getNews());
         return $grid;
     }
 
     public function createComponentAnimalsAzylDatagrid(): DataGrid
 
-    {     $grid = new AnimalsDatagridFactory($this->animalsRepository);
-            $grid->setPresenter($this->getPresenter());
+    {
+        $grid = new AnimalsDatagridFactory($this->animalsRepository);
+        $grid->setPresenter($this->getPresenter());
 
-         $grid->create(); // upraví instanci, nepřepíše ji novým objektem
-           $grid->setDataSource($this->animalsRepository->findBy(['azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']]));
-           return $grid;
+        $grid->create(); // upraví instanci, nepřepíše ji novým objektem
+        $grid->setDataSource($this->animalsRepository->findBy(['azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']]));
+        return $grid;
+
+    }
+
+    public function createComponentAzylPhotoUploadForm(): Form
+    {
+        $factory = new PhotoUploadFormFactory();
+        $form = $factory->create();
+        $form-> onSuccess[] = [$this, 'photoUploadFormSucceeded'];
+        return $form;
+    }
+
+    public function photoUploadFormSucceeded(Form $form, \stdClass $values): void
+    {
+        foreach ($values->photos as $photoFile) {
+
+            $photo = new Photo();
+            $photo->setAzyl($this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()));
+            $photo->setUser($this->usersRepository->findOneBy(['id' => $this->getPresenter()->getUser()->getId()]));
+            $photo->setDate(new DateTimeImmutable());
+            $photo->uploadAzylPhoto($photoFile);
+            $this->photosRepository->save($photo);
+            $this->flashMessage('Fotka <b>'.$photo->getOriginalName().'</b> se nahrála úspěšně', 'alert-success');
+
+        }
+
+        if ($this->isAjax())
+        {
+
+            $this->redrawControl('photos');
+        }
+        else
+        {
+            $this->redirect('Azyl:photos');
+        }
 
     }
 }

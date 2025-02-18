@@ -7,13 +7,12 @@
             </div>
 
             <div class="row">
-                <h3>Aktivní sbírky</h3>
+
                 <div class="col-xl-12 col-md-12">
 
                     <div class="row">
                     {snippetArea collections}
-
-
+                        {ifset $collections} <h3>Aktivní sbírky</h3>
                         {foreach $collections as $collection}
                         <div class="col-xl-6 col-md-12 flex-column">
                             <div class="card collection-card text-dark bg-light m-2" style="width:550px;" >
@@ -40,6 +39,7 @@
                                         {/foreach}
                                         </div>
                                     {/ifset}
+
                                 {/snippet}
                                 <div class="card-footer">
 
@@ -65,7 +65,74 @@
                             </div>
                         </div>
                         {/foreach}
-                    {/snippetArea}
+                        {/ifset}
+
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-xl-12 col-md-12">
+
+                    <div class="row">
+
+                            {ifset $collectionsWaiting}<h3>Čekající na schválení</h3>
+                                {foreach $collectionsWaiting as $collectionW}
+                                    <div class="col-xl-6 col-md-12 flex-column">
+                                        <div class="card collection-card text-dark bg-light m-2" style="width:550px;" >
+                                            {if $collectionW->getPhoto() !== null}<img class="card-img-top" src="{$collectionW->getPhoto()->getPath()}{$collectionW->getPhoto()->getName()}" alt="Headline image">
+                                            {else}<img class="card-img-top" src="{$basePath}/assets/vazdata/img/pic/defaultPhoto.jpeg" alt="Headline image">{/if}
+                                            <h3 class="card-title">{$collectionW->getCollectionName()}</h3>
+
+                                            <div class="card-body">
+                                                <p class="card-text"> {$collectionW->getCollectionDescription()|safeHtml|noescape}</p>
+
+                                                <a href="{link Azyl:collections $collectionW->getCollectionKey()}" class="btn btn-outline-info btn-sm">Editovat sbírku</a>
+                                                <a n:href="stopCollection!, $collectionW->getCollectionKey()" class="btn btn-outline-warning btn-sm ajax">Zastavit sbírku</a>
+                                                <a n:href="collectionPayments!, $collectionW->getCollectionKey()" class="btn btn-outline-warning btn-sm ajax">Platby</a>
+
+                                            </div>
+                                            {snippet 'payments-'.$collectionW->getCollectionKey()}
+                                                {ifset $payments}
+                                                    <div class="payments">
+                                                        {foreach $payments as $payment}
+                                                            {$payment->getPayedAt()->format('D:m:y H:m:s')} |
+                                                            {$payment->getPay()} {$payment->getCurrency()}
+
+
+                                                        {/foreach}
+                                                    </div>
+                                                {/ifset}
+
+                                            {/snippet}
+                                            <div class="card-footer">
+
+                                                Sdílet:
+                                                <a class = "m-1" href="https://www.facebook.com/sharer/sharer.php?u={link Home:collection, $collectionW->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
+                                                    <i class="bi bi-facebook"></i>
+                                                </a>
+
+                                                <a class = "m-1" href="https://www.instagram.com/?url={link Home:collection, $collectionW->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
+                                                    <i class="bi bi-instagram"></i>
+                                                </a>
+
+                                                <a class = "m-1" href="https://twitter.com/intent/tweet?url={link Home:collection, $collectionW->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
+                                                    <i class="bi bi-twitter"></i>
+                                                </a> <br>
+
+                                                Odkaz pro sdílení: <a class = "" href="{link Home:collection, $collectionW->getCollectionKey()}" target="_blank" class="text-decoration-none">
+                                                    {link Home:collection, $collectionW->getCollectionKey()}
+                                                </a>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                {/foreach}
+                            {/ifset}
+                        {/snippetArea}
                     </div>
 
 

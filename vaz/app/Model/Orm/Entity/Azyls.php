@@ -51,7 +51,6 @@ class Azyl
     private ?Collection $news = null;
 
     #[ORM\OneToOne(targetEntity: Photo::class)]
-    #[ORM\Column(nullable: true)]
     private ?Photo $mainPhoto;
 
     #[ORM\OneToMany(mappedBy: "azyl", targetEntity: "Photo")]
@@ -80,7 +79,8 @@ class Azyl
         , 'bankAccount' => $this->bankAccount
         , 'bankCode' => $this->bankCode
         , 'bankSpecificCode' => $this->bankSpecificCode
-        , 'phoneNumber' => $this->phoneNumber]
+        , 'phoneNumber' => $this->phoneNumber
+        , 'mainPhoto' => $this->mainPhoto->toArray()]
             ;
     }
 
@@ -173,7 +173,7 @@ class Azyl
         return $this->mainPhoto;
     }
 
-    public function setMainPhoto(Photo $mainPhoto): Azyl
+    public function setMainPhoto(?Photo $mainPhoto): Azyl
     {
         $this->mainPhoto = $mainPhoto;
         return $this;

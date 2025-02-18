@@ -6,8 +6,15 @@ namespace App\Forms;
 
 use Nette\Application\UI\Form;
 
+
 class PhotosFormFactory extends Form
 {
+    public function __construct()
+    {
+        parent::__construct();
+
+
+    }
     public function create(): Form
     {
         $form = new Form;

@@ -44,7 +44,7 @@ class CollectionFormFactory
         ->setDefaultValue(true);
         $form->addUpload('headline',Html::el()->setHtml('Obrázek do hlavičky<br> (ideální rozměr 1100x300px):'))
         ->setHtmlAttribute('class', 'form-control');
-        $form->addSubmit('send');
+        $form->addSubmit('send','Přidat sbírku');
 
         return $form;
     }
