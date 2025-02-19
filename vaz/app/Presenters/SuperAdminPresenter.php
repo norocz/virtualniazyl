@@ -265,7 +265,7 @@ class SuperAdminPresenter extends BasePresenter
 
             $newData['Azyl']->setMainPhoto($photo);
             $newIdentity = new SimpleIdentity($identity->getId(),$identity->getRoles(),$newData);
-
+            $newIdentity->getData()['Azyl']->setMainPhoto($photo);
             $this->user->login($newIdentity);
 
             $this->getPresenter()->redirect('Azyl:default');
