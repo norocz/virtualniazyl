@@ -7,7 +7,7 @@
 
                         {foreach $collections as $collection}
 
-                        <div class="col-xl-6 col-md-12 flex-column">
+                        <div class="col-xl-6 col-md-12 d-flex flex-row flex-wrap">
                             <div class="card collection-card text-dark bg-light m-2" style="width:550px;" >
                                 {if !is_null($collection->getPhoto())}
                                 <img class="card-img-top" src="{$collection->getPhoto()->getPath()}{$collection->getPhoto()->getName()}" alt="Headline image">

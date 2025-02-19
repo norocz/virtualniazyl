@@ -10,10 +10,13 @@ use App\Model\Orm\Repository\AnalyticsRepository;
 use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\CollectionsRepository;
 use App\Model\Orm\Repository\FirewallLogsRepository;
+use App\Model\Orm\Repository\PhotosRepository;
 use App\Services\IpInfoService;
 use Contributte\Application\UI\BasePresenter;
+use Doctrine\ORM\NonUniqueResultException;
 use Nette\Application\UI\Form;
 use App\Forms\setAzylFormFactory;
+use Nette\Security\AuthenticationException;
 use Nette\Security\SimpleIdentity;
 use Nette\Utils\Paginator;
 
@@ -26,9 +29,9 @@ class SuperAdminPresenter extends BasePresenter
     private analyticsRepository $analyticsRepository;
     private ipInfoService $ipInfoService;
     private systemSettingsFormFactory $systemSettingsFormFactory;
-
     private collectionsRepository $collectionsRepository;
     private collectionFormFactory $collectionFormFactory;
+    private PhotosRepository $photosRepository;
     public function __construct(setAzylFormFactory $setAzylFormFactory,
                                 azylRepository $azylRepository,
                                 firewallLogsRepository $firewallLogsRepository,
@@ -36,7 +39,8 @@ class SuperAdminPresenter extends BasePresenter
                                 ipInfoService $ipInfoService,
                                 systemSettingsFormFactory $systemSettingsFormFactory,
                                 collectionFormFactory $collectionFormFactory,
-                                CollectionsRepository $collectionsRepository)
+                                CollectionsRepository $collectionsRepository,
+                                PhotosRepository     $photosRepository)
     {
         parent::__construct();
         $this->setAzylFormFactory = $setAzylFormFactory;
@@ -47,6 +51,7 @@ class SuperAdminPresenter extends BasePresenter
         $this->systemSettingsFormFactory = $systemSettingsFormFactory;
         $this->collectionsRepository = $collectionsRepository;
         $this->collectionFormFactory = $collectionFormFactory;
+        $this->photosRepository = $photosRepository;
 
     }
 
@@ -242,6 +247,10 @@ class SuperAdminPresenter extends BasePresenter
         return $form;
     }
 
+    /**
+     * @throws AuthenticationException
+     * @throws NonUniqueResultException
+     */
     public function azylSetFormSuccessed(Form $form, \stdClass $values) : void
     {
 
@@ -251,7 +260,9 @@ class SuperAdminPresenter extends BasePresenter
 
             $newData = $identity->getData();
             $newData['Azyl'] = $azyl;
+            $newData['Azyl']->setMainPhoto($this->photosRepository->findById($azyl->getMainPhoto()->getId()));
             $newIdentity = new SimpleIdentity($identity->getId(),$identity->getRoles(),$newData);
+
             $this->user->login($newIdentity);
 
             $this->getPresenter()->redirect('Azyl:default');

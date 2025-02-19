@@ -3,19 +3,23 @@ declare(strict_types=1);
 namespace App\Forms;
 use App\Model\Orm\Repository\UsersRepository;
 use Nepada\PhoneNumberInput\PhoneNumberInput;
+use Nette\Application\LinkGenerator;
 use Nette\Application\UI\Form;
 use Doctrine\ORM\EntityManagerInterface;
+use Nette\Utils\Html;
 
 
 class RegisterFormFactory extends Form
 {
-    public function __construct(protected UsersRepository $usersRepository, protected EntityManagerInterface $entityManager)
+    public function __construct(protected UsersRepository $usersRepository, protected EntityManagerInterface $entityManager, private LinkGenerator $linkGenerator)
     {
         parent::__construct();
+        $this->linkGenerator = $linkGenerator;
     }
 
     public function create(): Form
     {
+        $termsLink = $this->linkGenerator->link('Page:terms');
         $form = new Form;
         $form->addText('username', 'Uživatelské jméno:')
             ->setHtmlAttribute('class', 'form-control')
@@ -44,7 +48,7 @@ class RegisterFormFactory extends Form
             ->setEmptyValue('+420')
             ->setRequired('Zadejte prosím platný telefon. Bude důležtý pro ověření.');
 
-        $form->addCheckbox('legalTerms', ' Přečetl jsem si podmínky užití a souhlasím s nimi.')
+        $form->addCheckbox('legalTerms', Html::el()->setHtml(' Přečetl jsem si <a href="'.$termsLink.'">podmínky užití</a> souhlasím s nimi.'))
             ->setHtmlAttribute('class', 'form-check-input');
 
         $form->addCheckbox('adoptionVerification', ' Počítám s tím, že provozovatel serveru si před adopcí bude ověřovat mou totižnost a podmínky pro adopci.')

@@ -267,17 +267,16 @@ class AzylPresenter extends BasePresenter
             $collection->setApproved(false);
             $this->collectionsRepository->save($collection);
             $collection->setCollectionKey($this->collectionKeyService->createCollectionKey($azyl->getId(), $collection->getId()));
-
-            $photo = new Photo();
-            $photo->setAzyl($azyl);
-            $photo->setCollections($collection);
-            $photo->setUser($user);
-            $photo->setDate(new DateTimeImmutable());
-            $photo->uploadCollectionHeadlinePhoto($values['headline']);
-
-            $this->photosRepository->save($photo);
-
-            $collection->setPhoto($photo);
+            if ($values['headline'] !== null) {
+                $photo = new Photo();
+                $photo->setAzyl($azyl);
+                $photo->setCollections($collection);
+                $photo->setUser($user);
+                $photo->setDate(new DateTimeImmutable());
+                $photo->uploadCollectionHeadlinePhoto($values['headline']);
+                $this->photosRepository->save($photo);
+                $collection->setPhoto($photo);
+            }
             $this->collectionsRepository->save($collection);
             $this->flashMessage('Sbírka byla uložena, pokud je datum nastavené na dnešek ihned se spustí', 'alert-success');
             $this->getPresenter()->redirect('Azyl:Collections');
@@ -299,17 +298,21 @@ class AzylPresenter extends BasePresenter
             $collection->setStartAt($values['startAt']);
             $collection->setIsActive($values['isActive']);
             $collection->setApproved(false);
+            if ($values['headline'] !== null) {
+                $photo = new Photo();
+                $photo->setAzyl($azyl);
+                $photo->setCollections($collection);
+                $photo->setUser($user);
+                $photo->setDate(new DateTimeImmutable());
+                $photo->uploadCollectionHeadlinePhoto($values['headline']);
+                $this->photosRepository->save($photo);
+                $collection->setPhoto($photo);
+                }
+              else
+                 {
+                $collection->setPhoto(null);
+                }
 
-            $photo = new Photo();
-            $photo->setAzyl($azyl);
-            $photo->setCollections($collection);
-            $photo->setUser($user);
-            $photo->setDate(new DateTimeImmutable());
-            $photo->uploadCollectionHeadlinePhoto($values['headline']);
-
-            $this->photosRepository->save($photo);
-
-            $collection->setPhoto($photo);
             $this->collectionsRepository->save($collection);
             $this->flashMessage('Sbírka byla uložena, pokud je datum nastavené na dnešek ihned se spustí', 'alert-success');
             $this->getPresenter()->redirect('Azyl:Collections');

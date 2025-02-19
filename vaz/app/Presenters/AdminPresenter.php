@@ -20,6 +20,7 @@ use App\Model\Orm\Enums\RoleTypeEnum;
 use App\Model\Orm\Repository\adoptionsRepository;
 use App\Model\Orm\Repository\AnalyticsRepository;
 use App\Model\Orm\Repository\AnimalsRepository;
+use App\Model\Orm\Repository\CollectionsRepository;
 use App\Model\Orm\Repository\PageRepository;
 use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\UsersRepository;
@@ -74,7 +75,8 @@ class AdminPresenter extends BasePresenter
                                 private AnimalsRepository              $animalsRepository,
                                 private adoptionsRepository             $adoptionsRepository,
                                 private PhotosRepository                $photosRepository,
-                                private readonly VersionService         $versionService,)
+                                private readonly VersionService         $versionService,
+                                private readonly CollectionsRepository  $collectionsRepository)
     {
         parent::__construct();
         $this->roleFormFactory = $roleFormFactory;
@@ -262,6 +264,37 @@ class AdminPresenter extends BasePresenter
     public function renderAnimals(): void
     {
         $this->getTemplate()->title = 'Animals';
+    }
+
+    public function actionCollections(int $key = null): void
+    {
+        $this->getTemplate()->title = 'Collections';
+        $this->getTemplate()->collections = $this->collectionsRepository->findAll();
+    }
+
+    public function handleStopCollection(int $key): void
+    {
+        if ($this->isAjax()) {
+
+            $collection = $this->collectionsRepository->findOneByKey($key);
+            $collection->setIsActive(false);
+            $this->collectionsRepository->save($collection);
+            $this->redrawControl('collections');
+        }
+
+    }
+
+
+    public function handleApproveCollection(int $key): void
+    {
+        if ($this->isAjax())
+        {
+
+        $collection = $this->collectionsRepository->findOneByKey($key);
+        $collection->setApproved(true);
+        $this->collectionsRepository->save($collection);
+        $this->redrawControl('collections');
+        }
     }
 
     public function renderSpecies(): void

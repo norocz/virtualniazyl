@@ -1,5 +1,20 @@
 <versions>
     <version>
+        <date>19.02.2025</date>
+        <number>0.9.8.3</number>
+        <description>
+            Změny:
+            - opravena chyba kdy SAdmin nemohl předstírat azyl (Cannot assign __PHP_Incomplete_Class to property App\Model\Orm\Entity\Azyl::$mainPhoto of type ?App\Model\Orm\Entity\Photo)
+            - schvalování Sbírek (Admin)
+            - stopnuti Sbírky (Admin)
+
+            Co je potřeba:
+            - pravidla pro adopce
+            - adopční podmínky - rozběhnutý proces poslaný mail
+            - odkazy na podmínky při registraci
+        </description>
+    </version>
+    <version>
         <date>18.02.2025</date>
         <number>0.9.8.2</number>
         <description>

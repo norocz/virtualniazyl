@@ -458,7 +458,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
 
     public function createComponentRegisterForm(): Form
     {
-        $form = (new registerFormFactory($this->usersRepository, $this->entityManager))->create();
+        $form = (new registerFormFactory($this->usersRepository, $this->entityManager, $this->getLinkGenerator()))->create();
         $form->onSuccess[] = [$this, 'formRegisterSucceeded'];
         return $form;
     }

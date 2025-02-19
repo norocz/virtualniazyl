@@ -1,58 +1,47 @@
-{block azylContent}
+{block adminContent}
 <main class="main" id="top">
     <div class="bg">
         <div class="content">
-            <div class = >
+            <div class ="" >
 
 
 
-            <div class="row">
-                <div class="col-xl-6 col-md-12  flex-column">
-                    <h3>Sbírky</h3>
-                    <div class="collection" id="collection">
+            <div class="row d-flex">
+                <h3>Sbírky</h3>
+                <div class="col-xl-12 col-md-12 d-flex flex-row flex-wrap">
 
-                        {foreach $collections as $colecction}
+                {snippetArea collections}
 
-                            <div class="card collection-card text-dark bg-light" style="width: 550px">
-                                <img class="card-img-top" src="{$basepath}.{$collection->getHeadline()}" alt="Card image cap">
-                                <div class="card-img-overlay">
-                                    <h3 class="card-title">{$colection->getCollectionName()}</h3>
-                                </div>
+
+                        {foreach $collections as $collection}
+
+                            {snippet 'collection-'.$collection->getCollectionKey()}
+                            <div class="card collection-card text-dark bg-light p-1 m-1" style="width: 420px">
+                                {if !is_null($collection->getPhoto())}
+                                    <img class="card-img-top" src="{$collection->getPhoto()->getPath()}{$collection->getPhoto()->getName()}" alt="Headline image">
+                                {/if}
+
+                                    <h3 class="card-title">{$collection->getCollectionName()}</h3>
+
                                 <div class="card-body">
-                                    <p class="card-text"> {$colection->getCollectionDescription()|noescape}</p>
+                                    <p class="card-text"> {$collection->getCollectionDescription()|noescape}</p>
 
-                                    <a href="{link Admin:collection, $collection->getCollectionKey()}" class="btn btn-outline-info btn-sm">Editovat sbírku</a>
-                                    <a href="{link Admin:collection !stopColollection, $collection->getCollectionKey()}" class="btn btn-outline-warning btn-sm">Zastavit sbírku</a>
+                                    <a href="{link Admin:collections, $collection->getCollectionKey()}" class="ajax btn btn-outline-info btn-sm">Editovat sbírku</a>
+                                    <a href="{link stopCollection!, $collection->getCollectionKey()}" class="ajax btn btn-outline-warning btn-sm">Zastavit sbírku</a>
+                                    <a href="{link approveCollection!, $collection->getCollectionKey()}" class="ajax btn btn-outline-warning btn-sm">Schválit sbírku</a>
 
                                 </div>
                                 <div class="card-footer">
-                                    {var $url = link Home:collection, $collection->getCollectionKey()}
-                                    Sdílet:
-                                    <a href="https://www.facebook.com/sharer/sharer.php?u={$url}" target="_blank" class="btn btn-link text-decoration-none">
-                                            <i class="bi bi-facebook"></i> Facebook
-                                    </a>
-
-                                    {* Odkaz na sdílení na Instagram *}
-                                    <a href="https://www.instagram.com/?url={$url}" target="_blank" class="btn btn-link text-decoration-none">
-                                            <i class="bi bi-instagram"></i> Instagram
-                                    </a>
-
-                                    {* Odkaz na sdílení na X (Twitter) *}
-                                    <a href="https://twitter.com/intent/tweet?url={$url}" target="_blank" class="btn btn-link text-decoration-none">
-                                            <i class="bi bi-twitter-x"></i> X
-                                    </a>
-
-                                    {* Odkaz na sdílení na LinkedIn *}
-                                    <a href="https://www.linkedin.com/shareArticle?url={$url}" target="_blank" class="btn btn-link text-decoration-none">
-                                        <i class="bi bi-linkedin"></i> LinkedIn
-                                    </a>
-
+                                    {if $collection->isActive()}<span class="text-success m-2">Aktivní</span>{else}<span class="text-warning">Neaktivní</span>{/if}
+                                    {if $collection->isApproved()}<span class="text-success m-2">Schváleno</span>{else}<span class="text-warning">Neschváleno</span>{/if}
                                 </div>
 
                             </div>
-                        {/foreach}
+                                {/snippet}
 
-                    </div>
+                        {/foreach}
+                {/snippetArea}
+
                 </div>
             </div>
         </div>

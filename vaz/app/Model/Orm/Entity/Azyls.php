@@ -50,7 +50,8 @@ class Azyl
     #[ORM\OneToMany(mappedBy: "azyl", targetEntity: News::class)]
     private ?Collection $news = null;
 
-    #[ORM\OneToOne(targetEntity: Photo::class)]
+    #[ORM\OneToOne(targetEntity: Photo::class, fetch: "EAGER")]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Photo $mainPhoto;
 
     #[ORM\OneToMany(mappedBy: "azyl", targetEntity: "Photo")]
