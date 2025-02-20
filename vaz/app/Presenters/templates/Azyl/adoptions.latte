@@ -148,7 +148,7 @@
 
         </div>
         <div class="row">
-                <div class="col-lg-5 col-sm-12 bg-light rounded p-4 m-2">
+                <div class="col-lg-5 col-sm-12 bg-light rounded p-4 m-1 w-lg-100">
                     <div class="title h6">Zájemce</div>
                     <span class="h4 alert-warning">{$adoption->getUser()->getUserName()}</span> <br>
                   Jméno:  {$adoption->getUser()->getFirstName()}
@@ -170,7 +170,7 @@
                     {/ifset}
                 </div>
 
-                <div class="col-lg-6 col-sm-12 bg-light rounded p-4 m-2">
+                <div class="col-lg-6 col-sm-12 bg-light rounded p-4 m-1 ms-xxl-auto">
                     <h6 class="mb-0">Komunikace</h6>
                         <div class="d-flex align-items-center justify-content-between mb-2">
 
@@ -185,12 +185,13 @@
                             </div>
                         {/foreach}
 
+
                         </div>
                 </div>
 
         </div>
         <div class="row">
-            <div class="col-lg-10 col-sm-12 bg-light rounded p-4 m-2">
+            <div class="col-lg-12 col-sm-12 bg-light rounded p-4 m-2">
 
                 <a class="btn btn-outline-success" href="{link endAdoption! $adoption->getId()}">Zvíře bylo adoptováno</a>
                 <a class="btn btn-outline-danger" href="{link stopAdoption! $adoption->getId()}">Přerušit adopci</a>

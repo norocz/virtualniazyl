@@ -166,6 +166,29 @@
             </div>
         </div>
         {/block}
+        {block head}
+            <meta property="og:title" content="Virtualní azyl - sbírka - {$collection->getCollectionName()}">
+            <meta property="og:description" content="{$collection->getCollectionDescription()|truncate:200|safeHtml}">
+            <meta property="og:image" content="{$basePath}{$collection->getPhoto()->getPath().$collection->getPhoto()->getName()}">
+            <meta property="og:url" content="{link //Home:collection, $collection->getCollectionKey()}">
+            <meta property="og:type" content="website">
+
+            <script type="application/ld+json">
+            {
+              "@context": "https://schema.org",
+              "@type": "WebPage",
+              "name": "Virtualní azyl - sbírka - "{$collection->getCollectionName()},
+              "description": {$collection->getCollectionDescription()|truncate:200|safeHtml},
+              "image": {$basePath}{$collection->getPhoto()->getPath().$collection->getPhoto()->getName()},
+              "url":  {link //Home:collection, $collection->getCollectionKey()}
+            }
+            </script>
+
+            <meta name="twitter:card" content="{$basePath}{$collection->getPhoto()->getPath().$collection->getPhoto()->getName()}">
+            <meta name="twitter:title" content="Virtualní azyl - sbírka - {$collection->getCollectionName()}">
+            <meta name="twitter:description" content="{$collection->getCollectionDescription()|truncate:200|safeHtml}">
+            <meta name="twitter:image" content="{$basePath}{$collection->getPhoto()->getPath().$collection->getPhoto()->getName()}">
+{/block}
         {block scripts-user}
         {var $dateE = $collection->getEndingAt()->format('Y-m-d\TH:i:s')}
         {var $dateS = $collection->getStartAt()->format('Y-m-d\TH:i:s')}

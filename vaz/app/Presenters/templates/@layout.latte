@@ -10,14 +10,14 @@
 	<!-- ===============================================-->
 	<!--    Favicons-->
 	<!-- ===============================================-->
-	<link rel="apple-touch-icon" sizes="180x180" href="{$basePath}/assets/img/favicons/apple-touch-icon.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="{$basePath}/assets/img/favicons/favicon-32x32.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="{$basePath}/assets/img/favicons/favicon-16x16.png">
-	<link rel="shortcut icon" type="image/x-icon" href="{$basePath}/assets/img/favicons/favicon.ico">
-	<link rel="manifest" href="{$basePath}/assets/img/favicons/manifest.json">
+	<link rel="apple-touch-icon" sizes="180x180" href="{$basePath}/assets/img/logos/dino180.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="{$basePath}/assets/img/logos/dino32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="{$basePath}/assets/img/logos/dino16.png">
+	<link rel="shortcut icon" type="image/x-icon" href="{$basePath}/assets/img/logos/dino.ico">
+	<link rel="manifest" href="{$basePath}/assets/img/logos/manifest.json">
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
-	<meta name="msapplication-TileImage" content="{$basePath}/assets/img/favicons/mstile-150x150.png">
+	<meta name="msapplication-TileImage" content="{$basePath}/assets/img/logos/dino150.png">
 	<meta name="theme-color" content="#ffffff">
 	<script src="{$basePath}/assets/js/config.js"></script>
 
@@ -33,6 +33,9 @@
 	<link href="{$basePath}/assets/css/user-rtl.css" rel="stylesheet" id="user-style-rtl">
 	<link href="{$basePath}/assets/css/user.css" rel="stylesheet" id="user-style-default">
 	<link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
+	{ifset #head}
+	{include head}
+	{/ifset}
 </head>
 
 
@@ -108,7 +111,7 @@
                 <button class="navbar-toggler border-0 pe-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent" data-navbar-collapse="data-navbar-collapse">
                     <div class="container d-lg-flex justify-content-lg-end pe-lg-0 w-lg-100">
-						<ul class="navbar-nav" data-navbar-nav="data-navbar-nav" style="align-items: flex-start; flex-flow: row; flex-shrink: initial;">
+						<ul class="navbar-nav mt-2 mt-lg-1 ms-lg-4 ms-xl-8 ms-2xl-9 gap-lg-x1" data-navbar-nav="data-navbar-nav">
 							{ifset $mainMenuItems}
 								{foreach $mainMenuItems as $item}
 									{if ($item['alwaysAvailable'] || $item['logged'] && $user->isLoggedIn() && (!$item['role'] || $user->isInRole($item['role'])))}

@@ -21,4 +21,5 @@ echo "Nastavuji oprávnění složek temp a log..."
 chmod -R 775 $PROJECT_DIR/vaz/temp || { echo "Chyba: Nastavení oprávnění složky temp selhalo."; exit 1; }
 chmod -R 775 $PROJECT_DIR/vaz/log || { echo "Chyba: Nastavení oprávnění složky log selhalo."; exit 1; }
 
-echo "Aktualizace aplikace dokončena."
+echo "Aktualizace aplikace dokončena. Nezapomeň smazat obsah TEMP a LOG"
+echo "Pokud se změnila DB udělej update struktury"
