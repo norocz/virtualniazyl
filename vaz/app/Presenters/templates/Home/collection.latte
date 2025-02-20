@@ -167,43 +167,49 @@
         </div>
         {/block}
         {block scripts-user}
+        {var $dateE = $collection->getEndingAt()->format('Y-m-d\TH:i:s')}
+        {var $dateS = $collection->getStartAt()->format('Y-m-d\TH:i:s')}
         <script>
-        // Datum konce akce (nahraďte svým datem)
-        {var $date = $collection->getEndingAt()->format('Y-m-d\TH:i:s')}
-       // Datum konce akce (předáno z Latte)
-        const endDate = new Date({$date}).getTime();
+    // Datum začátku a konce akce (předáno z Latte)
 
-        function updateCountdown() {
-          const now = new Date().getTime();
-          const timeLeft = endDate - now;
+    const startDate = new Date({$dateS}).getTime();
+    const endDate = new Date({$dateE}).getTime();
+
+    function updateCountdown() {
+        const now = new Date().getTime();
+        const timeLeft = endDate - now;
+        const totalTime = endDate - startDate; // Celkový časový interval akce
+        const elapsedTime = now - startDate; // Čas, který už uplynul od začátku
 
         // Výpočet dnů, hodin, minut a sekund
-          const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-          const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
-          // Zobrazení času
-          document.getElementById('days').textContent = String(days).padStart(2, '0');
-          document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-          document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-          document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+        // Zobrazení času
+        document.getElementById('days').textContent = String(days).padStart(2, '0');
+        document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+        document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+        document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
 
-          // Aktualizace progress baru
-          const totalTime = endDate - new Date('2023-01-01T00:00:00').getTime();
-          const progressWidth = ((timeLeft / totalTime) * 100).Math.ceil();
-          document.getElementById('progressBar').style.width = `${ progressWidth }%`;
+        // Výpočet progress baru (procentuální dokončení)
+        let progressWidth = Math.ceil((elapsedTime / totalTime) * 100);
+        progressWidth = Math.min(Math.max(progressWidth, 0), 100); // Zajištění rozsahu 0–100 %
 
-          // Pokud čas vypršel
-          if (timeLeft < 0) {
+        document.getElementById('progressBar').style.width = `${ progressWidth }%`;
+
+        // Pokud čas vypršel
+        if (timeLeft < 0) {
             clearInterval(interval);
             document.getElementById('countdown').textContent = 'Čas vypršel!';
-            document.getElementById('progressBar').style.width = '0%';
-          }
+            document.getElementById('progressBar').style.width = '100%';
         }
+    }
 
-        // Spuštění odpočtu každou sekundu
-        const interval = setInterval(updateCountdown, 1000);
-        updateCountdown(); // Okamžitá inicializace
-        </script>
+    // Spuštění odpočtu každou sekundu
+    const interval = setInterval(updateCountdown, 1000);
+    updateCountdown(); // Okamžitá inicializace
+</script>
+
 {/block}
