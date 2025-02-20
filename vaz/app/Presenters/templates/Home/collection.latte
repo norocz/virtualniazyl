@@ -48,7 +48,7 @@
                             <div class="card collection-card text-dark bg-light">
                                 <img class="card-img-top" src="{$basePath}{$collection->getPhoto()->getPath().$collection->getPhoto()->getName()}" alt="Card image cap">
                                 <div class="card-img-overlay">
-                                    <h4 class="card-title shadow">{$collection->getCollectionName()}</h4>
+                                    <h4 class="card-title border p-1 rounded-2 blured-bg">{$collection->getCollectionName()}</h4>
                                 </div>
                                 <div class="card-body">
                                     <p class="card-text"> {$collection->getCollectionDescription()|safeHtml|noescape}</p>
