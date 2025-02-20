@@ -60,6 +60,12 @@ class Azyl
     #[ORM\OneToMany(mappedBy: 'reviewer', targetEntity: UsersRatings::class)]
     private ?Collection $reviewerRatings;
 
+    #[ORM\Column(type: 'string', length: 34 ,nullable: true)]
+    private ?string $random;
+
+    #[ORM\OneToMany(mappedBy: "azyl", targetEntity: Contracts::class)]
+    private ?Collection $contracts;
+
     public function __toString(): string
     {
         return (string)$this->id;  // nebo jiný identifikátor entity Azyl

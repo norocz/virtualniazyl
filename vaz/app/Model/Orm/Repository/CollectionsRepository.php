@@ -23,7 +23,7 @@ class CollectionsRepository extends EntityRepository
 
     public function fetchAllActive(): array
     {
-        return $this->findBy(['isActive' => true]);
+        return $this->findBy(['isActive' => true, 'approved' => true]);
     }
 
     public function findByAzyl($azyl): array

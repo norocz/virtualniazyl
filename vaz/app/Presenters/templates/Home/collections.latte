@@ -10,7 +10,7 @@
                         <div class="col-xl-6 col-md-12 d-flex flex-row flex-wrap">
                             <div class="card collection-card text-dark bg-light m-2" style="width:550px;" >
                                 {if !is_null($collection->getPhoto())}
-                                <img class="card-img-top" src="{$collection->getPhoto()->getPath()}{$collection->getPhoto()->getName()}" alt="Headline image">
+                                <img class="card-img-top" src="{$basePath}/{$collection->getPhoto()->getPath()}{$collection->getPhoto()->getName()}" alt="Headline image">
                                 {/if}
                                 <h3 class="card-title">{$collection->getCollectionName()}</h3>
 
@@ -24,26 +24,26 @@
                                 <div class="card-footer">
 
                                     Sdílet na:
-                                    <a href="https://www.facebook.com/sharer/sharer.php?u={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u={link //Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
                                         <i class="bi bi-facebook"></i>
                                     </a>
 
                                     {* Odkaz na sdílení na Instagram *}
-                                    <a href="https://www.instagram.com/?url={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
+                                    <a href="https://www.instagram.com/?url={link //Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
                                             <i class="bi bi-instagram"></i>
                                     </a>
 
                                     {* Odkaz na sdílení na X (Twitter) *}
-                                    <a href="https://twitter.com/intent/tweet?url={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
+                                    <a href="https://twitter.com/intent/tweet?url={link //Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
                                             <i class="bi bi-twitter-x"></i>
                                     </a>
 
                                     {* Odkaz na sdílení na LinkedIn *}
-                                    <a href="https://www.linkedin.com/shareArticle?url={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
+                                    <a href="https://www.linkedin.com/shareArticle?url={link //Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
                                             <i class="bi bi-linkedin"></i>
                                     </a>
                                     <br>
-                                    Odkaz: {link Home:collection, $collection->getCollectionKey()}
+                                    Odkaz: {link //Home:collection, $collection->getCollectionKey()}
 
                                 </div>
 

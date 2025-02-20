@@ -24,7 +24,7 @@ class News
     #[ORM\Column(type: 'string', length: 255)]
     private string $title;
 
-    #[ORM\Column(type: 'text', length: 40960)]
+    #[ORM\Column(type: 'text', length: 256000)]
     private string $content;
 
     #[ORM\Column(type: 'datetime_immutable')]

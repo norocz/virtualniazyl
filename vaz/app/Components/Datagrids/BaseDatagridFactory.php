@@ -11,6 +11,10 @@ abstract class BaseDatagridFactory
 {
     protected ?Presenter $presenter;
 
+    public function __construct()
+    {
+    }
+
     public function setPresenter(Presenter $presenter): void
     {
         $this->presenter = $presenter;

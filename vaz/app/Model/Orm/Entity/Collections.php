@@ -257,7 +257,7 @@ class Collections
         return $this->extendedAmount;
     }
 
-    public function setExtendedAmount(int $extendedAmount): Collections
+    public function setExtendedAmount(?int $extendedAmount): Collections
     {
         $this->extendedAmount = $extendedAmount;
         return $this;
@@ -273,7 +273,5 @@ class Collections
         $this->approved = $approved;
         return $this;
     }
-
-
 
 }

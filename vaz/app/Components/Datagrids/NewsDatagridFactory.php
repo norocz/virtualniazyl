@@ -25,7 +25,7 @@ class NewsDatagridFactory extends DataGrid
         $this->newsRepository = $newsRepository;
     }
 
-    private Presenter $presenter;
+    protected ?Presenter $presenter;
 
     public function setPresenter(Presenter $presenter): void
     {

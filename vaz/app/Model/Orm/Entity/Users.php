@@ -150,6 +150,9 @@ class Users
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description;
 
+    #[ORM\OneToMany(mappedBy: "users", targetEntity: Contracts::class)]
+    private ?Collection $contracts;
+
 
     public function __construct()
     {

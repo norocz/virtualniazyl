@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Presenters;
 
 
+use App\Components\Datagrids\CollectionsDatagridFactory;
 use App\Forms\collectionFormFactory;
 use App\Forms\systemSettingsFormFactory;
 use App\Model\Orm\Repository\AnalyticsRepository;
@@ -19,6 +20,7 @@ use App\Forms\setAzylFormFactory;
 use Nette\Security\AuthenticationException;
 use Nette\Security\SimpleIdentity;
 use Nette\Utils\Paginator;
+use Ublaboo\DataGrid\DataGrid;
 
 class SuperAdminPresenter extends BasePresenter
 {
@@ -31,6 +33,7 @@ class SuperAdminPresenter extends BasePresenter
     private systemSettingsFormFactory $systemSettingsFormFactory;
     private collectionsRepository $collectionsRepository;
     private collectionFormFactory $collectionFormFactory;
+    private collectionsDatagridFactory $collectionsDatagridFactory;
     private PhotosRepository $photosRepository;
     public function __construct(setAzylFormFactory $setAzylFormFactory,
                                 azylRepository $azylRepository,
@@ -40,7 +43,8 @@ class SuperAdminPresenter extends BasePresenter
                                 systemSettingsFormFactory $systemSettingsFormFactory,
                                 collectionFormFactory $collectionFormFactory,
                                 CollectionsRepository $collectionsRepository,
-                                PhotosRepository     $photosRepository)
+                                PhotosRepository     $photosRepository,
+                                CollectionsDatagridFactory $collectionsDatagridFactory)
     {
         parent::__construct();
         $this->setAzylFormFactory = $setAzylFormFactory;
@@ -52,6 +56,7 @@ class SuperAdminPresenter extends BasePresenter
         $this->collectionsRepository = $collectionsRepository;
         $this->collectionFormFactory = $collectionFormFactory;
         $this->photosRepository = $photosRepository;
+        $this->collectionsDatagridFactory = $collectionsDatagridFactory;
 
     }
 
@@ -247,6 +252,11 @@ class SuperAdminPresenter extends BasePresenter
         return $form;
     }
 
+    public function createComponentCollectionDatagrid(): Datagrid
+    {
+        return $this->collectionsDatagridFactory->create();
+    }
+
     /**
      * @throws AuthenticationException
      * @throws NonUniqueResultException
@@ -262,7 +272,7 @@ class SuperAdminPresenter extends BasePresenter
             $newData['Azyl'] = $azyl;
             $photoId = $azyl->getMainPhoto()?->getId();
             $photo = $photoId ? $this->photosRepository->findById($photoId) : null;
-
+            bdump($photo);
             $newData['Azyl']->setMainPhoto($photo);
             $newIdentity = new SimpleIdentity($identity->getId(),$identity->getRoles(),$newData);
             $newIdentity->getData()['Azyl']->setMainPhoto($photo);

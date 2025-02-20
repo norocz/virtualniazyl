@@ -1,5 +1,36 @@
 <versions>
     <version>
+        <date>20.02.2025</date>
+        <number>0.9.8.4</number>
+        <description>
+            Změny:
+            - tabulky pro podepisování smluv
+            - tabulka pro archivaci smluv
+            - tabulka pro části smlouvy
+            - změny v tabulce ANIMALS, AZYL a USERS pro párování smluv
+            - Opravena chyba v Collections:setExtendedAmount()
+            - SAdmin: Sbírkový datagrid
+            - Oprava odkazů u sbírek
+            - Oprava odkazů na obrázek u sbírek
+
+
+            Nápady:
+            - podepisování smlouvy pomocí SMS (odeslání sms s kodem, zadání kódu pro podpis)
+
+            Co je potřeba:
+            - Zkontrolovat všechny odkazy jestli jsou OK zvlášť odkazy na fotky
+            - ADMIN: editor částí smluv (šablona smlouvy)
+            - ADMIN: kontrola smluv
+            - párování smlouvy
+            - archivace smlouvy
+            - azyl komunikace
+            - pravidla pro adopce
+            - adopční podmínky - rozběhnutý proces poslaný mail
+            - odkazy na podmínky při registraci
+            - Pořád je problém s přepínáním azylu v souvislosti s fotkou pokud není nastavená a je null
+        </description>
+    </version>
+    <version>
         <date>19.02.2025</date>
         <number>0.9.8.3</number>
         <description>

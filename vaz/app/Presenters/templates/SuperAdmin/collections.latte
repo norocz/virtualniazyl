@@ -1,61 +1,8 @@
 {block superAdminContent}
 <main class="main" id="top">
     <div class="bg">
-        <div class="content">
-            <div class = "" > </div>
+        {control collectionDatagrid}
 
-
-
-            <div class="row">
-                <div class="col-xl-6 col-md-12  flex-column">
-                    <h3>Aktuální sbírky</h3>
-                    <div class="collection" id="collection">
-
-                        {foreach $collections as $colecction}
-
-                            <div class="card collection-card text-dark bg-light" style="width: 550px">
-                                <img class="card-img-top" src="{$basepath}.{$collection->getHeadline()}" alt="Card image cap">
-                                <div class="card-img-overlay">
-                                    <h3 class="card-title">{$colection->getCollectionName()}</h3>
-                                </div>
-                                <div class="card-body">
-                                    <p class="card-text"> {$colection->getCollectionDescription()|noescape}</p>
-
-                                    <a href="{link SuperAdmin:collection, $collection->getCollectionKey()}" class="btn btn-outline-info btn-sm">Editovat sbírku</a>
-                                    <a href="{link SuperAdmin:collection !stopColollection, $collection->getCollectionKey()}" class="btn btn-outline-warning btn-sm">Zastavit sbírku</a>
-
-                                </div>
-                                <div class="card-footer">
-
-                                    Sdílet:
-                                    <a href="https://www.facebook.com/sharer/sharer.php?u={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
-                                        <i class="bi bi-facebook"></i>
-                                    </a>
-
-                                    {* Odkaz na sdílení na Instagram *}
-                                    <a href="https://www.instagram.com/?url={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
-                                            <i class="bi bi-instagram"></i>
-                                    </a>
-
-                                    {* Odkaz na sdílení na X (Twitter) *}
-                                    <a href="https://twitter.com/intent/tweet?url={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
-                                            <i class="bi bi-twitter-x"></i>
-                                    </a>
-
-                                    {* Odkaz na sdílení na LinkedIn *}
-                                    <a href="https://www.linkedin.com/shareArticle?url={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
-                                        <i class="bi bi-linkedin"></i>
-                                    </a>
-
-                                </div>
-
-                            </div>
-                        {/foreach}
-
-                    </div>
-                </div>
-            </div>
-        </div>
         {/block}
 {block scripts}
 {/block}

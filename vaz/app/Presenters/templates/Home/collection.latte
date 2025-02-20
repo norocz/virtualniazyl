@@ -46,7 +46,7 @@
                   <div class="collection">
 
                             <div class="card collection-card text-dark bg-light">
-                                <img class="card-img-top" src="{$collection->getPhoto()->getPath()}{$collection->getPhoto()->getName()}" alt="Card image cap">
+                                <img class="card-img-top" src="{$basePath}/{$collection->getPhoto()->getPath()}{$collection->getPhoto()->getName()}" alt="Card image cap">
                                 <div class="card-img-overlay">
                                     <h4 class="card-title">{$collection->getCollectionName()}</h4>
                                 </div>
@@ -80,16 +80,11 @@
                                       {/if}
                                     </div>
 
-
-
-
-
                                     {* Zobrazení aktuálního stavu *}
                                     <h3 class="mt-3">
                                       Nasbíráno: {$collectionPayments } Kč / Cíl: {$collection->getResultAmount()} Kč
                                     </h3>
                                   </div>
-
 
                                     <div class="container mt-5">
                                       <div class="text-center">
@@ -130,26 +125,26 @@
                                <div class="bg-light border rounded p-3 mt-5">
 
                                     Sdílet na:
-                                    <a href="https://www.facebook.com/sharer/sharer.php?u={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u={link //Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
                                         <i class="bi bi-facebook"></i>
                                     </a>
 
                                     {* Odkaz na sdílení na Instagram *}
-                                    <a href="https://www.instagram.com/?url={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
+                                    <a href="https://www.instagram.com/?url={link //Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
                                             <i class="bi bi-instagram"></i>
                                     </a>
 
                                     {* Odkaz na sdílení na X (Twitter) *}
-                                    <a href="https://twitter.com/intent/tweet?url={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
+                                    <a href="https://twitter.com/intent/tweet?url={link //Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
                                             <i class="bi bi-twitter-x"></i>
                                     </a>
 
                                     {* Odkaz na sdílení na LinkedIn *}
-                                    <a href="https://www.linkedin.com/shareArticle?url={link Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
+                                    <a href="https://www.linkedin.com/shareArticle?url={link //Home:collection, $collection->getCollectionKey()}" target="_blank" class="btn btn-link text-decoration-none">
                                             <i class="bi bi-linkedin"></i>
                                     </a>
                                     <br>
-                                    Odkaz: {link Home:collection, $collection->getCollectionKey()}
+                                    Odkaz: {link //Home:collection, $collection->getCollectionKey()}
 
                                 </div>
 
@@ -186,7 +181,7 @@
 
           // Aktualizace progress baru
           const totalTime = endDate - new Date('2023-01-01T00:00:00').getTime();
-          const progressWidth = (timeLeft / totalTime) * 100;
+          const progressWidth = ((timeLeft / totalTime) * 100).Math.ceil();
           document.getElementById('progressBar').style.width = `${ progressWidth }%`;
 
           // Pokud čas vypršel

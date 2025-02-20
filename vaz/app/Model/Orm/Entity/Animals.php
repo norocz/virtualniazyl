@@ -5,6 +5,7 @@ namespace App\Model\Orm\Entity;
 
 use App\Model\Orm\Enums\AdoptionsTypeEnum;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 
@@ -65,6 +66,14 @@ class Animal
     private bool $adopted;
     #[ORM\Column(type: 'boolean')]
     private bool $isDeleted;
+
+    #[ORM\ManyToMany(targetEntity: Contracts::class, mappedBy: "animals")]
+    private ?Collection $contracts;
+
+    public function __construct()
+    {
+        $this->contracts = new ArrayCollection();
+    }
 
     /**
      * @return int
