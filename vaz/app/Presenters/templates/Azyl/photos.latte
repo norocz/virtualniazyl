@@ -66,8 +66,8 @@
             Nahrát nové fotky:
                 <div class="bg-light p-2 m-2">
                     <form n:name=azylPhotoUploadForm>
-                        <input type="file" n:name=photos>
-                        <input type="submit" n:name=send>
+                        <input type="file" n:name=photos class="form-control large">
+                        <input type="submit" n:name=send class="btn btn-success">
                     </form>
 
                 </div>
@@ -82,7 +82,7 @@
                     <div class="card w-auto">
                  <div class="card-header bg-dark text-white">{$photo->getOriginalName()} </div>
                     <div class="card-body">
-                        <img  class = "w-25" src="{$photo->getPath()}{$photo->getName()}" alt="{$photo->getOriginalName()}" class="img-fluid" onclick="showImageModal(this.src)"><hr>
+                        <img  class="w-25 img-fluid" src="{$basepath}{$photo->getPath()}{$photo->getName()}" alt="{$photo->getOriginalName()}" onclick="showImageModal(this.src)"><hr>
                         <a class = "btn btn-sm btn-sm-square btn-danger" href="{link deleteAzylPhoto!, $photo->getId()}"><i class="bi bi-trash-fill"></i></a>
                         <a class = "btn btn-sm btn-sm-square btn-primary" href="{link setHomeAzylPhoto!, $photo->getId()}"><i class="fa fa-home"></i></a>
                     </div>

@@ -66,6 +66,18 @@ class Azyl
     #[ORM\OneToMany(mappedBy: "azyl", targetEntity: Contracts::class)]
     private ?Collection $contracts;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $messageAddress;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $city;
+
+    #[ORM\Column(type: 'string', length: 512, nullable: true)]
+    private ?string $web;
+
+    #[ORM\Column(type: 'string', length: 512, nullable: true)]
+    private ?string $email;
+
     public function __toString(): string
     {
         return (string)$this->id;  // nebo jiný identifikátor entity Azyl
@@ -243,5 +255,70 @@ class Azyl
         return $this;
     }
 
+    public function getRandom(): ?string
+    {
+        return $this->random;
+    }
+
+    public function setRandom(?string $random): Azyl
+    {
+        $this->random = $random;
+        return $this;
+    }
+
+    public function getContracts(): ?Collection
+    {
+        return $this->contracts;
+    }
+
+    public function setContracts(?Collection $contracts): Azyl
+    {
+        $this->contracts = $contracts;
+        return $this;
+    }
+
+    public function getMessageAddress(): ?string
+    {
+        return $this->messageAddress;
+    }
+
+    public function setMessageAddress(?string $messageAddress): Azyl
+    {
+        $this->messageAddress = $messageAddress;
+        return $this;
+    }
+
+    public function getCity(): ?int
+    {
+        return $this->city;
+    }
+
+    public function setCity(?int $city): Azyl
+    {
+        $this->city = $city;
+        return $this;
+    }
+
+    public function getWeb(): ?string
+    {
+        return $this->web;
+    }
+
+    public function setWeb(?string $web): Azyl
+    {
+        $this->web = $web;
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(?string $email): Azyl
+    {
+        $this->email = $email;
+        return $this;
+    }
 
 }

@@ -45,7 +45,7 @@ class CityRepository extends EntityRepository
     /**
      * @throws NonUniqueResultException
      */
-    public function findCityById(int $id):Citys
+    public function findCityById(int $id):?Citys
     {
         return $this->createQueryBuilder('c')
             ->where('c.id = :id')
@@ -127,6 +127,38 @@ class CityRepository extends EntityRepository
         return $kole;
 
     }
+
+    public function findByAutocompleteCityName(?string $name): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.cityName LIKE :name')
+            ->setParameter('name', '%' . $name . '%') // Přidání wildcard pro LIKE
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countForAutocomplete(?string $query): int
+    {
+        return (int) $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)') // Počítáme počet řádků
+            ->where('c.cityName LIKE :query')
+            ->setParameter('query', '%' . $query . '%') // Použití LIKE
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function findByAutocomplete(?string $query, int $limit, int $offset): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.cityName LIKE :query')
+            ->setParameter('query', '%' . $query . '%')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getResult();
+    }
+
+
 
     public function findRegionByCountry(mixed $country):array
     {

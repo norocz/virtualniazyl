@@ -35,6 +35,9 @@ class Citys
     #[ORM\Column(type: 'string', length: 5)]
     private string $countryCode;
 
+    #[ORM\Column(type: 'string', length: 5)]
+    private string $psc;
+
 
     public function __construct()
     {
@@ -79,5 +82,17 @@ class Citys
     {
         return $this->id;
     }
+
+    public function getPsc(): string
+    {
+        return $this->psc;
+    }
+
+    public function setPsc(string $psc): Citys
+    {
+        $this->psc = $psc;
+        return $this;
+    }
+
 
 }

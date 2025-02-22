@@ -1,22 +1,58 @@
 {block azylContent}
-
-{control azylSettingsForm}
-
+    <div class="content">
+        <div class="row">
+            <div class="col-sm-12">
+            {control azylSettingsForm}
+            </div>
+        </div>
+    </div>
 {/block}
 
 
 {block scripts}
-
-
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/i18n/cs.js"></script>
 <script src="{$basePath}/vendors/tinymce/tinymce.js"></script>
 <script>
+
+
     tinymce.init({
         selector: '#azylDescription',
         plugins: 'link code',
 
         toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link code',
     });
+    $(document).ready(function() {
+        var baseUrl = window.location.origin;  // Získání protokolu a domény (např. http://localhost)
+        var url = baseUrl + $('#citySelect').data('url');  // Předání relativní URL a spojení s doménou
 
-</script>
+        $('#citySelect').select2({
+            placeholder: "Vyberte město",
+            allowClear: true,
+            language: {
+                noResults: function() {
+                    return "Žádné výsledky";
+                },
+                inputTooShort: function() {
+                    return "Zadejte více znaků";
+                },
+                searching: function() {
+                    return "Hledám...";
+                },
+            },
+            ajax: {
+                delay: 250,
+                url: url,  // Použití absolutní URL
+                data: function (params) {
+                    var query = {
+                        search: params.term
+                    }
+                    return query;
+                }
+            }
+        });
+    });
+
+    </script>
 
 {/block}

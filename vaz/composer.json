@@ -29,7 +29,8 @@
 		"contributte/translation": "^2.0",
 		"dfridrich/qr-platba": "^2",
 		"nepada/phone-number-doctrine": "^2.3",
-		"brick/phonenumber-doctrine": "^0.3.0"
+		"brick/phonenumber-doctrine": "^0.3.0",
+		"necris/selectt": "^1.0"
 	},
 	"require-dev": {
 		"nette/tester": "^2.5",

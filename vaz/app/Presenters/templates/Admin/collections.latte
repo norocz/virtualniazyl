@@ -34,6 +34,8 @@
                                 <div class="card-footer">
                                     {if $collection->isActive()}<span class="text-success m-2">Aktivní</span>{else}<span class="text-warning">Neaktivní</span>{/if}
                                     {if $collection->isApproved()}<span class="text-success m-2">Schváleno</span>{else}<span class="text-warning">Neschváleno</span>{/if}
+                                    <hr>
+                                    <span class="text-black m-2">Azyl: {$collection->getAzyl()->getAzylName()}</span>  <span class="text-black m-2">Uživatel: {$collection->getUser()->getUserName()}</span>
                                 </div>
 
                             </div>

@@ -411,49 +411,24 @@ class UserPresenter extends BasePresenter
      */
     public function createComponentUserDetailsForm(): Form
     {
-        $form = $this->userDetailsFormFactory->create($this->getPresenter());
+        $factory = $this->userDetailsFormFactory;
+        $factory->setLink($this->link('Json:select2'));
+        $form = $factory->create($this->getPresenter());
         $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
-        bdump($user);
-        if (!is_null($user->getCity()))
-        {
-            $test = $form->components;
-            $city = $this->cityRepository->findOneBy(['id'=>$user->getCity()]);
-            if (!is_null($city)) {
-                $form->removeComponent($form->getComponent('city'));
-                $form->removeComponent($form->getComponent('region'));
-                $form->removeComponent($form->getComponent('country'));
-
-                $form->addSelect('country', 'Země', $this->cityRepository->fetchCountries());
-                $form->addSelect('region', 'Region', $this->cityRepository->findRegionByCountry($city->getCountry()));
-                $form->addSelect('city', 'Město', $this->cityRepository->findCityByRegionArray($city->getRegion()));
-                $form->getComponent('region')->setItems($this->cityRepository->findRegionByCountry($city->getCountry()));
-                $form->getComponent('city')->setItems($this->cityRepository->findCityByRegionArray($city->getRegion()));
+        $city = $this->cityRepository->findOneBy(['id'=>$user->getCity()]);
+        $form['city']-> setItems([$city->getId() => $city->getCityName()], true);
 
 
-                $form->setDefaults(['firstName' => $user->getFirstName(),
-                                    'lastName' => $user->getLastName(),
-                                    'phone' => $user->getPhone(),
-                                    'street' => $user->getStreet(),
-                                    'city' => is_null($user->getCity()) ? null : $city->getId(),
-                                    'country' => is_null($user->getCity()) ? null : $city->getCountry(),
-                                    'region' => is_null($user->getCity()) ? null : $city->getRegion(),
-                                    'orientation' => $user->getOrientationNumber(),
-                                    'house' => $user->getHouseNumber(),
-                                    'description' => $user->getDescription()
-                    ]);
-            }
 
             $form->setDefaults(['firstName' => $user->getFirstName(),
                 'lastName' => $user->getLastName(),
                 'phone' => $user->getPhone(),
                 'street' => $user->getStreet(),
-
+                'city' => is_null($user->getCity()) ? null : $city->getId(),
                 'orientation' => $user->getOrientationNumber(),
                 'house' => $user->getHouseNumber(),
                 'description' => $user->getDescription()
             ]);
-
-        }
 
         $form['send']->setHtmlAttribute('class', 'btn btn-primary');
         $form['send']->setCaption('Uložit změny');
@@ -494,6 +469,13 @@ class UserPresenter extends BasePresenter
                 $this->flashMessage('Uživatelské informace aktualizovány.', 'alert-success');
 
             }
+        if($this->isAjax()){
+            $this->redrawControl('citySelect');
+        }
+        else
+        {
+            $this->redirect('this');
+        }
 
     }
 
@@ -552,7 +534,7 @@ class UserPresenter extends BasePresenter
            }
        }
 
-       if (!empty($this->getRequest()->files['personalPhoto']))
+       if ($values->personalPhoto->hasFile())
        {
            $photo = new Photo();
            $photo->setUser($user);

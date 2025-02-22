@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b0a6eb70567f0c9e740bdc0bb32dd063",
+    "content-hash": "117e518d4525826e133e95c07816cf9e",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -2222,6 +2222,45 @@
                 "source": "https://github.com/nette/latte/tree/v3.0.20"
             },
             "time": "2024-10-08T00:58:27+00:00"
+        },
+        {
+            "name": "necris/selectt",
+            "version": "1.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/necris/selectt.git",
+                "reference": "274fa5dff88172b83ed5fe219bc718f2c0fb198c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/necris/selectt/zipball/274fa5dff88172b83ed5fe219bc718f2c0fb198c",
+                "reference": "274fa5dff88172b83ed5fe219bc718f2c0fb198c",
+                "shasum": ""
+            },
+            "require": {
+                "nette/application": ">=v3.1.0",
+                "php": ">=8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Jan Žalský",
+                    "email": "jan@zalsky.cz",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Simple implementation of Select2 for Nette framework",
+            "support": {
+                "issues": "https://github.com/necris/selectt/issues",
+                "source": "https://github.com/necris/selectt/tree/1.0.4"
+            },
+            "time": "2024-08-06T12:26:03+00:00"
         },
         {
             "name": "nepada/phone-number-doctrine",

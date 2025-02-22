@@ -7,20 +7,25 @@ namespace App\Presenters;
 use App\Components\Datagrids\CollectionsDatagridFactory;
 use App\Forms\collectionFormFactory;
 use App\Forms\systemSettingsFormFactory;
+use App\Model\Orm\Entity\SystemSettings;
 use App\Model\Orm\Repository\AnalyticsRepository;
 use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\CollectionsRepository;
 use App\Model\Orm\Repository\FirewallLogsRepository;
 use App\Model\Orm\Repository\PhotosRepository;
+use App\Model\Orm\Repository\SystemSetingsRepository;
 use App\Services\IpInfoService;
 use Contributte\Application\UI\BasePresenter;
+use DateTimeImmutable;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Nette\Application\UI\Form;
 use App\Forms\setAzylFormFactory;
 use Nette\Security\AuthenticationException;
 use Nette\Security\SimpleIdentity;
 use Nette\Utils\Paginator;
 use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridException;
 
 class SuperAdminPresenter extends BasePresenter
 {
@@ -35,6 +40,7 @@ class SuperAdminPresenter extends BasePresenter
     private collectionFormFactory $collectionFormFactory;
     private collectionsDatagridFactory $collectionsDatagridFactory;
     private PhotosRepository $photosRepository;
+    private SystemSetingsRepository $systemSetingsRepository;
     public function __construct(setAzylFormFactory $setAzylFormFactory,
                                 azylRepository $azylRepository,
                                 firewallLogsRepository $firewallLogsRepository,
@@ -44,7 +50,8 @@ class SuperAdminPresenter extends BasePresenter
                                 collectionFormFactory $collectionFormFactory,
                                 CollectionsRepository $collectionsRepository,
                                 PhotosRepository     $photosRepository,
-                                CollectionsDatagridFactory $collectionsDatagridFactory)
+                                CollectionsDatagridFactory $collectionsDatagridFactory,
+                                SystemSetingsRepository $systemSetingsRepository,)
     {
         parent::__construct();
         $this->setAzylFormFactory = $setAzylFormFactory;
@@ -57,6 +64,7 @@ class SuperAdminPresenter extends BasePresenter
         $this->collectionFormFactory = $collectionFormFactory;
         $this->photosRepository = $photosRepository;
         $this->collectionsDatagridFactory = $collectionsDatagridFactory;
+        $this->systemSetingsRepository = $systemSetingsRepository;
 
     }
 
@@ -245,13 +253,36 @@ class SuperAdminPresenter extends BasePresenter
 
     }
 
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
     public function createComponentSystemSettingsForm(): Form
     {
+        $setings = $this->systemSetingsRepository->lastSetings();
         $form = $this->systemSettingsFormFactory->create();
+        $form -> setDefaults([
+            'fee' => $setings->getFee(),
+            'dph' => $setings->getDph(),
+            'language' => $setings->getLanguage(),
+            'payOutInterval' => $setings->getPayOutInterval(),
+            'depricated' => $setings->getDepricated(),
+            'relevantFrom' => $setings->getRelevantFrom(),
+            'cron' => $setings->isCron(),
+            'analyticsGarbage' => $setings->isAnalyticsGarbage(),
+            'databaseClear' => $setings->isDatabaseClear(),
+            'dphUse' => $setings->isDphUse(),
+            'lasPayOut' => $setings->getLastPayOut(),
+            'nextPayOut' => $setings->getNextPayOut(),
+
+        ]);
         $form->onSuccess[] = [$this, 'systemSetingsFormSuccessed'];
         return $form;
     }
 
+    /**
+     * @throws DataGridException
+     */
     public function createComponentCollectionDatagrid(): Datagrid
     {
         return $this->collectionsDatagridFactory->create();
@@ -272,7 +303,6 @@ class SuperAdminPresenter extends BasePresenter
             $newData['Azyl'] = $azyl;
             $photoId = $azyl->getMainPhoto()?->getId();
             $photo = $photoId ? $this->photosRepository->findById($photoId) : null;
-            bdump($photo);
             $newData['Azyl']->setMainPhoto($photo);
             $newIdentity = new SimpleIdentity($identity->getId(),$identity->getRoles(),$newData);
             $newIdentity->getData()['Azyl']->setMainPhoto($photo);
@@ -281,6 +311,31 @@ class SuperAdminPresenter extends BasePresenter
             $this->getPresenter()->redirect('Azyl:default');
 
         }
+
+    }
+
+    /**
+     * @throws \DateMalformedStringException
+     */
+    public function systemSetingsFormSuccessed(Form $form, \stdClass $values) : void
+    {
+        $systemSetings = new SystemSettings();
+        $systemSetings ->setFee($values->fee);
+        $systemSetings ->setCreatedAt(new DateTimeImmutable());
+        $systemSetings ->setDph($values->dph);
+        $systemSetings ->setCron($values->cron);
+        $systemSetings ->setDphUse($values->dphUse);
+        $systemSetings ->setNextPayOut(new DateTimeImmutable($values->nextPayOut->format('Y-m-d H:i:s')));
+        $systemSetings ->setPayOutInterval($values->payOutInterval);
+        $systemSetings ->setDepricated(false);
+        $systemSetings ->setDatabaseClear($values->databaseClear);
+        $systemSetings ->setAnalyticsGarbage($values->analyticsGarbage);
+        $systemSetings ->setRelevantFrom(new DateTimeImmutable());
+
+        $this->systemSetingsRepository->save($systemSetings);
+
+        $this->flashMessage('Nastavení systému byly uloženy','alert-success');
+        $this->redirect('this');
 
     }
 }

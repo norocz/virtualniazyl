@@ -15,14 +15,18 @@ class userDetailsFormFactory extends Form
 {
     private CityRepository $cityRepository;
     public UserPresenter $presenter;
+    public string $jsonLink; //předání odkazu pro json
 
     public function __construct(CityRepository $cityRepository)
     {
         parent::__construct();
         $this->cityRepository = $cityRepository;
 
+    }
 
-
+    public function setLink($link): void
+    {
+        $this->jsonLink = $link;
     }
 
     /**
@@ -56,31 +60,11 @@ class userDetailsFormFactory extends Form
             ->setHtmlAttribute('class', 'form-control form-inline');
         $form->addText('orientation','Čo:')
             ->setHtmlAttribute('class', 'form-control form-inline');
-
-
-        $country = $form->addSelect('country', 'Země:', $this->cityRepository->fetchCountries())
-            ->setPrompt('Vyberte zemi')
-            ->setHtmlAttribute('class', 'form-control ajax')
-            ->setHtmlAttribute('id', 'country');
-
-        $region = $form ->addSelect('region', 'Region:')
-            ->setHtmlAttribute('class', 'form-control ajax')
-            ->setHtmlAttribute('id', 'region')
-            ->setPrompt('Vyberte region')
-
-            ->setHtmlAttribute('data-depends', $country->getHtmlName())
-            ->setHtmlAttribute('data-url', $userPresenter->link('Json:region', '#'));
-        $form->onAnchor[] = fn() => $region->setItems($country->getValue() ? $this->cityRepository->findRegionByCountry($country->getValue()['0']) : []);
-
-        $city = $form->addSelect('city','Město:')
-            ->setHtmlAttribute('class', 'form-control ajax')
-            ->setHtmlAttribute('id', 'city')
-            ->setOption('description', ' ')
-            ->setPrompt('Vyberte obec')
-
-            ->setHtmlAttribute('data-depends', $region->getHtmlName())
-            ->setHtmlAttribute('data-url', $userPresenter->link('Json:city', '#'));
-        $form->onAnchor[] = fn() => $city->setItems($region->getValue() ? $this->cityRepository->findCityByRegionArray($region->getValue()['0']) : []);
+        $form->addSelect('city','Město:')
+            ->setPrompt('Vyber obec')
+            ->setHtmlAttribute('class', 'form-control select2')
+            ->setHtmlAttribute('id', 'citySelect')
+            ->setHtmlAttribute('data-url', $this->jsonLink);
 
         $form->addSubmit('send', 'Uložit')
             ->setHtmlAttribute('class', 'btn btn-success form-control');

@@ -1,4 +1,5 @@
 {block content}
+
 <style>
     .personalPhoto {
         margin-top: 0.8em;
@@ -80,7 +81,7 @@
 
                 </div>
             </nav>
-            <div class="tab-content" id="nav-tabContent">
+            <div class="tab-content fade show" id="nav-tabContent">
                 <div class="tab-pane fade" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
                     {ifset $adoptions}
                         <div class="row">
@@ -196,34 +197,13 @@
                                         <input placeholder="Čo" class="form-control"  n:name=orientation>
                                     </div>
 
-                                <div class="col-4">
-                                    <div class="form-group ">
-                                        <label n:name="country">Země:
-                                        <select n:name="country" class="form-control"></select>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-8">
-                                    <label n:name="region">Region:
-                                    {snippet regionSelect}
-                                        <select class="ajax form-control" id="region" n:name="region">
-                                            <option value="">Vyberte region</option>
-                                            {foreach $regions as $id => $name}
-                                                <option {if $id == $region} selected {/if} value="{$id}">{$name}</option>
-                                            {/foreach}
-                                        </select>
-                                    {/snippet}
-                                    </label>
-                                </div>
+
                                 <div class="col-12">
 
-                                    <label n:name="city">Město:
+                                    <label class="w-xxl-100" n:name="city">Město:
                                     {snippet citySelect}
-                                        <select class="ajax form-control form-floating" id="city" n:name="city">
-                                            <option value="">Vyberte město</option>
-                                            {foreach $cities as $id => $name}
-                                                <option {if $id == $city} selected {/if} value="{$id}">{$name}</option>
-                                            {/foreach}
+                                        <select size="30" class="ajax form-control w-xxl-100 select2" id="citySelect" n:name="city">
+
                                         </select>
                                     {/snippet}
                                     </label>
@@ -331,11 +311,9 @@
 {/block}
 
 {block scripts-user}
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/i18n/cs.js"></script>
 <script>
-    console.log(typeof naja);
-    console.log('HEJ HOU');
-    console.log(typeof $);
-
 
     function showImageModal(src) {
     const modal = document.getElementById("imageModal");
@@ -352,40 +330,59 @@
     </script>
     <script>
         $(document).ready(function() {
-            $('#country').change(function() {
-                var countryId = $(this).val();
-                if (countryId) {
-                    console.log(countryId);
-                    $.ajax({
-                        url: "{link getRegions! country}", // URL pro získání měst
-                        type: 'GET',
-                        success: function(data) {
-                            $('#region').html(data);
-                            $('#city').html('<option value="">Vyberte město</option>');
+            var baseUrl = window.location.origin;  // Získání protokolu a domény (např. http://localhost)
+            var url = baseUrl + $('#citySelect').data('url');  // Předání relativní URL a spojení s doménou
+
+            $('#citySelect').select2({
+                placeholder: "Vyberte obec",
+                allowClear: true,
+                language: {
+                    noResults: function() {
+                        return "Žádné výsledky";
+                    },
+                    inputTooShort: function() {
+                        return "Zadejte více znaků";
+                    },
+                    searching: function() {
+                        return "Hledám...";
+                    },
+                },
+                ajax: {
+                    delay: 250,
+                    url: url,  // Použití absolutní URL
+                    data: function (params) {
+                        var query = {
+                            search: params.term
                         }
-                    });
-                } else {
-                    $('#region').html('<option value="">Vyberte region</option>');
-                    $('#city').html('<option value="">Vyberte město</option>');
+                        return query;
+                    }
                 }
             });
+        });
 
-            $('#region').change(function() {
-                var regionId = $(this).val();
-
-                if (regionId) {
-                    console.log(regionId);
-                    $.ajax({
-                        url: "{link getCities! regionId}", // URL pro získání měst
-                        type: 'GET',
-                        success: function(data) {
-                            $('#city').html(data);
-                        }
-                    });
-                } else {
-                    $('#city').html('<option value="">Vyberte město</option>');
+        document.addEventListener("DOMContentLoaded", function () {
+            function activateTabFromHash() {
+                let hash = window.location.hash;
+                if (hash) {
+                    let tab = document.querySelector(`a[href="${ hash }"]`);
+                    if (tab) {
+                        new bootstrap.Tab(tab).show();
+                    }
                 }
+            }
+
+            // Spustit na začátku
+            activateTabFromHash();
+
+            // Změnit URL při kliknutí na tab
+            document.querySelectorAll('.nav-link').forEach(tab => {
+                tab.addEventListener('shown.bs.tab', function (event) {
+                    history.replaceState(null, null, event.target.getAttribute('href'));
+                });
             });
+
+            // Reagovat na změnu hash v URL
+            window.addEventListener("hashchange", activateTabFromHash);
         });
     </script>
 

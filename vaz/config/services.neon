@@ -18,6 +18,7 @@ services:
 	- App\Model\Orm\Entity\Citys
 	- App\Model\Orm\Entity\UsersRatings
 	- App\Model\Orm\Entity\Analytics
+	- App\Model\Orm\Entity\SystemSettings
 	- App\Command\Test
 
 	##Enum##
@@ -40,13 +41,16 @@ services:
 	- App\Model\Orm\Repository\UsersRepository
 	- App\Model\Orm\Repository\MessagesRepository
 	- App\Model\Orm\Repository\FirewallLogsRepository
+	- App\Model\Orm\Repository\SystemSetingsRepository
 
 	- App\Presenters\UserPresenter
 	- App\Model\VersionService('%appDir%/xml/versions.xml')
 
 	##Core Services##
+	- App\Components\CityDataSource
 	- App\Model\Services\MyAuthenticator
 	- App\Services\UserAddressService
+	- App\Services\AzylAddressService
 	- App\Services\MessagesService
 	- App\Services\AdoptionKeyService
 	- App\Services\CollectionKeyService
@@ -69,6 +73,7 @@ search:
 			- *Service
 
 extensions:
+    selectt: Selectt\DI\SelecttExtension
     - Nepada\Bridges\PhoneNumberInputDI\PhoneNumberInputExtension
     # Common
     nettrine.cache: Nettrine\Cache\DI\CacheExtension

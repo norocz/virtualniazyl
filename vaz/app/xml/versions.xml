@@ -1,6 +1,43 @@
 <versions>
     <version>
         <date>20.02.2025</date>
+        <number>0.9.8.6</number>
+        <description>
+            Změny:
+            - oprava editace sbírky (ukládání nového nebo neukládání žádného obrázku).
+            - oprava nastavení města
+            - integrace select2 pro město
+            - přidání města do DB azylu
+            - přidání adresy pro komunikaci azylu (azyly budou mít adresu azl############################
+            - uprava formuláře na profilu uživatele
+            - uprava formuláře nastavení azylu
+            - doplnění scházející Prahy (Wtf :D)
+            - ukládání nastavení systému
+            - zpracování nastavení systému
+            - nastavení azylu
+            - azyl navíc (web, email, město)
+
+            Nápady:
+            - podepisování smlouvy pomocí SMS (odeslání sms s kodem, zadání kódu pro podpis)
+
+            Co je potřeba:
+            - přidat režim odstávky
+            - Zkontrolovat všechny odkazy jestli jsou OK zvlášť odkazy na fotky
+            - ADMIN: editor částí smluv (šablona smlouvy)
+            - ADMIN: kontrola smluv
+            - ADMIN: Hromadné zprávy
+            - ADMIN: Odpovědi na dotazy
+            - párování smlouvy
+            - archivace smlouvy
+            - azyl komunikace
+            - pravidla pro adopce
+            - adopční podmínky - rozběhnutý proces poslaný mail
+            - Pořád je problém s přepínáním azylu v souvislosti s fotkou pokud není nastavená a je null
+            - Nastavit až bude správný účet
+        </description>
+    </version>
+    <version>
+        <date>20.02.2025</date>
         <number>0.9.8.5</number>
         <description>
             Změny:

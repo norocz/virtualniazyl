@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Model\Orm\Entity\Messages;
+use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\MessagesRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use DateTimeImmutable;
@@ -16,11 +17,13 @@ class MessagesService
     private MessagesRepository $messagesRepository;
     private UsersRepository $usersRepository;
     private UserAddressService $userAddressService;
-    public function __construct(MessagesRepository $messagesRepository, UsersRepository $usersRepository, UserAddressService $userAddressService)
+    private AzylRepository $azylRepository;
+    public function __construct(MessagesRepository $messagesRepository, UsersRepository $usersRepository, UserAddressService $userAddressService, AzylRepository $azylRepository)
     {
         $this->messagesRepository = $messagesRepository;
         $this->usersRepository = $usersRepository;
         $this->userAddressService = $userAddressService;
+        $this->azylRepository = $azylRepository;
     }
 
     // Metoda pro načtení zpráv mezi dvěma uživateli
@@ -56,7 +59,7 @@ class MessagesService
     {
         $message = new Messages();
         $senderUser = $this->usersRepository->getUserById($presenter->getUser()->getId());
-        $receiverUser = $this->usersRepository->getUserByMessageAddress($values->address);
+        $receiverUser = $this->usersRepository->getUserByMessageAddress($presenter->getPresenter()->getParameter('id'));
         $message->setSender($senderUser);
         $message->setSenderAddress($senderUser->getMessageAddress());
         $message->setType(MessageTypeEnum::FROMUSER_TYPE);
@@ -71,7 +74,7 @@ class MessagesService
             $presenter->redrawControl('messages');
         } else {
             $chat = "?do=chat";
-            $url = $presenter->link('User:messages', $receiverUser->getMessageAddress()) . $chat;
+            $url = $presenter->link('$presenter->', $receiverUser->getMessageAddress()) . $chat;
             $presenter->redirectUrl($url);
         }
     }
@@ -84,6 +87,28 @@ class MessagesService
                 $messageAddress = $this->userAddressService->generateCommunicationAddress($user->getId(), $user->getEmail(), $user->getUserName());
                 $user->setMessageAddress($messageAddress);
                 $this->usersRepository->addUser($user);
+
+            }
+        }
+
+        $messages = $this->messagesRepository->findAll();
+
+        foreach ($messages as $message) {
+
+            $message->setSenderAddress($message->getSender()->getMessageAddress());
+            $message->setReceiverAddress($message->getReceiver()->getMessageAddress());
+            $this->messagesRepository->save($message);
+        }
+    }
+
+    public function UpdateAzylMessages(): void
+    {
+        $azyls = $this->azylRepository->fetchAll();
+        foreach ($azyls as $azyl) {
+            if (is_null($azyl->getMessageAddress())) {
+                $messageAddress = $this->userAddressService->generateCommunicationAddress($azyl->getId(), $azyl->getEmail(), $azyl->getAzylName());
+                $azyl->setMessageAddress($messageAddress);
+                $this->azylRepository->addUser($azyl);
 
             }
         }

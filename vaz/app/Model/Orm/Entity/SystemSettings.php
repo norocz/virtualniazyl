@@ -4,6 +4,8 @@ namespace App\Model\Orm\Entity;
 
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
+#[ORM\Entity]
+#[ORM\Table(name: "system_settings")]
 
 class SystemSettings
 {
@@ -48,8 +50,8 @@ class SystemSettings
     #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $nextPayOut;
 
-    #[ORM\Column(type: 'datetime_immutable')]
-    private DateTimeImmutable $lastPayOut;
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?DateTimeImmutable $lastPayOut;
 
     public function getCreatedAt(): DateTimeImmutable
     {
@@ -95,14 +97,14 @@ class SystemSettings
         return $this;
     }
 
-    public function getLanguige(): ?int
+    public function getLanguage(): ?string
     {
-        return $this->languige;
+        return $this->language;
     }
 
-    public function setLanguige(?int $languige): SystemSettings
+    public function setlanguage(?string $language): SystemSettings
     {
-        $this->languige = $languige;
+        $this->language = $language;
         return $this;
     }
 
@@ -183,12 +185,12 @@ class SystemSettings
         return $this;
     }
 
-    public function getLastPayOut(): DateTimeImmutable
+    public function getLastPayOut(): ?DateTimeImmutable
     {
         return $this->lastPayOut;
     }
 
-    public function setLastPayOut(DateTimeImmutable $lastPayOut): SystemSettings
+    public function setLastPayOut(?DateTimeImmutable $lastPayOut): SystemSettings
     {
         $this->lastPayOut = $lastPayOut;
         return $this;

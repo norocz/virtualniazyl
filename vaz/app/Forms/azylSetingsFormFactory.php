@@ -9,6 +9,11 @@ use Nette\Application\UI\Form;
 
 class AzylSetingsFormFactory extends Form
 {
+    public string $jsonLink; //předání odkazu pro json
+    public function setLink($link): void
+    {
+        $this->jsonLink = $link;
+    }
     public function create(): Form
     {
         $form = new Form;
@@ -33,6 +38,15 @@ class AzylSetingsFormFactory extends Form
             ->addRule(PhoneNumberInput::REGION, 'Prosím zadejte platný telefonní číslo. Pro ČR nebo SR začíná na +420 nebo +421.',['CZ', 'SK'])
             ->setDefaultValue('+420')
             ->setHtmlAttribute('class', 'form-control');
+        $form->addEmail('email', 'E-mail')
+        ->setHtmlAttribute('class', 'form-control');
+        $form->addText('web', 'web')
+               ->setHtmlAttribute('class', 'form-control')
+                ->setHtmlAttribute('placeholder', 'https://');
+        $form->addSelect('city','Město', [])
+             ->setHtmlAttribute('class', 'form-control select2')
+             ->setHtmlAttribute('id', 'citySelect')
+             ->setHtmlAttribute('data-url', $this->jsonLink);
         $form->addSubmit('sendAzylSettings', 'Uložit')
             ->setHtmlAttribute('class', 'btn btn-primary');
 

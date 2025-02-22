@@ -21,3 +21,17 @@ di:
 	export:
 		parameters: no
 		tags: no
+
+selectt:
+  single:
+    class: select2-ajax
+    jsAttributes:
+      allowClear: true
+      placeholder: Vyberte možnost
+      width: 100%
+  multi:
+    class: select2-ajax-multi
+    jsAttributes:
+      allowClear: true
+      placeholder: Vyberte
+      width: 100%
