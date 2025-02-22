@@ -34,26 +34,26 @@ class Photo
     #[ORM\Column(type: 'boolean')]
     private bool $deleted = false;
 
-    #[ORM\ManyToOne(targetEntity: "Animal", inversedBy: "photos")]
+    #[ORM\ManyToOne(targetEntity: "Animal", fetch: "EAGER", inversedBy: "photos")]
     #[ORM\JoinColumn(name: "animal_id", referencedColumnName: "id", nullable: true)]
     private ?Animal $animal = null;
 
-    #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: "photos")]
+    #[ORM\ManyToOne(targetEntity: Users::class, fetch: "EAGER",inversedBy: "photos")]
     #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id")]
     private ?Users $user = null;
 
-    #[ORM\ManyToOne(targetEntity: "Owner", inversedBy: "photos")]
+    #[ORM\ManyToOne(targetEntity: "Owner",fetch: "EAGER", inversedBy: "photos")]
     #[ORM\JoinColumn(name: "owner_id", referencedColumnName: "id",nullable: true)]
     private ?Owner $owner = null;
 
     #[ORM\ManyToOne (targetEntity: "UsersRatings", inversedBy: "photos")]
     private UsersRatings $userRatings;
 
-    #[ORM\ManyToOne(targetEntity: "Azyl", inversedBy: "photos")]
+    #[ORM\ManyToOne(targetEntity: "Azyl", fetch: "EAGER", inversedBy: "photos")]
     #[ORM\JoinColumn(name: "azyl_id", referencedColumnName: "id", nullable: true)]
     private ?Azyl $azyl = null;
 
-    #[ORM\ManyToOne(targetEntity: "Collections", inversedBy: "headline")]
+    #[ORM\ManyToOne(targetEntity: "Collections", fetch: "EAGER", inversedBy: "headline")]
     #[ORM\JoinColumn(name: "collections_id", referencedColumnName: "id", nullable: true)]
     private ?Collections $collections = null;
 
