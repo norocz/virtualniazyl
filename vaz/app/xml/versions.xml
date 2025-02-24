@@ -1,6 +1,49 @@
 <versions>
     <version>
-        <date>20.02.2025</date>
+        <date>24.02.2025</date>
+        <number>0.9.8.9</number>
+        <description>
+            Změny:
+            - velké opravování chyb
+            - smazal jsem celou DB a začal doma načisto... takže hromada chyb začala vyskakovat z důvodu vracení NULL
+            - Je to dřina
+            - oprava AdoptionTypeEnum
+            - oprava ActionTypenEnum
+            - oprava MessageTypeEnum
+            - oprava RoleTypeEnum
+            - oprava SexTypeEnum
+            - PROFIL JE OTESTOVANÝ
+                - oba formuláře fungují
+                - fotky jdou nahrávat
+                - Zkusit do budoucna přehazování tabů.
+            - Opravené hlavní menu (kurva jak za to mohl title to takhle doprasit)
+            - Aktivní linky už fungují
+
+            Co je potřeba:
+            - přidat režim odstávky
+            - Zkontrolovat všechny odkazy jestli jsou OK zvlášť odkazy na fotky
+            - ADMIN: editor částí smluv (šablona smlouvy)
+            - ADMIN: kontrola smluv
+            - ADMIN: Hromadné zprávy
+            - ADMIN: Odpovědi na dotazy
+            - párování smlouvy
+            - archivace smlouvy
+            - azyl komunikace
+            - pravidla pro adopce
+            - adopční podmínky - rozběhnutý proces poslaný mail
+            - Pořád je problém s přepínáním azylu v souvislosti s fotkou pokud není nastavená a je null
+            - Nastavit až bude správný účet
+
+            Rozvoj:
+            - Taby na profilu automaticky Switchovat
+            - Přidat taby (popořili jste, oblíbené azyly)
+
+            Nápady:
+            - podepisování smlouvy pomocí SMS (odeslání sms s kodem, zadání kódu pro podpis)
+        </description>
+    </version>
+    <version>
+        <date>22.02.2025</date>
         <number>0.9.8.6</number>
         <description>
             Změny:
@@ -37,7 +80,7 @@
         </description>
     </version>
     <version>
-        <date>20.02.2025</date>
+        <date>21.02.2025</date>
         <number>0.9.8.5</number>
         <description>
             Změny:

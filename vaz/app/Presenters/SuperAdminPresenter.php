@@ -261,21 +261,23 @@ class SuperAdminPresenter extends BasePresenter
     {
         $setings = $this->systemSetingsRepository->lastSetings();
         $form = $this->systemSettingsFormFactory->create();
-        $form -> setDefaults([
-            'fee' => $setings->getFee(),
-            'dph' => $setings->getDph(),
-            'language' => $setings->getLanguage(),
-            'payOutInterval' => $setings->getPayOutInterval(),
-            'depricated' => $setings->getDepricated(),
-            'relevantFrom' => $setings->getRelevantFrom(),
-            'cron' => $setings->isCron(),
-            'analyticsGarbage' => $setings->isAnalyticsGarbage(),
-            'databaseClear' => $setings->isDatabaseClear(),
-            'dphUse' => $setings->isDphUse(),
-            'lasPayOut' => $setings->getLastPayOut(),
-            'nextPayOut' => $setings->getNextPayOut(),
+        if($setings) {
+            $form->setDefaults([
+                'fee' => $setings->getFee(),
+                'dph' => $setings->getDph(),
+                'language' => $setings->getLanguage(),
+                'payOutInterval' => $setings->getPayOutInterval(),
+                'depricated' => $setings->getDepricated(),
+                'relevantFrom' => $setings->getRelevantFrom(),
+                'cron' => $setings->isCron(),
+                'analyticsGarbage' => $setings->isAnalyticsGarbage(),
+                'databaseClear' => $setings->isDatabaseClear(),
+                'dphUse' => $setings->isDphUse(),
+                'lasPayOut' => $setings->getLastPayOut(),
+                'nextPayOut' => $setings->getNextPayOut(),
 
-        ]);
+            ]);
+        }
         $form->onSuccess[] = [$this, 'systemSetingsFormSuccessed'];
         return $form;
     }
@@ -292,6 +294,8 @@ class SuperAdminPresenter extends BasePresenter
      * @throws AuthenticationException
      * @throws NonUniqueResultException
      */
+
+
     public function azylSetFormSuccessed(Form $form, \stdClass $values) : void
     {
 
@@ -301,12 +305,10 @@ class SuperAdminPresenter extends BasePresenter
 
             $newData = $identity->getData();
             $newData['Azyl'] = $azyl;
-            $photoId = $azyl->getMainPhoto()?->getId();
-            $photo = $photoId ? $this->photosRepository->findById($photoId) : null;
-            $newData['Azyl']->setMainPhoto($photo);
+
             $newIdentity = new SimpleIdentity($identity->getId(),$identity->getRoles(),$newData);
-            $newIdentity->getData()['Azyl']->setMainPhoto($photo);
-            $this->user->login($newIdentity);
+            $this->getUser()->logout();
+            $this->getUser()->login($newIdentity);
 
             $this->getPresenter()->redirect('Azyl:default');
 
@@ -317,6 +319,7 @@ class SuperAdminPresenter extends BasePresenter
     /**
      * @throws \DateMalformedStringException
      */
+
     public function systemSetingsFormSuccessed(Form $form, \stdClass $values) : void
     {
         $systemSetings = new SystemSettings();
@@ -336,6 +339,7 @@ class SuperAdminPresenter extends BasePresenter
 
         $this->flashMessage('Nastavení systému byly uloženy','alert-success');
         $this->redirect('this');
+
 
     }
 }

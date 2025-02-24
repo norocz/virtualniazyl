@@ -117,6 +117,10 @@
                 <a href="{link Azyl:photos}" class="nav-item nav-link {if isLinkCurrent('Azyl:photos')}active{/if}">
                     <i class="fa fa-chart-bar me-2"></i>Fotky
                 </a>
+                {if !empty($random)}
+                <hr class = "m-2">
+                <span class="m-3 text-black small">  Animal liberation front 4ever - Keep the fight my frend!</span>
+                {/if}
 
             </div>
 
@@ -132,7 +136,7 @@
     <div class="content">
         <!-- Navbar Start -->
         <nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
-            <a href="{link Admin:default}" class="navbar-brand d-flex d-lg-none me-4">
+            <a href="{link Azyl:default}" class="navbar-brand d-flex d-lg-none me-4">
                 <h2 class="text-primary mb-0"><i class="fa fa-hashtag"></i></h2>
             </a>
             <a href="#" class="sidebar-toggler flex-shrink-0">
@@ -160,7 +164,7 @@
                         <span class="d-none d-lg-inline-flex">{$user->getIdentity()->data['User']->userName}</span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                        <a href="{link Home:profil}" class="dropdown-item">Profil uživatele</a>
+                        <a href="{link Azyl:profil}" class="dropdown-item">Profil uživatele</a>
                         <a href="{link Azyl:settings}" class="dropdown-item">Nastavení azylu</a>
                         <a href="{link Home:default}" class="dropdown-item">Zpět na web</a>
                         <a href="{link Home:logOut}" class="dropdown-item">Odhlásit</a>

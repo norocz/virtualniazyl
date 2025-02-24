@@ -50,11 +50,11 @@ class Users
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?DateTimeImmutable $updatedAt;
 
-    #[ORM\ManyToOne(targetEntity: "Users")]
+    #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'users')]
     #[ORM\JoinColumn(name: "created_by", referencedColumnName: "id")]
     public ?Users $createdBy;
 
-    #[ORM\ManyToOne(targetEntity: "Users")]
+    #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'users' )]
     #[ORM\JoinColumn(name: "updated_by", referencedColumnName: "id")]
     public ?Users $updatedBy = null;
 
@@ -67,10 +67,10 @@ class Users
     #[ORM\OneToMany(mappedBy: "user", targetEntity: Adoption::class)]
     private ?Collection $adoptions;
 
-    #[ORM\OneToMany(mappedBy: "sender", targetEntity: "Messages")]
+    #[ORM\OneToMany(mappedBy: "sender", targetEntity: Messages::class)]
     public ?Collection $sentMessages;
 
-    #[ORM\OneToMany(mappedBy: "receiver", targetEntity: "Messages")]
+    #[ORM\OneToMany(mappedBy: "receiver", targetEntity: Messages::class)]
     private ?Collection $receivedMessages;
 
     #[ORM\OneToMany(mappedBy: "collections", targetEntity: Collections::class)]
@@ -94,7 +94,7 @@ class Users
     #[ORM\OneToMany(mappedBy: 'author', targetEntity: News::class)]
     private ?Collection $news;
 
-    #[ORM\OneToMany(mappedBy: "author", targetEntity: "Pages")]
+    #[ORM\OneToMany(mappedBy: "author", targetEntity: Pages::class)]
     public ?Collection $pages;
 
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
@@ -135,13 +135,13 @@ class Users
    #[ORM\Column(type: 'integer', nullable: true)]
    private ?int $rating = null;
 
-   #[ORM\OneToOne(inversedBy: "users", targetEntity: "Users")]
+   #[ORM\OneToOne(inversedBy: "users", targetEntity: Users::class)]
    private ?Users $reviewer = null;
 
-   #[ORM\OneToMany(mappedBy: "user", targetEntity: "UsersRatings")]
+   #[ORM\OneToMany(mappedBy: "user", targetEntity: UsersRatings::class)]
    private ?Collection $userRatings = null;
 
-   #[ORM\OneToMany(mappedBy: "reviewer", targetEntity: "UsersRatings")]
+   #[ORM\OneToMany(mappedBy: "reviewer", targetEntity: UsersRatings::class)]
    private ?Collection $reviewerRatings = null;
 
     #[ORM\OneToMany(mappedBy: 'reviewer', targetEntity: UsersRatings::class)]
@@ -156,6 +156,7 @@ class Users
 
     public function __construct()
     {
+        /*
         $this->createdAt = new DateTimeImmutable();
         $this->updatedAt = new DateTimeImmutable();
         $this->verified = false;
@@ -174,9 +175,10 @@ class Users
         $this->review = null;
         $this->rating = null;
         $this->reviewerRatings = new ArrayCollection();
-        $this->userRatings = new ArrayCollection();
+        $this->userRatings = New ArrayCollection();
         $this->description = null;
         $this->city = null;
+        */
     }
 
     public function __toString(): string
@@ -650,5 +652,4 @@ class Users
         $this->collections = $collections;
         return $this;
     }
-
 }

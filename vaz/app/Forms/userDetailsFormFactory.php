@@ -32,7 +32,7 @@ class userDetailsFormFactory extends Form
     /**
      * @throws InvalidLinkException
      */
-    public function create(UserPresenter $userPresenter): Form
+    public function create(): Form
     {
         $form = new Form;
         $form->addProtection('S formulářem nebo daty bylo manipulováno!');

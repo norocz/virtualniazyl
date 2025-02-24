@@ -13,6 +13,8 @@ use App\Forms\CollectionFormFactory;
 use App\Forms\messagesFormFactory;
 use App\Forms\newsFormFactory;
 use App\Forms\PhotoUploadFormFactory;
+use App\Forms\RegisterFormFactory;
+use App\Forms\userDetailsFormFactory;
 use App\Model\Orm\Entity\Animal;
 use App\Model\Orm\Entity\Collections;
 use App\Model\Orm\Entity\News;
@@ -33,9 +35,14 @@ use App\Repository\SpeciesRepository;
 use App\Services\AnalyticsService;
 use App\Services\CollectionKeyService;
 use App\Services\MessagesService;
+use Brick\PhoneNumber\PhoneNumberFormat;
+use Brick\PhoneNumber\PhoneNumberParseException;
 use Contributte\Application\UI\BasePresenter;
 use DateTimeImmutable;
+use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\ORM\NonUniqueResultException;
+use JetBrains\PhpStorm\NoReturn;
+use libphonenumber\NumberParseException;
 use Nette\Application\UI\Form;
 use Nette\Application\UI\InvalidLinkException;
 use Random\RandomException;
@@ -75,7 +82,9 @@ class AzylPresenter extends BasePresenter
                                 private PhotoUploadFormFactory      $photoUploadFormFactory,
                                 private readonly PaymentsRepository $paymentsRepository,
                                 private readonly cityRepository $cityRepository,
-                                private readonly CityDataSource $cityDataSource)
+                                private readonly CityDataSource $cityDataSource,
+                                private readonly RegisterFormFactory $registerFormFactory,
+                                private readonly userDetailsFormFactory $userDetailsFormFactory,)
     {
         parent::__construct();
         $this->animalsRepository = $animalsRepository;
@@ -92,6 +101,7 @@ class AzylPresenter extends BasePresenter
         if (!$this->getPresenter()->getUser()->loggedIn) {
             $this->redirect('Home:SignIn');
         } else {
+
             if (!($this->getPresenter()->getUser()->isInRole('azyl') || $this->getPresenter()->getUser()->isInRole('superadmin'))) {
                 $this->flashMessage('Nemáte dostatečná oprávnění pro tuto akci. Akce byla zalogována!', 'alert-danger');
                 $this->analyticsService->setPresenter($this);
@@ -111,6 +121,9 @@ class AzylPresenter extends BasePresenter
                 }
             }
         }
+
+
+
     }
 
     /**
@@ -131,6 +144,7 @@ class AzylPresenter extends BasePresenter
             }, $html);
         });
         $this->getTemplate()->personalPhoto = $this->photosRepository->findById($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId())->getId());
+        $this->getTemplate()->random = $this->getUser()->getIdentity()->getData()['Azyl']->getRandom();
 
     }
 
@@ -158,6 +172,15 @@ class AzylPresenter extends BasePresenter
 
     public function renderDefault(): void
     {
+        if(empty($this->getUser()->getIdentity()->getData()['Azyl']->getAzylName()))
+        {
+            $this->flashMessage('Nejprve nastavte základní informace o Vašem azylu (nejsou stejné jako vaše uživatelská nastavení), důležitý je název nějaký smypatický popis a kontakt
+                                         především město, podle něj se dá vyhodnotit jak blízko jste k zájemcům o adopci!', 'alert-warning');
+
+            $this->redirect('Azyl:settings');
+
+        }
+
         $this->getTemplate()->title = 'Azyl';
 
         if ($this->getPresenter()->getUser()->getRoles()[0] === 'superadmin') {
@@ -328,6 +351,33 @@ class AzylPresenter extends BasePresenter
         }
     }
 
+    public function renderProfil(): void
+    {
+        $user = $this->usersRepository->getUserById($this->getUser()->getId());
+        $photos = $user->getPhotos();
+
+        $this->getTemplate()->title = 'Uživatelský Profil';
+        $this->getTemplate()->personalPhoto = $this->photosRepository->findById($user->getPersonalPhoto());
+        $this->getTemplate()->adoptions = empty($user->getAdoptions()) ? null : $user->getAdoptions();
+        $this->getTemplate()->photos = $photos;
+
+        $city = $this->cityRepository->findOneBy(['id' => $user->getCity()]); //co to tady je
+        if ($city !== null) {
+            $this->getTemplate()->regions = $this->cityRepository->findRegionByCountry($city->getCountry());
+            $this->getTemplate()->cities = $this->cityRepository->findCityByRegionArray($city->getRegion());
+
+            $this->getTemplate()->city = $city->getId();
+            $this->getTemplate()->region = $city->getRegion();
+        }
+        else
+        {
+            $this->getTemplate()->regions = $this->cityRepository->fetchCountries();
+            $this->getTemplate()->cities = $this->cityRepository->findCityByRegionArray('Kroměříž');
+
+            $this->getTemplate()->city = null;
+            $this->getTemplate()->region = null;
+        }
+    }
 
     public function actionAnimal(?int $id = null): void
     {
@@ -598,7 +648,7 @@ class AzylPresenter extends BasePresenter
         return $form;
     }
 
-    public function azylSettingsFormSucceeded(Form $form, \stdClass $values): void
+    #[NoReturn] public function azylSettingsFormSucceeded(Form $form, \stdClass $values): void
     {
         $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
 
@@ -617,7 +667,7 @@ class AzylPresenter extends BasePresenter
         $this->redirect('this');
     }
 
-    public function animalFormSucceeded(Form $form, $values): void
+    #[NoReturn] public function animalFormSucceeded(Form $form, $values): void
     {
 
         $id = $this->getParameter('id');
@@ -835,5 +885,172 @@ class AzylPresenter extends BasePresenter
             $this->redirect('Azyl:photos');
         }
 
+    }
+
+    public function createComponentUserDetailsForm(): Form
+    {
+        $factory = $this->userDetailsFormFactory;
+        $factory->setLink($this->link('Json:select2'));
+        $form = $factory->create($this->getPresenter());
+        $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
+        $city = $this->cityRepository->findOneBy(['id'=>$user->getCity()]);
+        if (!is_null($user->getCity())) {
+            $form['city']->setItems([$city->getId() => $city->getCityName()], true);
+        }
+
+
+
+        $form->setDefaults(['firstName' => $user->getFirstName(),
+            'lastName' => $user->getLastName(),
+            'phone' => $user->getPhone(),
+            'street' => $user->getStreet(),
+            'city' => is_null($user->getCity()) ? null : $city->getId(),
+            'orientation' => $user->getOrientationNumber(),
+            'house' => $user->getHouseNumber(),
+            'description' => $user->getDescription()
+        ]);
+
+        $form['send']->setHtmlAttribute('class', 'btn btn-primary');
+        $form['send']->setCaption('Uložit změny');
+
+        $form->onSuccess[] = [$this, 'userDetailsFormSucceeded'];
+        return $form;
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     * @throws NumberParseException
+     * @throws ConversionException
+     * @throws PhoneNumberParseException
+     */
+    public function userDetailsFormSucceeded(Form $form, \stdClass $values) : void
+    {
+
+        $post = $this->getPresenter()->getHttpRequest()->getPost();
+        $user = $this->usersRepository->getUserById($this->getUser()->getId());
+
+        if (!is_null($user))
+        {
+            $phoneNumber = \Brick\PhoneNumber\PhoneNumber::parse($post['phone']);
+
+            $phone = $phoneNumber->format(PhoneNumberFormat::INTERNATIONAL);
+            $user->setFirstName($post['firstName']);
+            $user->setLastName($post['lastName']);
+            $user->setUpdatedAt(new DateTimeImmutable());
+            $user->setUpdatedBy($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()));
+            $user->setPhone(phone: empty($post['phone']) ? null : $phone);
+            $user->setOrientationNumber($post['orientation']);
+            $user->setStreet($values->street);
+            $user->setDescription($values->description);
+            $user->setHouseNumber($post['house']);
+            $user->setCity( empty($post['city']) ? null : intval($post['city']));
+            // $user->setCity($this->cityRepository->findCityById(intval($post['city'])));
+            $this->usersRepository->save($user);
+            $this->flashMessage('Uživatelské informace aktualizovány.', 'alert-success');
+
+        }
+        if($this->isAjax()){
+            $this->redrawControl('citySelect');
+        }
+        else
+        {
+            $this->redirect('this');
+        }
+
+    }
+
+
+    public function createComponentUserUpdateForm(string $name): Form
+    {
+        $form = $this->registerFormFactory->create();
+        $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
+        $form->setDefaults($user->toArray());
+        $form->addUpload('personalPhoto','Profilová fotka');
+        $pass = $form->getComponent('password');
+        $pass->setRequired(false);
+        $pass2 = $form->getComponent('password2');
+        $pass2->setRequired(false);
+        $form->removeComponent($form->getComponent('phone'));
+        $form->removeComponent($form->getComponent('legalTerms'));
+        $form->removeComponent($form->getComponent('send'));
+        $form->removeComponent($form->getComponent('adoptionVerification'));
+        $form->addSubmit('aktualization','Aktualizovat');
+        $form->onSuccess[] = [$this, 'userUpdateFormSucceeded'];
+
+        return $form;
+    }
+
+    #[NoReturn] public function userUpdateFormSucceeded(Form $form, \stdClass $values) : void
+    {
+
+        $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
+        $user->setUpdatedAt(new DateTimeImmutable('now'));
+        $user->setUpdatedBy($user);
+
+        if($user->getEmail() !== $values->email) {
+
+            if ($this->usersRepository->findBy(['email' => $values->email]))
+            {
+
+                $this->flashMessage('Email už je v systému nebyl aktualizován!', 'alert-success');
+            }
+            else
+            {
+                $user->setEmail($values->email);
+                $this->flashMessage('Email byl aktualizován. <b>POZOR!</b> email se používá pro přihlašovíní!! Email byl nastaven na: '.$values->email.'.', 'alert-success');
+            }
+        }
+
+        if (!empty($values->password))
+        {
+            if($values->password == $values->password2)
+            {
+                $user->setPassword($this->passwords->hash($values->password));
+                $this->flashMessage('POZOR! Heslo bylo aktualizováno!', 'alert-success');
+            }
+            else
+            {
+                $this->flashMessage('POZOR! Problém při aktualizaci hesla!', 'alert-danger');
+            }
+        }
+
+        if ($values->personalPhoto->hasFile())
+        {
+            $photo = new Photo();
+            $photo->setUser($user);
+            $photo->setDate(new DateTimeImmutable('now'));
+            $photo->uploadUserPersonalPhoto($values->personalPhoto);
+            $this->photosRepository->save($photo);
+            $user->setPersonalPhoto($photo->getId());
+            $this->flashMessage('Osobní fotka nastavena!', 'alert-success');
+        }
+        $this->usersRepository->save($user);
+        $this->flashMessage('Nastavení uživatele aktualizováno', 'alert-success');
+        $this->redirect('this');
+    }
+
+    public function createComponentOwnerPhotoUploadForm(): Form
+    {
+        $form = $this->photoUploadFormFactory->create();
+        $form->onSuccess[] = [$this, 'ownerPhotoUploadFormSucceeded'];
+        return $form;
+    }
+
+
+    public function ownerPhotoUploadFormSucceeded(Form $form, \stdClass $values): void
+    {
+        $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
+        foreach ($values->photos as $photo)
+        {
+
+            $photoUpload = New Photo();
+            $photoUpload->setUser($user);
+            $photoUpload->setDate(new DateTimeImmutable('now'));
+            $photoUpload->uploadUserPhoto($photo);
+            $this->photosRepository->save($photoUpload);
+        }
+        $this->usersRepository->addUser($user);
+        $this->getPresenter()->flashMessage('Fotky byly úspěšně nahrány!', 'alert-success');
+        $this->getPresenter()->redrawControl('photos');
     }
 }

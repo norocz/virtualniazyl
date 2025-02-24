@@ -68,7 +68,7 @@ class Collections
     #[ORM\Column(type: 'string', options: ['czk' => 'Kč','eur' => 'EU', 'usd' => 'USD', 'ru' => 'Рубль (Rublʹ)', 'zl' => 'Złoty'])]
     private string $currency = 'czk';
 
-    #[ORM\ManyToOne(targetEntity: Photo::class, cascade: ['persist'], inversedBy: 'headline')]
+    #[ORM\OneToOne(inversedBy: 'collections', targetEntity: Photo::class, cascade: ['persist'], fetch: "EAGER")]
     private ?Photo $photo;
 
     public function getId(): int

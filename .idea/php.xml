@@ -96,6 +96,7 @@
       <path value="$PROJECT_DIR$/vaz/vendor/nepada/phone-number-doctrine" />
       <path value="$PROJECT_DIR$/vaz/vendor/brick/phonenumber-doctrine" />
       <path value="$PROJECT_DIR$/vaz/vendor/symfony/type-info" />
+      <path value="$PROJECT_DIR$/vaz/vendor/necris/selectt" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.3" />

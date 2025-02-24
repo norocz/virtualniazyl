@@ -24,7 +24,7 @@ class ActionTypeEnum extends Type
         return self::ACTION_TYPE_ENUM;
     }
 
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): ?string
     {
         $actions = [
             self::START_ADOPTION, //modra
@@ -41,7 +41,7 @@ class ActionTypeEnum extends Type
         return 'ENUM(' . implode(', ', $quotedActions) . ')';
     }
 
-    public function convertToPHPValue($value, AbstractPlatform $platform): string
+    public function convertToPHPValue($value, AbstractPlatform $platform): ?string
     {
         return $value;
     }

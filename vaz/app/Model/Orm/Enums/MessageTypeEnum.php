@@ -16,18 +16,18 @@ class MessageTypeEnum extends Type
                  TOADMIN_TYPE = 'foa',
                  TOSYSTEM_TYPE = 'fos';
 
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): ?string
     {
         return "ENUM('" . implode("', '", self::getTypes()) . "')";
     }
 
 
-    public function convertToPHPValue($value, AbstractPlatform $platform): string
+    public function convertToPHPValue($value, AbstractPlatform $platform): ?string
     {
         return $value;
     }
 
-    public function convertToDatabaseValue($value, AbstractPlatform $platform) : string
+    public function convertToDatabaseValue($value, AbstractPlatform $platform) : ?string
     {
         return $value;
     }

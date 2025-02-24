@@ -1,12 +1,386 @@
 {block azylContent}
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <h2>Osobní profil</h2>
+    <style>
+    .personalPhoto {
+    margin-top: 0.8em;
+    max-height: 250px;
+    height: auto;
+    width: auto;
 
+    }
+
+    #photos {
+    min-height: 200px;
+    }
+    /* První obrázek větší než ostatní */
+    .gallery-item.large {
+    grid-row: span 2;
+    }
+
+    /* Styly pro ikonu mazání */
+    .delete-icon {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 5px;
+    border-radius: 50%;
+    cursor: pointer;
+    }
+
+    /* Modal pro zobrazení obrázku */
+    .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95); /* Tmavé, téměř černé pozadí */
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+    }
+
+    .modal-content {
+    max-width: 70vw; /* Max 80 % šířky okna */
+    max-height: 70vh; /* Max 80 % výšky okna */
+    object-fit: contain; /* Zachová poměr stran */
+    background-color: black; /* Nastaví tmavé pozadí přímo na obrázek */
+    }
+
+    .close {
+    position: absolute;
+    bottom: 20px; /* Umístění do pravého dolního rohu */
+    right: 20px;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 5px 10px;
+    border-radius: 5px;
+    }
+
+    .gallery {
+    min-height: 400px;
+    }
+    </style>
+
+    <div class="bg">
+        <div class="content">
+
+            <section class="mb-9 mb-lg-10 mb-xxl-11 text-center text-lg-start mt-1" id="signIn">
+                <nav>
+                    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                        <button class="nav-link" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="false">Moje adopce</button>
+                        <button class="nav-link active" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="true">Osobní nastavení</button>
+                        <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Heslo, email, profilovka</button>
+                        <button class="nav-link" id="nav-photos-tab" data-bs-toggle="tab" data-bs-target="#nav-photos" type="button" role="tab" aria-controls="nav-photos" aria-selected="false">Fotky</button>
+
+                    </div>
+                </nav>
+                <div class="tab-content fade show" id="nav-tabContent">
+                    <div class="tab-pane fade" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+                        {ifset $adoptions}
+                            <div class="row">
+                            <div class="col-12 col-sm-12">
+                            <h3>Vaše adopce</h3>
+                            {if $adoptions == null}
+                                Nemáte žádnou aktivní adopci. Máte vyplněný celý profil? Bez toho to nepůjde.
+                            {else}
+                                <div class="adoptions d-flex flex-row flex-wrap" id="adoptions">
+                                    {snippet activeAdoptions}
+
+                                        <div class="adoptions d-flex flex-row flex-wrap" id="adoptions">
+                                            {foreach $adoptions as $adoption}
+                                                <div class="col-12 col-lg-3 mb-3 px-3">
+                                                    <div class="card" style="width: 100%;">
+                                                        {var $info = ''}
+                                          {switch $adoption->getActionType()}
+                                                            {case 'Start adopce'}
+                                                            {var $bcg = 'bg-primary'}
+                                                            {var $info = 'Adopce začala'}
+                                                            {case 'Přerušení adopce'}
+                                                            {var $bcg = 'bg-warning'}
+                                                            {var $info = 'Adopce skončila'}
+                                                            {case 'Kontakt'}
+                                                            {var $bcg = 'bg-primary'}
+                                                            {var $info = 'Kontakt zájemce'}
+                                                            {case 'Telefonát'}
+                                                            {var $bcg = 'bg-primary'}
+                                                            {var $info = 'Telefonát zájemci'}
+                                                            {case 'Osobní kontakt'}
+                                                            {var $bcg = 'bg-primary'}
+                                                            {var $info = 'Osobní návštěva'}
+                                                            {case 'Ověření'}
+                                                            {var $bcg = 'bg-primary'}
+                                                            {var $info = 'Adopce ověřená'}
+                                                            {case 'Adopce se zdařila'}
+                                                            {var $bcg = 'bg-success'}
+                                                            {var $info = 'Adopce skončila'}
+                                                            {case 'Adopce se nezdařila'}
+                                                            {var $bcg = 'bg-danger'}
+                                                            {var $info = 'Adopce skončila'}
+                                                            {case 'Konec adopce'}
+                                                            {var $bcg = 'bg-warning'}
+                                                            {var $info = 'Adopce skončila'}
+                                                        {/switch}
+
+                                                        <div class="adoptions-border">
+                                                            <div class="card adoptions-card" style="width: 100%;">
+                                                                {if !is_null($adoption->getAnimal()->getPhotos()[0])}
+                                                                    <img class="card-img-top" src="{$basePath}/{$adoption->getAnimal()->getPhotos()[0]->getPath().$adoption->getAnimal()->getPhotos()[0]->getName()}" alt="{$adoption->getAnimal()->getPhotos()[0]->getName()}" />
+                                                                {else}
+                                                                    <img class="card-img-top" src="{$basePath}/assets/vazdata/img/pic/love1.jpeg" alt="Happy dino" />
+                                                                {/if}
+                                                                <div class="card-header {$bcg} text-white">{$adoption->getAnimal()->getName()}</div>
+                                                                <div class="card-body">
+                                                                    <p class="card-text">{$adoption->getCreatedAt()|date:'H:i d.m.Y'}<br> {$info}</p>
+                                                                    <a class="btn btn-outline-info btn-sm" href="{link home:adopce $adoption->getId()}">Zvířátko</a>
+                                                                    <a href="{link Home:azyl $adoption->getAzyl()->getId()}" class="btn btn-sm btn-outline-info">{$adoption->getAzyl()->getAzylName()}</a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {/foreach}
+                                        </div>
+
+                                    {/snippet}
+                                </div>
+                                </div>
+                                </div>
+
+                            {/if}
+                        {else}
+                            Nemáte žádnou aktivní adopci. Máte vyplněný celý profil? Bez toho to nepůjde.
+                        {/ifset}
+                    </div>
+
+                    <div class="tab-pane fade show active" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                        <div class="row ">
+                            <div class="col-8 bg-light p-2">
+                                Jméno a příjmení:
+                                <form class="row" n:name=userDetailsForm>
+
+                                    <div class="col-6">
+                                        <input placeholder="Jméno" class="form-control"  n:name=firstName>
+                                        {inputError firstName}{inputError lastName}
+                                    </div>
+                                    <div class="col-6">
+                                        <input placeholder="Příjmení" class="form-control"  n:name=lastName>
+                                    </div>
+
+                                    <div class="col-6">
+                                        Telefon:
+                                        <input placeholder="Telefon +420 444999111" class="form-control"  n:name=phone>
+                                        {inputError phone}
+                                    </div>
+
+                                    <div class="col-12">
+                                        Něco o vás :-):
+                                        <textarea placeholder="Popis" class="form-control"  n:name=description></textarea>
+                                    </div>
+
+                                    <div class="col-8">
+                                        Ulice:
+                                        <input placeholder="Ulice" class="form-control"  n:name=street>
+                                    </div>
+                                    <div class="col-2">
+                                        Čp:
+                                        <input placeholder="Čp" class="form-control"  n:name=house>
+                                    </div>
+                                    <div class="col-2">
+                                        Čo:
+                                        <input placeholder="Čo" class="form-control"  n:name=orientation>
+                                    </div>
+
+
+                                    <div class="col-12">
+
+                                        <label class="w-xxl-100" n:name="city">Město:
+                                            {snippet citySelect}
+                                                <select size="30" class="ajax form-control w-xxl-100 select2" id="citySelect" n:name="city">
+
+                                                </select>
+                                            {/snippet}
+                                        </label>
+                                    </div>
+
+                                    <div class="col-4" style="padding-top: 2em; ">
+                                        <button class="form-control btn btn-success" n:name=send>Aktualizovat</button>
+                                    </div>
+
+                                </form>
+
+                            </div>
+                            <div class="col-4 tab-content text-body">
+                                <h3>Proč?</h3>
+                                <p class=""><strong>Jméno a příjmení</strong> - Pro nás důležité pro komunikaci s Vámi potřebné pro schválen přístupu k adopcím.</p>
+                                <p><strong>Popis</strong> - Do popisu napište něco o sobě, podmínkách pro zvířátka a klidně i něco o sobě. </p>
+                                <p><strong>Adresa</strong> - Další údaj, který je důležitý, azylům se snažíme dávat informace o tom kdo by chtěl zvířátko adoptovat a zároveň slouží jako podklad k dohodě o dapopci. Zároveň Vám usnadní filtraci zvířáte k adopci.</p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+                        <div class="row">
+                            <div class="col-xl-7 col-sm-12 bg-light p-2">
+                                <form class="row" n:name=userUpdateForm>
+                                    <div class="col-6">
+                                        Uživatelské jméno:
+                                        <input class="form-control" n:name=username readonly>
+                                    </div><div class="col-6">Email: <input class="form-control" n:name=email></div>
+                                    <div class="col-6">Heslo: <input class="form-control" n:name=password></div><div class="col-6">Heslo znovu:<input class="form-control" n:name=password2></div>
+                                    <div class="col-6">
+                                        Profilová fotka:
+                                        <input class="form-control" n:name=personalPhoto>
+                                    </div>
+                                    <div class="col-6 personalPhoto">
+                                        {if $personalPhoto != null}
+                                            <img src="{$basePath}{$personalPhoto->getPath()}{$personalPhoto->getName()}" class="img-fluid img-thumbnail rounded card-img-top personalPhoto" alt="{$personalPhoto->getName()}">
+                                        {else}
+                                            <img src="{$basePath}/assets/vazdata/img/pic/love1.jpeg" class="img-fluid img-thumbnail rounded card-img-top personalPhoto" alt="Happy dino" />
+                                        {/if}
+
+
+                                    </div>
+
+                                    <div class="col-4" style="padding-top: 2em; ">
+                                        <input type="submit" class="form-control btn btn-success" value="Aktualizovat" n:name=aktualization>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-4 col tab-content text-body">
+                                Informace
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="nav-photos" role="tabpanel" aria-labelledby="nav-photos-tab">
+                        <div class="row">
+                            <div class="col-xl-5 Col-sm-12 rounded-2 bg-light ">
+                                Nahrát fotky (fotky by měli ukázat v jakém prostředí u Vás z vířátko bude žít naráz lze nahrát 10 fotek, maximálně lze mít 30 fotek v profilu):
+                                {control ownerPhotoUploadForm}
+                            </div>
+
+                            {if !is_null($photos)}
+                                {snippet photos}
+                                    <div class="col-xl-5 col-sm-12 photos">
+                                        <h5>Fotky</h5>
+                                        <div class="row g-3 gallery">
+                                            {foreach $photos as $userPhoto}
+                                                {if $iterator->first}
+                                                    <div class="col-12 col-md-6 gallery-item large">
+                                                        <div class="position-relative">
+                                                            <img src="{$basePath}{$userPhoto->getPath()}{$userPhoto->getName()}" alt="{$userPhoto->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
+                                                        </div>
+                                                    </div>
+                                                {else}
+                                                    <div class="col-6 col-md-3 gallery-item">
+                                                        <div class="position-relative">
+                                                            <img src="{$basePath}{$userPhoto->getPath()}{$userPhoto->getName()}" alt="{$userPhoto->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
+                                                        </div>
+                                                    </div>
+                                                {/if}
+                                            {/foreach}
+                                        </div>
+                                    </div>
+                                {/snippet}
+                            {else}
+                                <p>Nemáte žádné fotky</p>
+                            {/if}
+
+
+
+                        </div>
+                    </div>
+            </section>
         </div>
     </div>
-</div>
+    <!-- Modal pro zvětšení obrázku -->
+    <div id="imageModal" class="modal">
+        <span class="close" onclick="closeModal()">×</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+
+
 {/block}
 {block scripts}
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/i18n/cs.js"></script>
+    <script>
+
+        function showImageModal(src) {
+            const modal = document.getElementById("imageModal");
+            const modalImg = document.getElementById("modalImage");
+            modal.style.display = "flex";
+            modalImg.src = src;
+        }
+
+        function closeModal() {
+            document.getElementById("imageModal").style.display = "none";
+        }
+        document.getElementById("imageModal").addEventListener('click', closeModal);
+
+    </script>
+    <script>
+        $(document).ready(function() {
+            var baseUrl = window.location.origin;  // Získání protokolu a domény (např. http://localhost)
+            var url = baseUrl + $('#citySelect').data('url');  // Předání relativní URL a spojení s doménou
+
+            $('#citySelect').select2({
+                placeholder: "Vyberte obec",
+                allowClear: true,
+                language: {
+                    noResults: function() {
+                        return "Žádné výsledky";
+                    },
+                    inputTooShort: function() {
+                        return "Zadejte více znaků";
+                    },
+                    searching: function() {
+                        return "Hledám...";
+                    },
+                },
+                ajax: {
+                    delay: 250,
+                    url: url,  // Použití absolutní URL
+                    data: function (params) {
+                        var query = {
+                            search: params.term
+                        }
+                        return query;
+                    }
+                }
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            function activateTabFromHash() {
+                let hash = window.location.hash;
+                if (hash) {
+                    let tab = document.querySelector(`a[href="${ hash }"]`);
+                    if (tab) {
+                        new bootstrap.Tab(tab).show();
+                    }
+                }
+            }
+
+            // Spustit na začátku
+            activateTabFromHash();
+
+            // Změnit URL při kliknutí na tab
+            document.querySelectorAll('.nav-link').forEach(tab => {
+                tab.addEventListener('shown.bs.tab', function (event) {
+                    history.replaceState(null, null, event.target.getAttribute('href'));
+                });
+            });
+
+            // Reagovat na změnu hash v URL
+            window.addEventListener("hashchange", activateTabFromHash);
+        });
+    </script>
 {/block}

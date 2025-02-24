@@ -172,10 +172,12 @@ class UserPresenter extends BasePresenter
     public function renderProfil(): void
     {
         $user = $this->usersRepository->getUserById($this->getUser()->getId());
+        $photos = $user->getPhotos();
+
         $this->getTemplate()->title = 'Uživatelský Profil';
         $this->getTemplate()->personalPhoto = $this->photosRepository->findById($user->getPersonalPhoto());
-        $this->getTemplate()->adoptions = $user->getAdoptions();
-        $this->getTemplate()->photos = $user->getPhotos();
+        $this->getTemplate()->adoptions = empty($user->getAdoptions()) ? null : $user->getAdoptions();
+        $this->getTemplate()->photos = $photos;
 
         $city = $this->cityRepository->findOneBy(['id' => $user->getCity()]); //co to tady je
         if ($city !== null) {
@@ -413,11 +415,13 @@ class UserPresenter extends BasePresenter
     {
         $factory = $this->userDetailsFormFactory;
         $factory->setLink($this->link('Json:select2'));
-        $form = $factory->create($this->getPresenter());
+        $form = $factory->create();
         $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
         $city = $this->cityRepository->findOneBy(['id'=>$user->getCity()]);
-        $form['city']-> setItems([$city->getId() => $city->getCityName()], true);
 
+        if (!is_null($user->getCity())) {
+            $form['city']->setItems([$city->getId() => $city->getCityName()], true);
+        }
 
 
             $form->setDefaults(['firstName' => $user->getFirstName(),

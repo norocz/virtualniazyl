@@ -15,12 +15,12 @@ class SexTypeEnum extends Type
                  UNKNOWN_ENUM = 'Nevíme',
                  HERMAPHRODITE_ENUM = 'Hermafrodit';
 
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform):string
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): ?string
     {
         return "ENUM('" . implode("', '", self::getSexTypes()) . "')";
     }
 
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue($value, AbstractPlatform $platform): ?string
     {
         return $value; // no need for conversion here, we're storing the value as is
     }

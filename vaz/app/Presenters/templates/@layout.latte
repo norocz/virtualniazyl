@@ -48,12 +48,12 @@
 		width: 50%;
 		z-index: 1000;
 	}
-
-
-
 </style>
 
 	{block firstmenu}
+<main class="main" id="top">
+	<div class="bg-white">
+		<div class="content">
         <div class="bg-white p-1 p-lg-2">
             <div class="container">
 				<div id="cookieConsent" class="alert alert-info text-center" role="alert" style="display:none;">
@@ -79,17 +79,13 @@
 							<span class="ajax uil uil-mailbox"> {if $messagesCount > 0}<span class="rounded" style="vertical-align: super; horiz-align: center; font-size: smaller; background-color: red; color: white;">&nbsp;{$messagesCount}&nbsp;</span>{/if}Kontakty</span>
 						{/snippet}
 					</a>
-
 					<a class="ms-2 ms-md-3 submenu" href="{link User:profil}">
 						<span class="uil uil-user-circle"> {$user->getIdentity()->data['User']->email}</span>
 					</a>
-
-
 					<a class="ms-2 ms-md-3 submenu" href="{link Home:logOut}">
-
+						<span class="uil uil-user-minus"></span>
 						<span class="ms-1 fs-10 fs-sm-9 bg-white">Odhlásit</span>
 					</a>
-
 					{else}
 					<a class="ms-2 ms-md-3 submenu" href="{link Home:registration}">
 						<span class="uil uil-user-plus"></span>
@@ -100,40 +96,36 @@
 						<span class="ms-1 fs-10 fs-sm-9">Přihlášení</span>
 					</a>
 					{/if}
-
                 </div>
             </div>
-        </div>
     {/block}
     {block mainmenu}
-        <nav class="navbar navbar-expand-lg py-1" id="navbar-top" data-navbar-soft-on-scroll="data-navbar-soft-on-scroll">
-            <div class="container">
-				<a class="navbar-brand me-lg-auto cursor-pointer" href="{link Home:default}"><img class="w-50 w-md-100 img-fluid" src="{$basePath}/assets/vazdata/img/logos/header_logo_green.png" alt="" /></a>
-                <button class="navbar-toggler border-0 pe-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent" data-navbar-collapse="data-navbar-collapse">
-                    <div class="container d-lg-flex justify-content-lg-end pe-lg-0 w-lg-100">
-						<ul class="navbar-nav mt-2 mt-lg-1 ms-lg-4 ms-xl-8 ms-2xl-9 gap-lg-x1" data-navbar-nav="data-navbar-nav">
-							{ifset $mainMenuItems}
-								{foreach $mainMenuItems as $item}
-									{if ($item['alwaysAvailable'] || $item['logged'] && $user->isLoggedIn() && (!$item['role'] || $user->isInRole($item['role'])))}
-										{var $isActive = $presenter->getAction() === $item['link']}
-											<li class="nav-item">
-												<a href="{link $item['link']}"{if $isActive} class="nav-link nav-bar-item px-0 active" {else} class="nav-link nav-bar-item"{/if} title="{$item['title']}">{$item['name']}</a>
-											</li>
-									{/if}
-								{/foreach}
-							{/ifset}
-						</ul>
+				<nav class="navbar navbar-expand-lg py-1" id="navbar-top" data-navbar-soft-on-scroll="data-navbar-soft-on-scroll">
+					<div class="container"><a class="navbar-brand me-lg-auto cursor-pointer" href="{link Home:default}"><img style="max-height: 80px;" class="w-50 w-md-100 img-fluid" src="{$basePath}/assets/vazdata/img/logos/header_logo_green.png" alt="" /></a><button class="navbar-toggler border-0 pe-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+						<div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent" data-navbar-collapse="data-navbar-collapse">
+							<div class="container d-lg-flex justify-content-lg-end pe-lg-0 w-lg-100">
 
+								<ul class="navbar-nav mt-2 mt-lg-1 ms-lg-4 ms-xl-8 ms-2xl-9 gap-lg-x1" data-navbar-nav="data-navbar-nav">
+									{ifset $mainMenuItems}
+										{foreach $mainMenuItems as $item}
+											{if ($item['alwaysAvailable'] || $item['logged'] && $user->isLoggedIn() && (!$item['role'] || $user->isInRole($item['role'])))}
+												<li class="nav-item"><a href="{link $item['link']}" class="nav-link nav-bar-item px-0 {if isLinkCurrent($item['link'])}active{/if}">{$item['name']}</a></li>
+											{/if}
+										{/foreach}
+									{/ifset}
+								</ul>
+							</div>
+						</div>
 					</div>
-                </div>
-            </div>
-        </nav>
+				</nav>
+
+
+
+
     {/block}
 <main class="main" id="top">
 	<div class="toast-container position-fixed bottom-0 start-0 p-3">
-		<div
-				n:foreach="$flashes as $flash"
+		<div	n:foreach="$flashes as $flash"
 				id="flash-toast-{$iterator->counter}"
 				class="toast"
 				role="alert"

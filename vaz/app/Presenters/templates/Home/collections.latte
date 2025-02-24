@@ -4,7 +4,7 @@
             <div class="row">
                       <h3>Aktuální sbírky</h3>
 
-
+                        {ifset $collections}
                         {foreach $collections as $collection}
 
                         <div class="col-xl-6 col-md-12 d-flex flex-row flex-wrap">
@@ -50,7 +50,7 @@
                             </div>
                         </div>
                         {/foreach}
-
+                        {/ifset}
 
                 </div>
             </div>

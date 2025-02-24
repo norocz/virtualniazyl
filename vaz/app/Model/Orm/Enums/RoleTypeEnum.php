@@ -24,7 +24,7 @@ class RoleTypeEnum extends Type
 
 
 
-   public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+   public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): ?string
     {
         $roles = self::getRoles();
         $quotedRoles = array_map(fn($role) => $platform->quoteStringLiteral($role), $roles);
@@ -39,7 +39,7 @@ class RoleTypeEnum extends Type
         return $value;
     }
 
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue($value, AbstractPlatform $platform): ?string
     {
         return $value;
     }

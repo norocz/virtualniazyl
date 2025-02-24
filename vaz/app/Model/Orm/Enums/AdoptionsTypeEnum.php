@@ -23,15 +23,14 @@ class AdoptionsTypeEnum extends Type
      */
 
     public function getSQLDeclaration(array $fieldDeclaration,
-                                     AbstractPlatform $platform): string
+                                     AbstractPlatform $platform): ?string
     {
         $adoptionsTypes = self::getAdoptionsTypes();
         $quotedAdoptionsTypes = array_map(fn($adoptionsType) => $platform->quoteStringLiteral($adoptionsType), $adoptionsTypes);
         return 'ENUM(' . implode(', ', $quotedAdoptionsTypes) . ')';
     }
 
-    public function convertToPHPValue($value,
-                                      AbstractPlatform $platform): string
+    public function convertToPHPValue($value, AbstractPlatform $platform): ?string
     {
         return $value;
     }

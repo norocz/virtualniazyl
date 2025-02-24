@@ -132,7 +132,7 @@ class Azyl
         return $this->description;
     }
 
-    public function setDescription(string $description): Azyl
+    public function setDescription(?string $description): Azyl
     {
         $this->description = $description;
         return $this;
@@ -143,40 +143,40 @@ class Azyl
         return $this->bankAccount;
     }
 
-    public function setBankAccount(string $bankAccount): Azyl
+    public function setBankAccount(?string $bankAccount): Azyl
     {
         $this->bankAccount = $bankAccount;
         return $this;
     }
 
-    public function getBankCode(): string
+    public function getBankCode(): ?string
     {
         return $this->bankCode;
     }
 
-    public function setBankCode(string $bankCode): Azyl
+    public function setBankCode(?string $bankCode): Azyl
     {
         $this->bankCode = $bankCode;
         return $this;
     }
 
-    public function getBankSpecificCode(): string
+    public function getBankSpecificCode(): ?string
     {
         return $this->bankSpecificCode;
     }
 
-    public function setBankSpecificCode(string $bankSpecificCode): Azyl
+    public function setBankSpecificCode(?string $bankSpecificCode): Azyl
     {
         $this->bankSpecificCode = $bankSpecificCode;
         return $this;
     }
 
-    public function getPhoneNumber(): string
+    public function getPhoneNumber(): ?string
     {
         return $this->phoneNumber;
     }
 
-    public function setPhoneNumber(string $phoneNumber): Azyl
+    public function setPhoneNumber(?string $phoneNumber): Azyl
     {
         $this->phoneNumber = $phoneNumber;
         return $this;
