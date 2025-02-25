@@ -377,13 +377,13 @@ class UserPresenter extends BasePresenter
 
     public function renderAdoptions(): void
     {
-        $this->template->title = 'Adoptions';
+        $this->getTemplate()->title = 'Adoptions';
     }
     // Actions
 
     public function renderFirst()
     {
-        $this->template->title = 'Vyberte si roli';
+        $this->getTemplate()->title = 'Vyberte si roli';
 
     }
 
@@ -419,7 +419,7 @@ class UserPresenter extends BasePresenter
         $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
         $city = $this->cityRepository->findOneBy(['id'=>$user->getCity()]);
 
-        if (!is_null($user->getCity())) {
+        if (!is_null($city)) {
             $form['city']->setItems([$city->getId() => $city->getCityName()], true);
         }
 

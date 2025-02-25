@@ -21,7 +21,7 @@ class Azyl
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $azylName;
 
-    #[ORM\Column(type: 'string', length: 1024, nullable: true)]
+    #[ORM\Column(type: 'string', length: 3000, nullable: true)]
     private ?string $description;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -69,6 +69,12 @@ class Azyl
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $messageAddress;
 
+    #[ORM\OneToMany(mappedBy: "azylSender", targetEntity: Messages::class)]
+    public ?Collection $sentMessages;
+
+    #[ORM\OneToMany(mappedBy: "azylReceiver", targetEntity: Messages::class)]
+    private ?Collection $receivedMessages;
+
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $city;
 
@@ -77,6 +83,12 @@ class Azyl
 
     #[ORM\Column(type: 'string', length: 512, nullable: true)]
     private ?string $email;
+
+    #[ORM\Column(type: 'string', length: 32, nullable: true)]
+    private ?string $ico;
+
+    #[ORM\Column(type: 'string', length: 512, nullable: true)]
+    private ?string $shortDescription;
 
     public function __toString(): string
     {
@@ -320,5 +332,29 @@ class Azyl
         $this->email = $email;
         return $this;
     }
+
+    public function getIco(): ?string
+    {
+        return $this->ico;
+    }
+
+    public function setIco(?string $ico): Azyl
+    {
+        $this->ico = $ico;
+        return $this;
+    }
+
+    public function getShortDescription(): ?string
+    {
+        return $this->shortDescription;
+    }
+
+    public function setShortDescription(?string $shortDescription): Azyl
+    {
+        $this->shortDescription = $shortDescription;
+        return $this;
+    }
+
+
 
 }

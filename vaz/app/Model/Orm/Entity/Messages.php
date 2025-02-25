@@ -25,16 +25,25 @@ class Messages
     #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $createdAt;
 
-    #[ORM\ManyToOne(targetEntity: "Users", inversedBy: "sentMessages")]
+    #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: "sentMessages")] //odesilatel
     #[ORM\JoinColumn(name: "sender_id", referencedColumnName: "id")]
-    private Users $sender;
+    private ?Users $sender;
+
+    #[ORM\ManyToOne(targetEntity: Azyl::class, inversedBy: "sentMessages")] //odesilatel
+    #[ORM\JoinColumn(name: "sender_id", referencedColumnName: "id")]
+    private ?Azyl $azylSender;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $senderAddress;
 
-    #[ORM\ManyToOne(targetEntity: "Users", inversedBy: "receivedMessages")]
+    #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: "receivedMessages")] //příjemce
     #[ORM\JoinColumn(name: "receiver_id", referencedColumnName: "id")]
-    private Users $receiver;
+    private ?Users $receiver;
+
+    #[ORM\ManyToOne(targetEntity: Azyl::class, inversedBy: "sentMessages")] //odesilatel
+    #[ORM\JoinColumn(name: "receiver_id", referencedColumnName: "id")]
+    private ?Azyl $azylReceiver;
+
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $receiverAddress;
@@ -180,6 +189,30 @@ class Messages
         $this->adoption = $adoption;
         return $this;
     }
+
+    public function getAzylSender(): ?Azyl
+    {
+        return $this->azylSender;
+    }
+
+    public function setAzylSender(?Azyl $azylSender): Messages
+    {
+        $this->azylSender = $azylSender;
+        return $this;
+    }
+
+    public function getAzylReceiver(): ?Azyl
+    {
+        return $this->azylReceiver;
+    }
+
+    public function setAzylReceiver(?Azyl $azylReceiver): Messages
+    {
+        $this->azylReceiver = $azylReceiver;
+        return $this;
+    }
+
+
 
 
 

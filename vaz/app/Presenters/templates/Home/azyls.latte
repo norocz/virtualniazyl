@@ -22,7 +22,8 @@
                         <div class="card azyl-card text-dark bg-light">
                             <h5 class="card-header">{$azyl->getAzylName()}</h5>
                             <div class="card-body">
-                                <p class="card-text"> {$azyl->getDescription()|noescape}</p>
+
+                                <p class="card-text"> {$azyl->getShortDescription()}</p>
 
                                 <a href="{link Home:azyl, $azyl->getId()}" class="btn btn-outline-info btn-sm">Stránka azylu</a>
                             </div>

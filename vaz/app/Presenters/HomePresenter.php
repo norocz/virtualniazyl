@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Presenters;
 
 use App\Forms\adoptionFormFactory;
+use App\Forms\azylSendMessageFormFactory;
 use App\Forms\paymentFormFactory;
 use App\Forms\registerFormFactory;
 use App\Forms\SignInFormFactory;
@@ -84,7 +85,8 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                                 private Firewall                    $firewall,
                                 private CollectionsRepository      $collectionsRepository,
                                 private paymentsRepository          $paymentsRepository,
-                                private readonly VersionService              $versionService,)
+                                private readonly VersionService              $versionService,
+                                private readonly azylSendMessageFormFactory $azylSendMessageFormFactory)
     {
         parent::__construct();
         $this->entityManager = $entityManager;
@@ -102,6 +104,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->firewall->setPresenter($this->getPresenter());
         $this->collectionsRepository = $collectionsRepository;
         $this->paymentsRepository = $paymentsRepository;
+
 
 
     }
@@ -195,8 +198,31 @@ final class HomePresenter extends Nette\Application\UI\Presenter
 
     }
 
-    public function renderAdoptions($offset = 0): void
+public function renderAdoptions($offset = 0): void
     {
+        $placeholders = [
+        "Hledat kamaráda",
+        "Hledat myšku",
+        "Najít parťáka na život",
+        "Objevit přítulnou kobru",
+        "Najít chlupatého šéfa",
+        "Získat věrného ochránce",
+        "Vybrat si gaučového experta",
+        "Najít kočičího filozofa",
+        "Najít psa s názorem",
+        "Objevit zvířecí duši k adopci",
+        "Hledat nejlepšího kamaráda",
+        "Najít štěkacího rádce",
+        "Najít spacího mistra",
+        "Objevit roztomilý chaos",
+        "Hledat kočičího krále",
+        "Najít vrnící topení",
+        "Vybrat si nového šéfa domácnosti",
+        "Najít chundelatý poklad",
+        "Hledat někoho, kdo sní tvoji svačinu",
+        "Najít mistra v dělání nepořádku"];
+
+        $this->getTemplate()->placeholders = $placeholders[array_rand($placeholders)];
         $this->getTemplate()->title = 'Všechny adopce';
         $this->getTemplate()->adoptions = $this->animalsRepository->findBy(['isDeleted' => false, 'toAdoption' => true],  ['id' => 'DESC'], 20, $offset);
     }
@@ -591,6 +617,35 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                 $form->addError('Registrace se nezdařila možná jméno nebo email jsou již registrovány');
             } catch (Nette\Application\UI\InvalidLinkException $e) {
             }
+        }
+
+    }
+
+    public function createComponentAzylSendMessageForm(): Form
+    {
+        $form = $this->azylSendMessageFormFactory->create();
+        $form->addHidden('address','address');
+        $form->onSuccess[] = [$this, 'azylSendMessageFormSucceeded'];
+        return $form;
+
+    }
+
+    public function azylSendMessageFormSucceeded($form, \stdClass $values):void
+    {
+       $azyl = $this->azylRepository->findOneBy(['messageAddress' => $values->address]);
+
+
+        if($this->isAjax())
+        {
+            $this->getTemplate()->messageReturn = 'Zpráva odeslána &nbsp;'.$azyl->getAzylName();
+            $this->flashMessage('Zpráva odeslána', 'alert-success');
+        }
+        else
+        {
+            $this->flashMessage('Zpráva odeslána '.$azyl->getAzylName(), 'alert-success');
+
+            $this->getPresenter()->redirect('this');
+
         }
 
     }

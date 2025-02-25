@@ -29,8 +29,8 @@
 <div class="container">
     <div class="row">
         <h2>{$azylProfil->getAzylName()}</h2>
-        <div class="col-md-12 col-xl-3 info">
-            <div class="sidebar">
+        <div class="col-md-12 col-xl-3 info ">
+            <div class="sidebar shadow">
                 <div class="sidebar-container">
                     <div class="sidebar-header">
 
@@ -75,7 +75,7 @@
                             </a>
                         </div>
                         <hr>
-                        <span class="sidebar-brand">{$azylProfil->getAzylName()} </span>
+
                         <div class="photo sidebar">
                             {if $azylProfil->getMainPhoto() !== null}
                                 <img src="{$azylProfil->getMainPhoto()->getPath().$azylProfil->getMainPhoto()->getName()}" alt="{$azylProfil->getAzylName()}" class="img-fluid">
@@ -83,7 +83,33 @@
                                 <img src="{$basePath}/assets/vazdata/img/pic/defaultPhoto.jpeg" alt="{$azylProfil->getAzylName()}" class="img-fluid">
                             {/if}
                         </div>
-                        <div class="sidebar-footer">{$azylProfil->getDescription()|noescape}</div>
+                        {snippet message}
+                        {if $user->isLoggedIn()}
+
+
+
+                        <div class="send p-1 border-xl-2">
+                        <form class="ajax" n:name=azylSendMessageForm>
+                            <label for="message" class="form-label">Vzakaz azylu</label>
+                            <textarea rows="5" aria-label="Poslat vzkaz"  class="ajax form-control btn-outline-info m-1" n:name=message>
+
+                            </textarea>
+
+                            <input class="ajax btn btn-success m-1" id="button-addon2" n:name=send type="submit" value="Poslat vzkaz">
+                            <input n:name=address type="hidden" value="{$azylProfil->getMessageAddress()}">
+
+
+                        </form>
+                        {ifset $messageReturn}
+                        {$messageReturn}
+                        {/ifset}
+
+                        </div>
+
+                         {/if}
+                        {/snippet}
+
+
 
 
 
@@ -93,7 +119,18 @@
 
 
         </div>
-        <div class="col-xl-4 col-md-12 news">
+<div class="col-xl-9 col-sm-12">
+        <div class="row">
+            <div class="col-xl-12 col-md-12 topic bg-light rounded-2 bg-300 p-2">
+                {$azylProfil->getDescription()|noescape}
+            </div>
+
+
+        </div>
+    <hr>
+<div class="row">
+        <div class="col-xl-5 col-md-12 news">
+
             <h3>Aktuality</h3>
             <div class="news" id="news">
                 {foreach $azylNews as $new}
@@ -120,7 +157,7 @@
 
 
         </div>
-        <div class="col-xl-5 col-md-12 adoptions">
+        <div class="col-xl-7 col-md-12 adoptions">
             <h3>Adopce</h3>
             <div class="adoptions d-flex flex-row flex-wrap" id="adoptions">
 
@@ -149,6 +186,8 @@
                     </div>
                 {/foreach}
             </div>
+
+        </div>
 
         </div>
 

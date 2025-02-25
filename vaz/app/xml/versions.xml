@@ -1,5 +1,43 @@
 <versions>
     <version>
+        <date>25.02.2025</date>
+        <number>0.9.9.0</number>
+        <description>
+            Změny:
+            - Azyl dostal navíc IČO
+            - Azyl má krom popisu i krátký popis bez Větších HTML prvků
+            - komunikace Uživatel -> Azyl
+            - komunikace Azyl -> Uživatel
+            - komunikace Uživatel -> Uživatel
+            - kompletace smlouvy
+            - zadávání částí smlouvy
+                - Nejdřív se vytvoří smlouva -> pak se naplní -> %azyl%, %adopter% %podpisAzyl% %podpisAdopter%
+
+
+            Co je potřeba:
+            - přidat režim odstávky
+            - Zkontrolovat všechny odkazy jestli jsou OK zvlášť odkazy na fotky
+            - ADMIN: editor částí smluv (šablona smlouvy)
+            - ADMIN: kontrola smluv
+            - ADMIN: Hromadné zprávy
+            - ADMIN: Odpovědi na dotazy
+            - párování smlouvy
+            - archivace smlouvy
+            - azyl komunikace
+            - pravidla pro adopce
+            - adopční podmínky - rozběhnutý proces poslaný mail
+            - Pořád je problém s přepínáním azylu v souvislosti s fotkou pokud není nastavená a je null
+            - Nastavit až bude správný účet
+
+            Rozvoj:
+            - Taby na profilu automaticky Switchovat
+            - Přidat taby (popořili jste, oblíbené azyly)
+
+            Nápady:
+            - podepisování smlouvy pomocí SMS (odeslání sms s kodem, zadání kódu pro podpis)
+        </description>
+    </version>
+    <version>
         <date>24.02.2025</date>
         <number>0.9.8.9</number>
         <description>

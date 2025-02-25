@@ -75,7 +75,7 @@
                             </a>
                         </div>
                         <hr>
-                        <span class="sidebar-brand">{$azylProfil->getAzylName()} </span>
+
                         <div class="photo sidebar">
                             {if $azylProfil->getMainPhoto() !== null}
                                 <img src="{$azylProfil->getMainPhoto()->getPath().$azylProfil->getMainPhoto()->getName()}" alt="{$azylProfil->getAzylName()}" class="img-fluid">
@@ -83,7 +83,7 @@
                                 <img src="{$basePath}/assets/vazdata/img/pic/defaultPhoto.jpeg" alt="{$azylProfil->getAzylName()}" class="img-fluid">
                             {/if}
                         </div>
-                        <div class="sidebar-footer">{$azylProfil->getDescription()|noescape}</div>
+
 
                     </div>
                 </div>
@@ -93,7 +93,6 @@
         </div>
         <div class="col-xl-9 col-md-12 news">
             {if !empty($azylProfil->getAzylNews())}
-            <h3>Aktuality</h3>
             <div class="news adoptions d-flex flex-row flex-wrap" id="news">
 
                 {foreach $azylProfil->getAzylNews() as $new}

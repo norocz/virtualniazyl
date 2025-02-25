@@ -8,6 +8,7 @@ use App\Components\CityDataSource;
 use App\Components\Datagrids\AnimalsDatagridFactory;
 use App\Components\Datagrids\NewsDatagridFactory;
 use App\Forms\animalFormFactory;
+use App\Forms\azylSendMessageFormFactory;
 use App\Forms\azylSetingsFormFactory;
 use App\Forms\CollectionFormFactory;
 use App\Forms\messagesFormFactory;
@@ -84,12 +85,14 @@ class AzylPresenter extends BasePresenter
                                 private readonly cityRepository $cityRepository,
                                 private readonly CityDataSource $cityDataSource,
                                 private readonly RegisterFormFactory $registerFormFactory,
-                                private readonly userDetailsFormFactory $userDetailsFormFactory,)
+                                private readonly userDetailsFormFactory $userDetailsFormFactory,
+                                private readonly azylSendMessageFormFactory $azylSendMessageFormFactory)
     {
         parent::__construct();
         $this->animalsRepository = $animalsRepository;
         $this->animalFormFactory = $animalFormFactory;
         $this->azylSetingsFormFactory = $azylSetingsFormFactory;
+
 
 
 
@@ -641,7 +644,9 @@ class AzylPresenter extends BasePresenter
             'phoneNumber' => $formDef->getPhoneNumber(),
             'city' => $formDef->getCity(),
             'web' => $formDef->getWeb(),
-            'email' => $formDef->getEmail()
+            'email' => $formDef->getEmail(),
+            'ico' => $formDef->getIco(),
+            'shortDescription' => $formDef->getShortDescription(),
         ]);
 
         $form->onSuccess[] = [$this, 'azylSettingsFormSucceeded'];
@@ -660,6 +665,8 @@ class AzylPresenter extends BasePresenter
         $azyl->setPhoneNumber($values->phoneNumber);
         $azyl->setEmail($values->email);
         $azyl->setWeb($values->web);
+        $azyl->setIco($values->ico);
+        $azyl->setShortDescription($values->shortDescription);
         $azyl->setCity(intval($this->getRequest()->getPost('city')));
 
         $this->azylRepository->saveAzyl($azyl);
@@ -1053,4 +1060,6 @@ class AzylPresenter extends BasePresenter
         $this->getPresenter()->flashMessage('Fotky byly úspěšně nahrány!', 'alert-success');
         $this->getPresenter()->redrawControl('photos');
     }
+
+
 }

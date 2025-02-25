@@ -25,9 +25,17 @@ class AzylSetingsFormFactory extends Form
         $form->addTextArea('description', 'Popis azylu')
             ->setHtmlAttribute('id', 'azylDescription')
             ->setHtmlAttribute('class', 'form-control')
+            ->setHtmlAttribute('rows','15')
             ->addRule(Form::MaxLength, 'Info o azylu může mít maximálně %d znaků', 2048);
+        $form->addTextArea('shortDescription', 'Krátký popisek')
+            ->setHtmlAttribute('id', 'azylshortDescription')
+            ->setHtmlAttribute('class', 'form-control')
+            ->setHtmlAttribute('rows','5')
+            ->addRule(Form::MaxLength, 'Info o azylu může mít maximálně %d znaků', 256);
         $form->addText('bankAccount', 'Bankovní účet')
-            ->setHtmlAttribute('class', 'form-control')      ;
+            ->setHtmlAttribute('class', 'form-control');
+        $form->addText('ico', 'IČO')
+            ->setHtmlAttribute('class', 'form-control')   ;
         $form->addText('bankCode', 'Kód banky')
             ->setHtmlAttribute('class', 'form-control');
         $form->addText('bankSpecificCode', 'Variabilní symbol')
@@ -35,6 +43,7 @@ class AzylSetingsFormFactory extends Form
              ->setHtmlAttribute('class', 'form-control');
         $form->addText('phoneNumber', 'Telefonní číslo azylu')
             ->setRequired('Zadejte telefonní číslo')
+            ->setHtmlType('tel')
             ->addRule(PhoneNumberInput::REGION, 'Prosím zadejte platný telefonní číslo. Pro ČR nebo SR začíná na +420 nebo +421.',['CZ', 'SK'])
             ->setDefaultValue('+420')
             ->setHtmlAttribute('class', 'form-control');
