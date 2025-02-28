@@ -3,10 +3,13 @@ declare(strict_types=1);
 
 namespace App\Model\Orm\Repository;
 
+use App\Model\Orm\Entity\Conversations;
 use App\Model\Orm\Entity\Messages;
+use App\Model\Orm\Entity\Users;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\NonUniqueResultException;
 
 class MessagesRepository extends EntityRepository
 {
@@ -30,6 +33,7 @@ class MessagesRepository extends EntityRepository
             ->getSingleScalarResult();
     }
     */
+
 
     public function findBytConversationMessages(string $conversationId): ?array
     {
@@ -55,6 +59,19 @@ class MessagesRepository extends EntityRepository
     }
 
 
+    public function findByAndMergeConversations(array $conversationIds, string $lastConversation): int
+    {
+        return $this->createQueryBuilder('m') // ✅ Přidán alias
+        ->update(Messages::class, 'm') // ✅ Opraven název entity
+        ->set('m.conversation', ':lastConversation')
+            ->where('m.conversation IN (:conversationIds)')
+            ->setParameter('lastConversation', $lastConversation)
+            ->setParameter('conversationIds', $conversationIds)
+            ->getQuery()
+            ->execute();
+    }
+
+
     public function findByMessagesByType(string $type): array
     {
         return $this->createQueryBuilder('m')
@@ -66,6 +83,21 @@ class MessagesRepository extends EntityRepository
             ->getResult();
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
+    public function getMessagesById(int $id, Users $user): ?Messages
+    {
+        return $this->createQueryBuilder('m')
+            ->andWhere('m.id = :id')
+            ->andWhere('m.user = :user')
+            ->andWhere('m.deletedAt IS NULL OR m.deletedAt > :now')
+            ->setParameter('id', $id)
+            ->setParameter('user', $user)
+            ->setParameter('now', new \DateTimeImmutable())
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 
 
     public function save(Messages $messages): void
@@ -80,6 +112,11 @@ class MessagesRepository extends EntityRepository
         $this->getEntityManager()->flush();
     }
 
+    public function flush(): void
+    {
+        $this->getEntityManager()->flush();
+
+    }
 
 
 

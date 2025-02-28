@@ -49,6 +49,10 @@ class Conversations
     #[ORM\ManyToOne(targetEntity: Adoption::class, inversedBy: 'conversations')]
     private ?Adoption $adoption;
 
+    #[ORM\OneToMany(mappedBy: 'conversation', targetEntity: Messages::class, cascade: ['persist', 'remove'])]
+    private ?Collection $messages;
+
+
 
     /**
      * @throws RandomException
@@ -126,6 +130,17 @@ class Conversations
     public function setBlock(bool $block): Conversations
     {
         $this->block = $block;
+        return $this;
+    }
+
+    public function getMessages(): ?Collection
+    {
+        return $this->messages;
+    }
+
+    public function setMessages(?Collection $messages): Conversations
+    {
+        $this->messages = $messages;
         return $this;
     }
 

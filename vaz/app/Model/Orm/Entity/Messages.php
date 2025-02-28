@@ -33,8 +33,9 @@ class Messages
     #[ORM\JoinColumn(name: "azyl", referencedColumnName: "id")]
     private ?Azyl $azyl;
 
-    #[ORM\ManyToOne(targetEntity: Conversations::class, inversedBy: "id")]
+    #[ORM\ManyToOne(targetEntity: Conversations::class, cascade: ["persist", "remove"], inversedBy: "messages")]
     private Conversations $conversation;
+
 
     #[ORM\Column(type: 'boolean')]
     private bool $readed;

@@ -253,24 +253,33 @@ class UserPresenter extends BasePresenter
         $this->redrawControl('citySelect');
     }
 
+    /**
+     * @throws NonUniqueResultException
+     * @throws InvalidLinkException
+     */
     public function handleDeleteMsg(int $id): void
     {
-        $redirectAddress = $this->messagesRepository->getMessagesById($id)->getReceiverAddress();
-        if($this->messagesService->deleteMessage($id,$this->getPresenter()))
-        {
-            $this->flashMessage('Vzkaz byl smazán.', 'alert-success');
-        } else {
 
-            $this->flashMessage('Při mazání vzkazu nastala chyba.', 'alert-danger');
+        $message = $this->messagesRepository->getMessagesById($id, $this->usersRepository->getUserById($this->getUser()->getId()));
+
+        $message->setDeletedAt(new \DateTimeImmutable());
+        try {
+            $this->messagesRepository->save($message);
+            $this->flashMessage('Vzkaz byl smazán.', 'alert-success');
+        } catch (\Exception $e) {
+            $this->flashMessage('Chyba při ukládání zprávy. Zkuste to prosím znovu.', 'alert-danger');
+
         }
-        if($this->isAjax()){
+        if($this->isAjax())
+        {
             $this->redrawControl('messagesCount');
             $this->redrawControl('chats');
             $this->redrawControl('messages');
         }
         else {
             $chat = "?do=chat";
-            $url = $this->link('User:messages', $redirectAddress) . $chat;
+            bdump($message->getConversation());
+            $url = $this->link('User:messages', $message->getConversation()->getId()) . $chat;
             $this->redirectUrl($url);
         }
 

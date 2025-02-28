@@ -150,7 +150,7 @@
 
                             <div class="chat-detail" id="chat-detail">
                             {foreach $messages as $message}
-                                <div class="message {if $message->getAzyl() != null}outgoing{else}incoming{/if}">
+                                <div class="message {if $message->getAzyl() == null}outgoing{else}incoming{/if}">
                                 <div class="row">
                                     <div class="col-lg-10">
                                         <div class="msg-title">{$message->getTitle()}
@@ -163,7 +163,7 @@
                                     <div class="msg-message">{$message->getMessage()|safeHtml|noescape}<br><small>{$message->getCreatedAt()|date:'H:i d.m.Y'}</small></div>
                                     </div>
                                     <div class="col-lg-2">
-                                     {if $message->getAzyl() != null}
+                                     {if $message->getAzyl() == null}
                                     <a class="align-center align-right ajax" n:href="deleteMsg! $message->getId()">(X)</a>
                                     {/if}
                                     </div>
@@ -176,7 +176,7 @@
                             {if $conversation == 'sys'}
                             <div class="row"> <div class="msg-text-array col-lg-9"><b>Virtuálnímu Azylu nejde napsat.</b> ;-) Zpráva je jen informativní. Často určená pro všechny uživatele nebo nějakou skupinu.</div> </div>
                             {else}
-                            <div class="row">
+                            <div class="row m-1 p-2">
                                 <form n:name=messagesForm class="ajax form row col-auto" data-reciver="{$conversation}">
                                     <div class="msg-text-array col-lg-9">
                                      <label n:name=message><textarea class="font-monospace form-control ajax chat-textarray" cols="55" rows="2" n:name=message autofocus></textarea></label>

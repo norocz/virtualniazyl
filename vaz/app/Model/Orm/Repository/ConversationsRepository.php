@@ -41,6 +41,7 @@ class ConversationsRepository extends EntityRepository
         return $this->findBy(['user' => $user, 'azyl' => $azyl]);
     }
 
+
     public function save(Conversations $conversations): void
     {
         $this->getEntityManager()->persist($conversations);
@@ -50,6 +51,10 @@ class ConversationsRepository extends EntityRepository
     public function remove(Conversations $conversations): void
     {
         $this->getEntityManager()->remove($conversations);
+    }
+
+    public function flush(): void
+    {
         $this->getEntityManager()->flush();
     }
 }

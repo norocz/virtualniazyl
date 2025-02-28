@@ -42,6 +42,7 @@ use Brick\PhoneNumber\PhoneNumberParseException;
 use Contributte\Application\UI\BasePresenter;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\ConversionException;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use JetBrains\PhpStorm\NoReturn;
 use libphonenumber\NumberParseException;
@@ -56,6 +57,7 @@ use App\Services\AzylAddressService;
 
 class AzylPresenter extends BasePresenter
 {
+    private EntityManagerInterface $entityManager;
     private AnimalsRepository $animalsRepository;
     private AnimalFormFactory $animalFormFactory;
     private AzylSetingsFormFactory $azylSetingsFormFactory;
@@ -90,12 +92,15 @@ class AzylPresenter extends BasePresenter
                                 private readonly userDetailsFormFactory $userDetailsFormFactory,
                                 private readonly azylSendMessageFormFactory $azylSendMessageFormFactory,
                                 private AzylAddressService      $azylAddressService,
-                                private ConversationsRepository $conversationsRepository)
+                                private ConversationsRepository $conversationsRepository,
+                                 EntityManagerInterface          $entityManager)
     {
         parent::__construct();
         $this->animalsRepository = $animalsRepository;
         $this->animalFormFactory = $animalFormFactory;
         $this->azylSetingsFormFactory = $azylSetingsFormFactory;
+        $this->entityManager = $entityManager;
+
 
 
 

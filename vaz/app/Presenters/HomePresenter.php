@@ -261,42 +261,80 @@ public function renderAdoptions($offset = 0): void
            // $this->redirect('Home:SignIn');
         }
     }
-    public function renderAzyl(int $id) : void
+    public function renderAzyl(int $id): void
     {
         $azylProfil = $this->azylRepository->findById($id);
         $userId = $this->getUser()->getId();
-        if($userId !== null)
-        {
+
+
+
+        if ($userId !== null) {
             $user = $this->usersRepository->getUserById($userId);
             $conversations = $this->conversationsRepository->findByUserAndAzyl($user, $azylProfil);
-                if ($conversations->getId() === null)
-                {
-                    $conversation = new Conversations();
-                }
-                else
-                {
-                    $conversation = $conversations;
-                }
 
+            if (count($conversations) > 1) {
+                $lastConversation = $conversations[0];
+
+                // Začneme transakci, aby vše probíhalo atomicky
+                $this->entityManager->beginTransaction();
+
+                try {
+                    // Procházení všech konverzací a přesunutí zpráv
+                    foreach ($conversations as $conversation) {
+                        // Načteme všechny zprávy této konverzace
+                        $messagesToMove = $this->messagesRepository->findBytConversationMessages($conversation->getId());
+
+                        // Přesuneme všechny zprávy pod novou konverzaci
+                        foreach ($messagesToMove as $messageToMove) {
+                            $messageToMove->setConversation($lastConversation);  // Nastavíme novou konverzaci
+                            $this->messagesRepository->save($messageToMove);    // Uložíme zprávu
+                        }
+                    }
+
+                    // Uložíme všechny změny v zprávách
+                    $this->entityManager->flush();
+
+                    // Smazání starých konverzací
+                    foreach ($conversations as $conversation) {
+                        $this->conversationsRepository->remove($conversation);
+                    }
+
+                    // Uložíme změny a commitujeme transakci
+                    $this->conversationsRepository->flush();
+                    $this->entityManager->commit();
+
+                    // Flash message, že konverzace byly spojeny
+                    $this->flashMessage('Konverzace byly spojeny do jedné', 'alert-success');
+                } catch (\Exception $e) {
+                    // Pokud dojde k chybě, rollback transakce
+                    $this->entityManager->rollback();
+                    throw $e;  // Nebo můžeš logovat chybu
+                }
+            }
+
+            // Když není více než jedna konverzace, použije se první nebo nová konverzace
+            $conversation = empty($conversations) ? new Conversations() : $conversations[0];
             $conversation->setComment($this->getPresenter()->getAction().'|'.$this->getPresenter()->getName().'|'.$this->getUser()->getId());
             $conversation->setBlock(false);
             $conversation->setAzyl($azylProfil);
             $conversation->setUser($user);
+
+            // Uložíme nebo aktualizujeme konverzaci
             $this->conversationsRepository->save($conversation);
             $this->getTemplate()->conversation = $conversation->getId();
         }
+
         $azylNews = $azylProfil->getAzylNews();
         $azylUser = $this->usersRepository->getUserByAzylId($id);
 
+        // Předáme data do šablony
         $this->getTemplate()->azylProfil = $azylProfil;
         $this->getTemplate()->azylNews = $azylNews;
         $this->getTemplate()->azylUser = $azylUser;
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
         $this->getTemplate()->adoptions = $this->animalsRepository->findBy(['azyl' => $azylProfil, 'toAdoption' => true], ['id' => 'DESC']);
-
-
-
     }
+
 
     public function actionAzylAdoptions(int $id) : void
     {
@@ -676,7 +714,7 @@ public function renderAdoptions($offset = 0): void
         $message->setUser($user);
         $message->setConversation($this->conversationsRepository->findOneById($values->address));
         $message->setType(MessageTypeEnum::FROMUSER_TYPE);
-        $message->setAzyl($azyl);
+        $message->setAzyl(null);
         $message->setCreatedAt(new DateTimeImmutable());
         $message->setMessage($values->message);
         $message->setReaded(FALSE);

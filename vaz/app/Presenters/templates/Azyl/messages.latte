@@ -15,6 +15,17 @@
         margin-left: auto;
         padding-right: 2em;
     }
+
+    #chat-detail {
+        width: 70%;
+        background-color: #fff;
+        padding: 20px;
+        border-left: 1px solid #ddd;
+        justify-content: flex-end; /* Zajišťuje, že se zprávy zarovnají dole */
+        max-height: 80vh; /* Nastaví výšku chatu, můžeš upravit dle potřeby */
+        overflow-y: auto; /* Umožňuje skrolování, pokud je více zpráv */
+    }
+
 </style>
 
 <main class="main" id="top">
@@ -39,7 +50,7 @@
 
 
                                                     </div>
-                                                  Od:  <a class="ajax cont btn-light" n:href="chat! $chat->getId()"><h6 class="mb-0"> {$chat->getUser()->getUserName()}</h6></a>
+                                                  <a class="ajax" n:href="chat! $chat->getId()"><span class="btn btn-outline-secondary"> {$chat->getUser()->getUserName()}</span></a>
                                                 </div>
                                             </div>
 
@@ -51,7 +62,7 @@
 
 
                     <div class="col-sm-12 col-md-6 col-xl-8">
-                        <div class="h-100 bg-light rounded p-4">
+                        <div class="h-100 bg-light rounded p-4" id="chat-detail">
                             <div class="messages d-flex align-items-center justify-content-between mb-4" id="messages">
                                 <h6 class="mb-0">Vzkazy</h6>
                             </div>
@@ -60,7 +71,7 @@
 
                             {foreach $messages as $message}
 
-                            <div class="d-flex align-items-center border-bottom py-3">
+                            <div class="d-flex align-items-center border-bottom py-3" >
                                 <div class="w-100 ms-3">
                                     <div class="d-flex w-100 justify-content-between">
                                         <div class="me-4 ps-4 p-3 shadow rounded-2 msg {if$message->getAzyl() == null}in{else}out{/if}">
@@ -72,16 +83,18 @@
                             </div>
 
                                 {/foreach}
-                                <form n:name=messagesForm class="ajax form row col-auto m-2 p-3" data-reciver="{$conversation}">
+
+                                <form n:name=messagesForm class="ajax form row col-auto m-2 " data-reciver="{$conversation}">
                                     <div class="msg-text-array col-lg-9">
                                         <label n:name=message><textarea class="font-monospace form-control ajax chat-textarray" cols="55" rows="2" n:name=message autofocus></textarea></label>
                                     </div>
-                                    <div class="msg-text-array col-lg-3">
+                                    <div class="msg-text-array col-lg-3 ">
                                         <input n:name=address value="{$conversation}">
                                         <input class="align-center ajax chat-send btn btn-secondary" n:name=send>
                                     </div>
 
                                 </form>
+
                                 {/ifset}
                                 {/snippet messages}
 
