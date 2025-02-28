@@ -67,11 +67,8 @@ class Users
     #[ORM\OneToMany(mappedBy: "user", targetEntity: Adoption::class)]
     private ?Collection $adoptions;
 
-    #[ORM\OneToMany(mappedBy: "sender", targetEntity: Messages::class)]
-    public ?Collection $sentMessages;
-
-    #[ORM\OneToMany(mappedBy: "receiver", targetEntity: Messages::class)]
-    private ?Collection $receivedMessages;
+    #[ORM\OneToMany(mappedBy: "user", targetEntity: Messages::class)]
+    public ?Collection $messages;
 
     #[ORM\OneToMany(mappedBy: "collections", targetEntity: Collections::class)]
     private ?Collection $collections;
@@ -197,16 +194,6 @@ class Users
     }
 
 
-    public function getSentMessages(): Collection
-    {
-        return $this->sentMessages;
-    }
-
-
-    public function getReceivedMessages(): Collection
-    {
-        return $this->receivedMessages;
-    }
 
     public function setBaned($baned): void
     {
@@ -423,10 +410,6 @@ class Users
         return $this->messageAddress;
     }
 
-    public function setReceivedMessages(Collection $receivedMessages): void
-    {
-        $this->receivedMessages = $receivedMessages;
-    }
 
     public function getFirstName(): ?string
     {

@@ -1,7 +1,7 @@
 {block azylContent}
 <style>
     /* Příchozí zprávy */
-    .frs, .fra, .fru {
+    .in {
         background-color: #d1e7dd;
         text-align: left;
         margin-left: 0;
@@ -9,7 +9,7 @@
     }
 
     /* Odchozí zprávy */
-    .fou, .foa, .fos {
+    .out{
         background-color: #f0f0f0;
         text-align: right;
         margin-left: auto;
@@ -20,30 +20,36 @@
 <main class="main" id="top">
     <div class="bg">
         <div class="content">
+            {ifset $chats}
             <div class="container-fluid pt-4 px-4">
                 <div class="row g-4">
+
                     <div class="col-sm-12 col-md-6 col-xl-4">
                         <div class="h-100 bg-light rounded p-4">
                             <div class="chat d-flex align-items-center justify-content-between mb-2" id="chat">
                                  <h6 class="mb-0">Kontakty</h6>
                             </div>
-                            {snippet chats}
-                                    {ifset $chats}
-                                        {foreach $chats as $key => $chat}
+                           {foreach $chats as $chat}
+
+
+
                                             <div class="d-flex align-items-center border-bottom py-3">
                                                 <div class="w-100 ms-3">
                                                     <div class="d-flex w-100 justify-content-between">
-                                                        <h6 class="mb-0"> {$chat}</h6>
+
 
                                                     </div>
-                                                    <span><a class="ajax cont btn-light" n:href="chat! $key">{$chat}</a></span>
+                                                  Od:  <a class="ajax cont btn-light" n:href="chat! $chat->getId()"><h6 class="mb-0"> {$chat->getUser()->getUserName()}</h6></a>
                                                 </div>
                                             </div>
+
                                         {/foreach}
-                                    {/ifset}
-                                    {/snippet chats}
+
+
                         </div>
                     </div>
+
+
                     <div class="col-sm-12 col-md-6 col-xl-8">
                         <div class="h-100 bg-light rounded p-4">
                             <div class="messages d-flex align-items-center justify-content-between mb-4" id="messages">
@@ -51,26 +57,27 @@
                             </div>
                             {snippet messages}
                             {ifset $messages}
+
                             {foreach $messages as $message}
+
                             <div class="d-flex align-items-center border-bottom py-3">
                                 <div class="w-100 ms-3">
                                     <div class="d-flex w-100 justify-content-between">
-                                        <div class="msg {if $message->getReaded() == false}msg-unreaded{/if} {$message->getType()}">
-                                        <h6 class="mb-0"> {$message->getTitle()}</h6>
-                                        <small>{$message->getCreatedAt()|date:'H:i d.m.Y'}</small>
-                                        <span>{$message->getMessage()|safeHtml|noescape}</span>
+                                        <div class="me-4 ps-4 p-3 shadow rounded-2 msg {if$message->getAzyl() == null}in{else}out{/if}">
+                                        <span>{$message->getMessage()|safeHtml|noescape}</span><br>
+                                       <span class="small">{$message->getCreatedAt()|date:'H:i d.m.Y'}</span>
                                     </div>
                                 </div>
                             </div>
                             </div>
 
                                 {/foreach}
-                                <form n:name=messagesForm class="ajax form row col-auto" data-reciver="{$receiver}">
+                                <form n:name=messagesForm class="ajax form row col-auto m-2 p-3" data-reciver="{$conversation}">
                                     <div class="msg-text-array col-lg-9">
                                         <label n:name=message><textarea class="font-monospace form-control ajax chat-textarray" cols="55" rows="2" n:name=message autofocus></textarea></label>
                                     </div>
                                     <div class="msg-text-array col-lg-3">
-                                        <input n:name=address value="{$receiver}">
+                                        <input n:name=address value="{$conversation}">
                                         <input class="align-center ajax chat-send btn btn-secondary" n:name=send>
                                     </div>
 
@@ -86,6 +93,7 @@
                     </div>
                    </div>
                  </div>
+        {/ifset}
               </div>
         </main>
 

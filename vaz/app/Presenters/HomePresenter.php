@@ -8,10 +8,12 @@ use App\Forms\adoptionFormFactory;
 use App\Forms\azylSendMessageFormFactory;
 use App\Forms\paymentFormFactory;
 use App\Forms\registerFormFactory;
+use App\Forms\searchFormFactory;
 use App\Forms\SignInFormFactory;
 use App\Model\Orm\Entity\Adoption;
 use App\Model\Orm\Entity\AdoptionAction;
 use App\Model\Orm\Entity\Azyl;
+use App\Model\Orm\Entity\Conversations;
 use App\Model\Orm\Entity\Messages;
 use App\Model\Orm\Entity\Payments;
 use App\Model\Orm\Entity\Users;
@@ -22,6 +24,7 @@ use App\Model\Orm\Repository\AdoptionsRepository;
 use App\Model\Orm\Repository\AnimalsRepository;
 use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\CollectionsRepository;
+use App\Model\Orm\Repository\ConversationsRepository;
 use App\Model\Orm\Repository\MessagesRepository;
 use App\Model\Orm\Repository\NewsRepository;
 use App\Model\Orm\Repository\PaymentsRepository;
@@ -86,7 +89,9 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                                 private CollectionsRepository      $collectionsRepository,
                                 private paymentsRepository          $paymentsRepository,
                                 private readonly VersionService              $versionService,
-                                private readonly azylSendMessageFormFactory $azylSendMessageFormFactory)
+                                private readonly azylSendMessageFormFactory $azylSendMessageFormFactory,
+                                private readonly searchFormFactory         $searchFormFactory,
+                                private  conversationsRepository $conversationsRepository,)
     {
         parent::__construct();
         $this->entityManager = $entityManager;
@@ -116,7 +121,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
 
         if ($this->getPresenter()->getUser()->isLoggedIn())
         {
-            $this->getTemplate()->messagesCount = $this->messagesRepository->countUnreadMessages($this->getPresenter()->getUser()->getId());
+            $this->getTemplate()->messagesCount = '' ;//$this->messagesRepository->countUnreadMessages($this->getPresenter()->getUser()->getId());
 
         }
         $this->getTemplate()->mainMenuItems = $menu->getMenu();
@@ -258,12 +263,31 @@ public function renderAdoptions($offset = 0): void
     }
     public function renderAzyl(int $id) : void
     {
-
-
         $azylProfil = $this->azylRepository->findById($id);
-        $now = new DateTimeImmutable();
+        $userId = $this->getUser()->getId();
+        if($userId !== null)
+        {
+            $user = $this->usersRepository->getUserById($userId);
+            $conversations = $this->conversationsRepository->findByUserAndAzyl($user, $azylProfil);
+                if ($conversations->getId() === null)
+                {
+                    $conversation = new Conversations();
+                }
+                else
+                {
+                    $conversation = $conversations;
+                }
+
+            $conversation->setComment($this->getPresenter()->getAction().'|'.$this->getPresenter()->getName().'|'.$this->getUser()->getId());
+            $conversation->setBlock(false);
+            $conversation->setAzyl($azylProfil);
+            $conversation->setUser($user);
+            $this->conversationsRepository->save($conversation);
+            $this->getTemplate()->conversation = $conversation->getId();
+        }
         $azylNews = $azylProfil->getAzylNews();
         $azylUser = $this->usersRepository->getUserByAzylId($id);
+
         $this->getTemplate()->azylProfil = $azylProfil;
         $this->getTemplate()->azylNews = $azylNews;
         $this->getTemplate()->azylUser = $azylUser;
@@ -531,10 +555,8 @@ public function renderAdoptions($offset = 0): void
             $message ->setAdoption($adoption);
             $message ->setMessage('Uživatel: '.$user->getUserName(). ' požádal o adopci zvířete: '.$animal->getName().'. Tak mu dejte co nejdřív vědět! Podrobnosti najdete'.
                                   '<a href="'.$this->getPresenter()->link('Azyl:adoptions',$adoption->getId()).'"> Zde</a>');
-            $message->setSender($user);
-            $message->setSenderAddress($user->getMessageAddress());
+            $message->setUser($user);
             $message->setReceiver($reciver);
-            $message->setReceiverAddress($reciver->getMessageAddress());
             $message->setReaded(false);
             $this->messagesRepository->save($message);
             //zpráva poslána
@@ -630,9 +652,35 @@ public function renderAdoptions($offset = 0): void
 
     }
 
+    public function createComponentSearchForm(): Form
+    {
+        $form = $this->searchFormFactory->create();
+        $form->onSuccess[] = [$this, 'searchFormSucceeded'];
+        return $form;
+    }
+
+    public function searchFormSucceeded(Form $form, \stdClass $values):void
+    {
+
+
+
+        $this->flashMessage('Hledání'.$values->search);
+    }
+
     public function azylSendMessageFormSucceeded($form, \stdClass $values):void
     {
-       $azyl = $this->azylRepository->findOneBy(['messageAddress' => $values->address]);
+       $azyl = $this->conversationsRepository->findOneById($values->address)->getAzyl();  //adresát
+       $user = $this->usersRepository->findOneBy(['id'=>$this->getUser()->getId()]); //odesilatel
+
+        $message = new Messages();
+        $message->setUser($user);
+        $message->setConversation($this->conversationsRepository->findOneById($values->address));
+        $message->setType(MessageTypeEnum::FROMUSER_TYPE);
+        $message->setAzyl($azyl);
+        $message->setCreatedAt(new DateTimeImmutable());
+        $message->setMessage($values->message);
+        $message->setReaded(FALSE);
+        $this->messagesRepository->save($message);
 
 
         if($this->isAjax())
@@ -643,7 +691,6 @@ public function renderAdoptions($offset = 0): void
         else
         {
             $this->flashMessage('Zpráva odeslána '.$azyl->getAzylName(), 'alert-success');
-
             $this->getPresenter()->redirect('this');
 
         }

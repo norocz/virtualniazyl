@@ -30,7 +30,7 @@ class PagePresenter extends BasePresenter
         $this->getTemplate()->setFile(__DIR__ . '/templates/Page/default.latte');
         if ($this->getPresenter()->getUser()->isLoggedIn())
         {
-            $this->getTemplate()->messagesCount = $this->messagesRepository->countUnreadMessages($this->getPresenter()->getUser()->getId());
+            $this->getTemplate()->messagesCount = '' ; $this->messagesRepository->countUnreadMessages($this->getPresenter()->getUser()->getId());
 
         }
         $this->getTemplate()->mainMenuItems = $menu->getMenu();

@@ -33,12 +33,15 @@ class Adoption
     #[ORM\ManyToOne(targetEntity: Animal::class, inversedBy: 'adoptions')]
     private Animal $animal;
    
-    #[ManyToOne(targetEntity: "Azyl", inversedBy: "adoptions")]
+    #[ManyToOne(targetEntity: Azyl::class, inversedBy: "adoptions")]
     private Azyl $azyl;
 
-    #[ManyToOne(targetEntity: "Users", inversedBy: "adoptions")]
+    #[ManyToOne(targetEntity: Users::class, inversedBy: "adoptions")]
     #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id")]
     private Users $user;
+
+    #[ORM\OneToMany(mappedBy: 'adoption', targetEntity: Conversations::class)]
+    private ?Conversations $conversations;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $createdAt;
@@ -256,6 +259,17 @@ class Adoption
     public function setHowMuch(int $howMuch): Adoption
     {
         $this->howMuch = $howMuch;
+        return $this;
+    }
+
+    public function getConversations(): ?Conversations
+    {
+        return $this->conversations;
+    }
+
+    public function setConversations(?Conversations $conversations): Adoption
+    {
+        $this->conversations = $conversations;
         return $this;
     }
 

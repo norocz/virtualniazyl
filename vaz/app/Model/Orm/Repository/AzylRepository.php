@@ -72,4 +72,10 @@ class AzylRepository extends EntityRepository
 
     }
 
+    public function findOneById($id): ?Azyl
+    {
+        return $this->findOneBy(['id' => $id]);
+
+    }
+
 }

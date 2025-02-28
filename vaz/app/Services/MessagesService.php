@@ -3,8 +3,11 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Model\Orm\Entity\Azyl;
 use App\Model\Orm\Entity\Messages;
+use App\Model\Orm\Entity\Users;
 use App\Model\Orm\Repository\AzylRepository;
+use App\Model\Orm\Repository\ConversationsRepository;
 use App\Model\Orm\Repository\MessagesRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use DateTimeImmutable;
@@ -18,34 +21,20 @@ class MessagesService
     private UsersRepository $usersRepository;
     private UserAddressService $userAddressService;
     private AzylRepository $azylRepository;
-    public function __construct(MessagesRepository $messagesRepository, UsersRepository $usersRepository, UserAddressService $userAddressService, AzylRepository $azylRepository)
+    private ConversationsRepository $conversationsRepository;
+    public function __construct(MessagesRepository $messagesRepository,
+                                UsersRepository $usersRepository,
+                                UserAddressService $userAddressService,
+                                AzylRepository $azylRepository,
+                                ConversationsRepository $conversationsRepository,)
     {
         $this->messagesRepository = $messagesRepository;
         $this->usersRepository = $usersRepository;
         $this->userAddressService = $userAddressService;
         $this->azylRepository = $azylRepository;
+        $this->conversationsRepository = $conversationsRepository;
     }
 
-    // Metoda pro načtení zpráv mezi dvěma uživateli
-    public function getMessagesBetweenUsers(int $userId, int $otherUserId): array
-    {
-        // Příchozí zprávy - zprávy, které poslal otherUserId uživateli userId
-        $incomingMessages = $this->messagesRepository->getMessagesBetween($otherUserId, $userId);
-
-        // Odchozí zprávy - zprávy, které uživatel userId poslal uživateli otherUserId
-        $outgoingMessages = $this->messagesRepository->getMessagesBetween($userId, $otherUserId);
-
-        return [
-            'incoming' => $incomingMessages,
-            'outgoing' => $outgoingMessages
-        ];
-    }
-
-    public function getUserContacts(int $userId): array
-    {
-        return $this->messagesRepository->getMessagesByReceiverId($userId);
-
-    }
 
     public function createMessageForm($factory,$messageAddress): Form
     {
@@ -57,26 +46,57 @@ class MessagesService
 
     public function messagesFormSucceeded(Form $form, \stdClass $values, $presenter): void
     {
-        $message = new Messages();
-        $senderUser = $this->usersRepository->getUserById($presenter->getUser()->getId());
-        $receiverUser = $this->usersRepository->getUserByMessageAddress($presenter->getPresenter()->getParameter('id'));
-        $message->setSender($senderUser);
-        $message->setSenderAddress($senderUser->getMessageAddress());
-        $message->setType(MessageTypeEnum::FROMUSER_TYPE);
-        $message->setReceiver($receiverUser);
-        $message->setReceiverAddress($receiverUser->getMessageAddress());
-        $message->setMessage($values->message);
-        $message->setCreatedAt(new \DateTimeImmutable());
-        $message->setReaded(false);
-        $this->messagesRepository->save($message);
+        if ($presenter->getName() === 'Azyl')
+        {
+            $azyl = $this->azylRepository->findOneById($presenter->getUser()->getIdentity()->getData()['Azyl']->getId());
+            $conversation = $this->conversationsRepository->findOneById($values->address);
+            $conversation->setLastMessage(new DateTimeImmutable());
+            $this->conversationsRepository->save($conversation);
 
-        if ($presenter->isAjax()) {
-            $presenter->redrawControl('messages');
-        } else {
-            $chat = "?do=chat";
-            $url = $presenter->link('$presenter->', $receiverUser->getMessageAddress()) . $chat;
-            $presenter->redirectUrl($url);
+            $message = new Messages();
+            $message->setConversation($conversation);
+            $message->setMessage($values->message);
+            $message->setAzyl($azyl);
+            $message->setCreatedAt(new DateTimeImmutable());
+            $message->setReaded(false);
+            $message->setType(MessageTypeEnum::TOUSER_TYPE);
+            $this->messagesRepository->save($message);
+
+            if ($presenter->isAjax()) {
+                $presenter->redrawControl('messages');
+            } else {
+                $chat = "?do=chat";
+                $url = $presenter->link('this', $values->address) . $chat;
+                $presenter->redirectUrl($url);
+            }
+
         }
+        else
+        {
+            $user = $this->usersRepository->findOneById($presenter->getUser()->getId());
+            $conversation = $this->conversationsRepository->findOneById($values->address);
+            $conversation->setLastMessage(new DateTimeImmutable());
+            $this->conversationsRepository->save($conversation);
+
+            $message = new Messages();
+            $message->setConversation($conversation);
+            $message->setMessage($values->message);
+            $message->setUser($user);
+            $message->setCreatedAt(new DateTimeImmutable());
+            $message->setReaded(false);
+            $message->setType(MessageTypeEnum::TOUSER_TYPE);
+            $this->messagesRepository->save($message);
+
+            if ($presenter->isAjax()) {
+                $presenter->redrawControl('messages');
+            } else {
+                $chat = "?do=chat";
+                $url = $presenter->link('this', $values->address) . $chat;
+                $presenter->redirectUrl($url);
+            }
+        }
+
+
     }
 
     public function UpdateMessages(): void
@@ -125,7 +145,7 @@ class MessagesService
 
     public function markMessagesAsRead(string $id)
     {
-        $messages = $this->messagesRepository->getMessagesByReceiverAddress($id);
+        $messages = $this->messagesRepository->findBytConversationMessages($id);
         foreach ($messages as $message)
         {
             $message->setReaded(true);
@@ -147,4 +167,5 @@ class MessagesService
             return false;
         }
     }
+
 }

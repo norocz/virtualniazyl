@@ -1,8 +1,10 @@
 <versions>
     <version>
-        <date>25.02.2025</date>
+        <date>28.02.2025</date>
         <number>0.9.9.0</number>
         <description>
+            GIT HUB Výročí :D - dneska je to rok! Co je první verze na GitHubu.
+
             Změny:
             - Azyl dostal navíc IČO
             - Azyl má krom popisu i krátký popis bez Větších HTML prvků
@@ -12,6 +14,9 @@
             - kompletace smlouvy
             - zadávání částí smlouvy
                 - Nejdřív se vytvoří smlouva -> pak se naplní -> %azyl%, %adopter% %podpisAzyl% %podpisAdopter%
+            - kompletní přepracování komunikace
+            - nový systém zpráv, rozdělený do konverzací
+            - ještě na něm doaldit nějaké drobnosti co mi během jeho programování došli
 
 
             Co je potřeba:
@@ -23,10 +28,8 @@
             - ADMIN: Odpovědi na dotazy
             - párování smlouvy
             - archivace smlouvy
-            - azyl komunikace
             - pravidla pro adopce
             - adopční podmínky - rozběhnutý proces poslaný mail
-            - Pořád je problém s přepínáním azylu v souvislosti s fotkou pokud není nastavená a je null
             - Nastavit až bude správný účet
 
             Rozvoj:

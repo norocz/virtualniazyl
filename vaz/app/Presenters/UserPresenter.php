@@ -15,6 +15,7 @@ use App\Model\Orm\Entity\Users;
 use App\Model\Orm\Enums\RoleTypeEnum;
 use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\CityRepository;
+use App\Model\Orm\Repository\ConversationsRepository;
 use App\Model\Orm\Repository\MessagesRepository;
 use App\Model\Orm\Repository\OwnersRepository;
 use App\Model\Orm\Repository\PhotosRepository;
@@ -70,7 +71,8 @@ class UserPresenter extends BasePresenter
                         private analyticsService                  $analyticsService,
                         private photosRepository                  $photosRepository,
                         private readonly Nette\Security\Passwords $passwords,
-                        private readonly VersionService           $versionService,)
+                        private readonly VersionService           $versionService,
+                        private readonly conversationsRepository           $conversationsRepository,)
     {
         parent::__construct();
         $this->roleFormFactory = $roleFormFactory;
@@ -102,7 +104,7 @@ class UserPresenter extends BasePresenter
 
         
         $menu = new Menu();
-        $this->getTemplate()->messagesCount = $this->messagesRepository->countUnreadMessages($this->getPresenter()->getUser()->getId());
+        $this->getTemplate()->messagesCount = '' ; //$this->messagesRepository->countUnreadMessages($this->getPresenter()->getUser()->getId());
         $this->getTemplate()->mainMenuItems = $menu->getMenu();
 
     }
@@ -199,27 +201,29 @@ class UserPresenter extends BasePresenter
 
     public function actionMessages($id): void
     {
-        $chats = [];
-        $this->getTemplate()->title = 'Zprávy';
-        $messages =  $this->messagesService->getUserContacts($this->getUser()->getId());
 
-            foreach($messages as $message)
-                {
-                   $chats[$message->getSenderAddress()] = $message->getSender()->getUsername();
-                }
+
+        $this->getTemplate()->title = 'Zprávy';
+        $user = $this->usersRepository->findOneBy(['id' => $this->getUser()->getId()]);
+
+        $chats = $this->conversationsRepository->findByUser($user);
+
         $this->getTemplate()->chats = $chats;
-        $this->redrawControl('chats');
+        $this->redrawControl('contacts');
         $this->redrawControl('messagesCount');
         $this->redrawControl('messages');
+
+
+
     }
 
     public function handleChat(string $id): void
     {
-        $messages = $this->messagesRepository->getMessagesBySenderReceiverAddress(senderAddress: $id, receiverAddress: $this->getPresenter()->getUser()->getIdentity()->getData()['User']->getMessageAddress());
+        $messages = $this->messagesRepository->findBytConversationMessages($id);
 
         $this->getTemplate()->messages = $messages;
-        $this->getTemplate()->receiver = $id;
-        $this->messagesService->markMessagesAsRead($id);
+        $this->getTemplate()->conversation = $id;
+      //  $this->messagesService->markMessagesAsRead($id);
         $this->redrawControl('messagesCount');
         $this->redrawControl('chats');
         $this->redrawControl('messages');

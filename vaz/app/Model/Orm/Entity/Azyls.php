@@ -69,11 +69,10 @@ class Azyl
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $messageAddress;
 
-    #[ORM\OneToMany(mappedBy: "azylSender", targetEntity: Messages::class)]
+    #[ORM\OneToMany(mappedBy: "azyl", targetEntity: Messages::class)]
     public ?Collection $sentMessages;
 
-    #[ORM\OneToMany(mappedBy: "azylReceiver", targetEntity: Messages::class)]
-    private ?Collection $receivedMessages;
+
 
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $city;

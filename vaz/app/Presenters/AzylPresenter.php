@@ -26,6 +26,7 @@ use App\Model\Orm\Repository\AnimalsRepository;
 use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\CityRepository;
 use App\Model\Orm\Repository\CollectionsRepository;
+use App\Model\Orm\Repository\ConversationsRepository;
 use App\Model\Orm\Repository\MessagesRepository;
 use App\Model\Orm\Repository\NewsRepository;
 use App\Model\Orm\Repository\PaymentsRepository;
@@ -51,6 +52,7 @@ use Selectt\SelecttAutocompleteControl;
 use Ublaboo\DataGrid\DataGrid;
 use Ublaboo\DataGrid\Exception\DataGridColumnStatusException;
 use Ublaboo\DataGrid\Exception\DataGridException;
+use App\Services\AzylAddressService;
 
 class AzylPresenter extends BasePresenter
 {
@@ -86,7 +88,9 @@ class AzylPresenter extends BasePresenter
                                 private readonly CityDataSource $cityDataSource,
                                 private readonly RegisterFormFactory $registerFormFactory,
                                 private readonly userDetailsFormFactory $userDetailsFormFactory,
-                                private readonly azylSendMessageFormFactory $azylSendMessageFormFactory)
+                                private readonly azylSendMessageFormFactory $azylSendMessageFormFactory,
+                                private AzylAddressService      $azylAddressService,
+                                private ConversationsRepository $conversationsRepository)
     {
         parent::__construct();
         $this->animalsRepository = $animalsRepository;
@@ -401,16 +405,15 @@ class AzylPresenter extends BasePresenter
         }
     }
 
-    public function actionMessages($id): void
+    public function actionMessages(?string $id): void
     {
         $this->getTemplate()->title = 'Zprávy';
-        $recieverUser = $this->usersRepository->findOneBy(['azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']]);
-        $messages = $this->messagesService->getUserContacts($recieverUser->getId());
-        foreach ($messages as $message) {
-            $chats[$message->getSenderAddress()] = $message->getSender()->getUsername();
-        }
+        $azyl = $this->azylRepository->findOneBy(['id' => $this->getUser()->getIdentity()->getData()['Azyl']->getId()]);
+
+        $chats = $this->conversationsRepository->findByAzyl($azyl);
+
         $this->getTemplate()->chats = $chats;
-        $this->redrawControl('chats');
+        $this->redrawControl('contacts');
         $this->redrawControl('messagesCount');
         $this->redrawControl('messages');
     }
@@ -434,16 +437,20 @@ class AzylPresenter extends BasePresenter
 
     public function handleChat(string $id): void
     {
-        $recieverUser = $this->usersRepository->findOneBy(['azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']]);
-        $messages = $this->messagesRepository->getMessagesBySenderReceiverAddress(senderAddress: $id, receiverAddress: $recieverUser->getMessageAddress());
-        bdump($this->getPresenter()->getAction());
-        bdump($this->getPresenter()->getView());
-        $this->getTemplate()->messages = $messages;
-        $this->getTemplate()->receiver = $recieverUser->getId();
+
+        $messagesSource = $this->messagesRepository->findBytConversationMessages($id);
+
+
+        $this->getTemplate()->messages = $messagesSource;
+        $this->getTemplate()->conversation = $id;
+
         $this->messagesService->markMessagesAsRead($id);
-        $this->redrawControl('messagesCount');
-        $this->redrawControl('chats');
-        $this->redrawControl('messages');
+
+        if ($this->isAjax()) {
+            $this->redrawControl('messagesCount');
+            $this->redrawControl('chats');
+            $this->redrawControl('messages');
+        }
     }
 
     public function handleDeleteMsg(int $id): void
@@ -461,7 +468,7 @@ class AzylPresenter extends BasePresenter
             $this->redrawControl('messages');
         } else {
             $chat = "?do=chat";
-            $url = $this->link('User:messages', $redirectAddress) . $chat;
+            $url = $this->link('Azyl:messages', $redirectAddress) . $chat;
             $this->redirectUrl($url);
         }
 
@@ -668,6 +675,11 @@ class AzylPresenter extends BasePresenter
         $azyl->setIco($values->ico);
         $azyl->setShortDescription($values->shortDescription);
         $azyl->setCity(intval($this->getRequest()->getPost('city')));
+        if(is_null($azyl->getMessageAddress()))
+        {
+            $azyl->setMessageAddress($this->azylAddressService->generateCommunicationAddress($azyl->getId(), $azyl->getEmail(), $azyl->getAzylName()));
+            $this->flashMessage('POZOR! Nastavena komunikační adresa interního systému.','alert-warning');
+        }
 
         $this->azylRepository->saveAzyl($azyl);
         $this->flashMessage('Nastavení azylu bylo aktualizováno.', 'alert-success');

@@ -13,8 +13,8 @@ class searchFormFactory
         $form ->setHtmlAttribute('class', 'form-inline position-relative w-lg-50 ms-lg-4 ms-xl-9 mt-3 mt-lg-0');
         $form->addProtection();
         $form->addText('search')
-            ->setHtmlAttribute('class', 'search fs-8 bg-transparent form-control')
-            ->setEmptyValue('Najdi kamaráda...');
+            ->setHtmlAttribute('class', 'search fs-8 bg-transparent form-control');
+
 
         $form->addSubmit('send', 'Hledat');
 

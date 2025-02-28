@@ -25,28 +25,16 @@ class Messages
     #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $createdAt;
 
-    #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: "sentMessages")] //odesilatel
-    #[ORM\JoinColumn(name: "sender_id", referencedColumnName: "id")]
-    private ?Users $sender;
+    #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: "messages")] //odesilatel
+    #[ORM\JoinColumn(name: "user", referencedColumnName: "id")]
+    private ?Users $user;
 
-    #[ORM\ManyToOne(targetEntity: Azyl::class, inversedBy: "sentMessages")] //odesilatel
-    #[ORM\JoinColumn(name: "sender_id", referencedColumnName: "id")]
-    private ?Azyl $azylSender;
+    #[ORM\ManyToOne(targetEntity: Azyl::class, inversedBy: "messages")]
+    #[ORM\JoinColumn(name: "azyl", referencedColumnName: "id")]
+    private ?Azyl $azyl;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private ?string $senderAddress;
-
-    #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: "receivedMessages")] //příjemce
-    #[ORM\JoinColumn(name: "receiver_id", referencedColumnName: "id")]
-    private ?Users $receiver;
-
-    #[ORM\ManyToOne(targetEntity: Azyl::class, inversedBy: "sentMessages")] //odesilatel
-    #[ORM\JoinColumn(name: "receiver_id", referencedColumnName: "id")]
-    private ?Azyl $azylReceiver;
-
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private ?string $receiverAddress;
+    #[ORM\ManyToOne(targetEntity: Conversations::class, inversedBy: "id")]
+    private Conversations $conversation;
 
     #[ORM\Column(type: 'boolean')]
     private bool $readed;
@@ -62,16 +50,6 @@ class Messages
 
     #[ORM\ManyToOne(targetEntity: "Adoption", inversedBy: "Messages")]
     private ?Adoption $adoption;
-
-    public function getSender(): Users
-    {
-        return $this->sender;
-    }
-
-    public function getReceiver(): Users
-    {
-        return $this->receiver;
-    }
 
     public function getCreatedAt(): DateTimeImmutable
     {
@@ -113,21 +91,11 @@ class Messages
         return isset($this->title) ? $this->title : "";
 
     }
-    public function setSender(Users $sender): void
-    {
-        $this->sender = $sender;
-    }
-    public function setReceiver(Users $receiver): void
-    {
-        $this->receiver = $receiver;
-    }
 
     public function setCreatedAt(DateTimeImmutable $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
-
-
 
     public function setDeletedAt(DateTimeImmutable $deletedAt): void
     {
@@ -157,28 +125,6 @@ class Messages
         $this->readedAt = $readedAt;
     }
 
-    public function getSenderAddress(): ?string
-    {
-        return $this->senderAddress;
-    }
-
-    public function setSenderAddress(?string $senderAddress): Messages
-    {
-        $this->senderAddress = $senderAddress;
-        return $this;
-    }
-
-    public function getReceiverAddress(): ?string
-    {
-        return $this->receiverAddress;
-    }
-
-    public function setReceiverAddress(?string $receiverAddress): Messages
-    {
-        $this->receiverAddress = $receiverAddress;
-        return $this;
-    }
-
     public function getAdoption(): ?Adoption
     {
         return $this->adoption;
@@ -190,30 +136,36 @@ class Messages
         return $this;
     }
 
-    public function getAzylSender(): ?Azyl
+    public function getUser(): ?Users
     {
-        return $this->azylSender;
+        return $this->user;
     }
 
-    public function setAzylSender(?Azyl $azylSender): Messages
+    public function setUser(?Users $user): Messages
     {
-        $this->azylSender = $azylSender;
+        $this->user = $user;
         return $this;
     }
 
-    public function getAzylReceiver(): ?Azyl
+    public function getAzyl(): ?Azyl
     {
-        return $this->azylReceiver;
+        return $this->azyl;
     }
 
-    public function setAzylReceiver(?Azyl $azylReceiver): Messages
+    public function setAzyl(?Azyl $azyl): Messages
     {
-        $this->azylReceiver = $azylReceiver;
+        $this->azyl = $azyl;
         return $this;
     }
 
+    public function getConversation(): Conversations
+    {
+        return $this->conversation;
+    }
 
-
-
-
+    public function setConversation(Conversations $conversation): Messages
+    {
+        $this->conversation = $conversation;
+        return $this;
+    }
 }

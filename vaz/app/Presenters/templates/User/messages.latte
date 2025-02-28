@@ -125,12 +125,12 @@
 
 
                     {ifset $chats}
-
+        {dump $chats}
                         {snippet chats}
                     <div class="messages" id="messages">
-                            {foreach $chats as $chat=>$key}
+                            {foreach $chats as $chat}
                             <div class="chat">
-                             <a class="ajax cont btn-light" n:href="chat! $chat">{$key}</a>
+                             <a class="ajax cont btn-light" n:href="chat! $chat->getId()">{$chat->getAzyl()->getAzylName()}</a>
                             </div>
 
                             {/foreach}
@@ -150,7 +150,7 @@
 
                             <div class="chat-detail" id="chat-detail">
                             {foreach $messages as $message}
-                                <div class="message {if $message->getSender()->getId() == $user->id}outgoing{else}incoming{/if}">
+                                <div class="message {if $message->getAzyl() != null}outgoing{else}incoming{/if}">
                                 <div class="row">
                                     <div class="col-lg-10">
                                         <div class="msg-title">{$message->getTitle()}
@@ -163,7 +163,7 @@
                                     <div class="msg-message">{$message->getMessage()|safeHtml|noescape}<br><small>{$message->getCreatedAt()|date:'H:i d.m.Y'}</small></div>
                                     </div>
                                     <div class="col-lg-2">
-                                     {if $message->getSender()->getId() == $user->id}
+                                     {if $message->getAzyl() != null}
                                     <a class="align-center align-right ajax" n:href="deleteMsg! $message->getId()">(X)</a>
                                     {/if}
                                     </div>
@@ -173,16 +173,16 @@
                             {/foreach}
 
                             </div>
-                            {if $receiver == 'sys'}
-                            <div class="row"> <div class="msg-text-array col-lg-9"><b>Azylu nejde napsat.</b> ;-) Zpráva je jen informativní. Často určená pro všechny uživatele nebo nějakou skupinu.</div> </div>
+                            {if $conversation == 'sys'}
+                            <div class="row"> <div class="msg-text-array col-lg-9"><b>Virtuálnímu Azylu nejde napsat.</b> ;-) Zpráva je jen informativní. Často určená pro všechny uživatele nebo nějakou skupinu.</div> </div>
                             {else}
                             <div class="row">
-                                <form n:name=messagesForm class="ajax form row col-auto" data-reciver="{$receiver}">
+                                <form n:name=messagesForm class="ajax form row col-auto" data-reciver="{$conversation}">
                                     <div class="msg-text-array col-lg-9">
                                      <label n:name=message><textarea class="font-monospace form-control ajax chat-textarray" cols="55" rows="2" n:name=message autofocus></textarea></label>
                                     </div>
                                      <div class="msg-text-array col-lg-3">
-                                     <input n:name=address value="{$receiver}">
+                                     <input n:name=address value="{$conversation}">
                                      <input class="align-center ajax chat-send btn btn-secondary" n:name=send>
                                      </div>
 
