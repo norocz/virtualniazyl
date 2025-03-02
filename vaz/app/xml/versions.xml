@@ -1,5 +1,42 @@
 <versions>
     <version>
+    <date>02.03.2025</date>
+    <number>0.9.9.1</number>
+    <description>
+            Velký úklid v kódu. Projit všechny TODO a dodělat je smazat zakomentovaný kód.
+            Dodělat komentáře.
+
+            Změny:
+            - indexy v DB
+            - komunikace z profilu
+            - komunikace na straně Azylu
+            - komunikace na straně uživatele
+            - 64 zmněn v DB :D
+            - opravena chyba v generování odkazu z "Moje adopce"
+
+
+            Co je potřeba:
+            - přidat režim odstávky
+            - Zkontrolovat všechny odkazy jestli jsou OK zvlášť odkazy na fotky
+            - ADMIN: editor částí smluv (šablona smlouvy)
+            - ADMIN: kontrola smluv
+            - ADMIN: Hromadné zprávy
+            - ADMIN: Odpovědi na dotazy
+            - párování smlouvy
+            - archivace smlouvy
+            - pravidla pro adopce
+            - adopční podmínky - rozběhnutý proces poslaný mail
+            - Nastavit až bude správný účet
+
+            Rozvoj:
+            - Taby na profilu automaticky Switchovat
+            - Přidat taby (popořili jste, oblíbené azyly)
+
+            Nápady:
+            - podepisování smlouvy pomocí SMS (odeslání sms s kodem, zadání kódu pro podpis)
+        </description>
+    </version>
+    <version>
         <date>28.02.2025</date>
         <number>0.9.9.0</number>
         <description>

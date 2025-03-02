@@ -42,24 +42,25 @@
                             </div>
                            {foreach $chats as $chat}
 
-
-
                                             <div class="d-flex align-items-center border-bottom py-3">
                                                 <div class="w-100 ms-3">
                                                     <div class="d-flex w-100 justify-content-between">
 
 
+
+                                                  <a class="ajax cont m-2 p-2 link-light btn-info rounded-3" style="min-width: auto;" n:href="chat! $chat->getId()">
+
+                                                           {if $chat->getAdoption() != null}
+                                                               Adopce:  {$chat->getAdoption()->getAnimal()->getName()} <br>
+                                                           {/if}
+                                                      {$chat->getUser()->getUserName()}</a>
                                                     </div>
-                                                  <a class="ajax" n:href="chat! $chat->getId()"><span class="btn btn-outline-secondary"> {$chat->getUser()->getUserName()}</span></a>
                                                 </div>
                                             </div>
 
                                         {/foreach}
-
-
                         </div>
                     </div>
-
 
                     <div class="col-sm-12 col-md-6 col-xl-8">
                         <div class="h-100 bg-light rounded p-4" id="chat-detail">
@@ -97,9 +98,6 @@
 
                                 {/ifset}
                                 {/snippet messages}
-
-
-
 
                          </div>
                       </div>

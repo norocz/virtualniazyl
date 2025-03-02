@@ -138,7 +138,8 @@
                                                 <div class="card-header {$bcg} text-white">{$adoption->getAnimal()->getName()}</div>
                                                 <div class="card-body">
                                                     <p class="card-text">{$adoption->getCreatedAt()|date:'H:i d.m.Y'}<br> {$info}</p>
-                                                    <a class="btn btn-outline-info btn-sm" href="{link home:adopce $adoption->getId()}">Zvířátko</a>
+                                                    {dump $adoption}
+                                                    <a class="btn btn-outline-info btn-sm" href="{link home:adopce $adoption->getAnimal()->getId()}">Zvířátko</a>
                                                     <a href="{link Home:azyl $adoption->getAzyl()->getId()}" class="btn btn-sm btn-outline-info">{$adoption->getAzyl()->getAzylName()}</a>
                                                 </div>
                                             </div>

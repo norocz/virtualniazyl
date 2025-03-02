@@ -79,10 +79,7 @@ class UserPresenter extends BasePresenter
         $this->usersRepository = $usersRepository;
         $this->entityManager = $entityManager;
         $this->azylRepository = $azylRepository;
-        $this->analyticsService = $analyticsService;
-        $this->messagesService = $messagesService;
-        $this->messagesFormFactory = $messagesFormFactory;
-        $this->photosRepository = $photosRepository;
+
 
     }
 
@@ -278,85 +275,17 @@ class UserPresenter extends BasePresenter
         }
         else {
             $chat = "?do=chat";
-            bdump($message->getConversation());
             $url = $this->link('User:messages', $message->getConversation()->getId()) . $chat;
             $this->redirectUrl($url);
         }
 
     }
 
-
-    /**
-    public function actionMessages($id): void
-    {
-        $this->template->title = 'Zprávy';
-        $messages = $this->messagesRepository->getMessagesByReceiverId($this->getPresenter()->getUser()->getId());
-        foreach($messages as $message)
-        {
-            $chats[$message->getSender()->getId()] = $message->getSender()->getUsername();
-        }
-        $this->redrawControl('chats');
-        $this->redrawControl('messages');
-
-        $this->template->chats = $chats;
-    }
-
-    public function handleChat(string $address): void
-    {
-    $messages = $this->messagesRepository->getMessagesBySenderReceiverAddress(senderAddress: $address, receiverAddress: $this->getPresenter()->getUser()->getIdentity()->getData()['User']->getMessageAddress());
-    $this->getTemplate()->messages = $messages;
-    $this->getTemplate()->receiver = $address;
-
-    $this->redrawControl('chats');
-        foreach ($messages as $message)
-        {
-            $message->setReaded(true);
-            $this->messagesRepository->save($message);
-        }
-    $this->redrawControl('messages');
-    }
-
-    public function handleDeleteMsg(int $id): void
-    {
-        $message = $this->messagesRepository->getMessagesById($id);
-        if($message && $message->getReceiverAddress() === $this->getPresenter()->getUser()->getIdentity()->getData()['User']->getMessageAddress()) {
-
-            $redirectId = $message->getSender()->getId();
-            $message->setDeletedAt(new DateTimeImmutable());
-            $this->messagesRepository->save($message);
-            $this->flashMessage('Vzkaz byl smazán', 'info');
-        } else {
-
-            $this->flashMessage('Chyba mazání vzkazu', 'danger');
-        }
-
-        if($this->isAjax()){
-            $this->redrawControl('messages');
-        }
-        else {
-            $chat = "?do=chat";
-            $url = $this->link('User:messages', $redirectId) . $chat;
-            $this->redirectUrl($url);
-
-        }
-
-    }
- **/
     public function messagesFormSucceeded(Form $form, \stdClass $values) : void
     {
         $this->getPresenter()->isAjax();
         $this->messagesService->messagesFormSucceeded($form, $values, $this->getPresenter());
 
-        /*
-        $message = New Messages();
-        $message->setSender($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()));
-        $message->setType(MessageTypeEnum::FROMUSER_TYPE);
-        $message->setReceiver($this->usersRepository->getUserById(intval($values->id)));
-        $message->setMessage($values->message);
-        $message->setCreatedAt(new DateTimeImmutable());
-        $message->setReaded(false);
-        $this->messagesRepository->save($message);
-        */
         if($this->isAjax()){
             $this->redrawControl('messages');
         }
@@ -374,19 +303,6 @@ class UserPresenter extends BasePresenter
         $this->messagesService->messagesFormSucceeded();
 
     }
-        /*
-        $this->getPresenter()->isAjax();
-        $message = New Messages();
-        $message->setSender($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()));
-        $message->setType(MessageTypeEnum::FROMUSER_TYPE);
-        $message->setReceiver($this->usersRepository->getUserById($values->id));
-        $message->setMessage($values->message);
-        $message->setCreatedAt(new DateTimeImmutable());
-        $message->setReaded(false);
-        $this->messagesRepository->save($message);
-        $this->redrawControl('messages');
-*/
-
 
     public function renderAdoptions(): void
     {
@@ -406,20 +322,7 @@ class UserPresenter extends BasePresenter
         $form->onSuccess[] = [$this, 'roleFormSucceeded'];
         return $form;
     }
-    /*
-    #[NoReturn] public function userDetailsFormSucceeded(Form $form, \stdClass $values) : void
-    {
-        $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
 
-        $user->setUpdatedAt(new DateTimeImmutable());
-        $user->setUpdatedBy($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()));
-        $user->setFirstName($values->firstName);
-        $user->setLastName($values->lastName);
-
-        $this->getPresenter()->flashMessage('Detaily byly úspěšně uloženy!', 'alert-success');
-        $this->getPresenter()->redirect('User:profil');
-    }
-        */
     /**
      * @throws InvalidLinkException
      * @throws NumberParseException

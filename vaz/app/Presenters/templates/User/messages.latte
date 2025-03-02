@@ -120,17 +120,21 @@
         <div class="content">
             <h2>Komunikace</h2>
             <div class="row g-12 g-lg-6 g-xl-7 pt-6">
-                <div class ="col-lg-4">
+                <div class ="col-lg-4 bg-light">
                     <h4>Kontakty</h4>
 
 
                     {ifset $chats}
-        {dump $chats}
+
                         {snippet chats}
-                    <div class="messages" id="messages">
+                    <div class="messages bg-100" id="messages" style=" overflow-y: auto;">
                             {foreach $chats as $chat}
                             <div class="chat">
-                             <a class="ajax cont btn-light" n:href="chat! $chat->getId()">{$chat->getAzyl()->getAzylName()}</a>
+                             <a class="ajax cont btn-light" n:href="chat! $chat->getId()">
+                             {if $chat->getAdoption() != null}
+                             Adopce: <br> {$chat->getAdoption()->getAnimal()->getName()} -
+                             {/if}
+                             {$chat->getAzyl()->getAzylName()}</a>
                             </div>
 
                             {/foreach}

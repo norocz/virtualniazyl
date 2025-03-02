@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Model\Orm\Entity;
 
+use AllowDynamicProperties;
 use App\Model\Orm\Enums\ActionTypeEnum;
 use App\Model\Orm\Enums\AdoptionsTypeEnum;
 use Doctrine\Common\Collections\Collection;
@@ -11,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\ManyToOne;
 use DateTimeImmutable;
 
-#[ORM\Entity]
+#[AllowDynamicProperties] #[ORM\Entity]
 #[ORM\Table(name: 'adoptions')]
 
 class Adoption
@@ -41,7 +42,7 @@ class Adoption
     private Users $user;
 
     #[ORM\OneToMany(mappedBy: 'adoption', targetEntity: Conversations::class)]
-    private ?Conversations $conversations;
+    private ?Collection $conversations;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $createdAt;
@@ -262,16 +263,11 @@ class Adoption
         return $this;
     }
 
-    public function getConversations(): ?Conversations
+    public function getConversations(): ?Collection
     {
         return $this->conversations;
     }
 
-    public function setConversations(?Conversations $conversations): Adoption
-    {
-        $this->conversations = $conversations;
-        return $this;
-    }
 
 
 }

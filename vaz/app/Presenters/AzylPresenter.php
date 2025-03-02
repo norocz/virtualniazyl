@@ -237,14 +237,14 @@ class AzylPresenter extends BasePresenter
         }
     }
 
-    public function handleStopCollection(int $key): void
+    public function handleStopCollection(int $key): void //TODO: platby a stopování sbírky
     {
-        bdump('STOOP');
+
     }
 
     public function handleCollectionPayments(int $key): void
     {
-        bdump('platby');
+
         $this->getTemplate()->payments = $this->collectionsRepository->findOneByKey($key)->getPayments();
         if ($this->isAjax()) {
             $this->getPresenter()->redrawControl('payments-' . $key);

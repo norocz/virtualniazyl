@@ -236,6 +236,8 @@ public function renderAdoptions($offset = 0): void
     {
         $name ='';
         $adopce = $this->animalsRepository->findById(intval($id));
+        //$adopce = $this->adoptionsRepository->findOneBy(['id' => intval($id)]);
+
         $this->getTemplate()->title = 'Adopce ';
         $this->getTemplate()->adopce = $adopce;
 
@@ -283,6 +285,10 @@ public function renderAdoptions($offset = 0): void
                     foreach ($conversations as $conversation) {
                         // Načteme všechny zprávy této konverzace
                         $messagesToMove = $this->messagesRepository->findBytConversationMessages($conversation->getId());
+                        if (!is_null($conversation->getAdoption()))
+                        {
+                            break;
+                        }
 
                         // Přesuneme všechny zprávy pod novou konverzaci
                         foreach ($messagesToMove as $messageToMove) {
@@ -296,6 +302,10 @@ public function renderAdoptions($offset = 0): void
 
                     // Smazání starých konverzací
                     foreach ($conversations as $conversation) {
+                        if (!is_null($conversation->getAdoption()))
+                        {
+                            break;
+                        }
                         $this->conversationsRepository->remove($conversation);
                     }
 
@@ -584,21 +594,34 @@ public function renderAdoptions($offset = 0): void
        $adoption -> setActionType(ActionTypeEnum::START_ADOPTION);
        $adoption -> setAdoptionType($animal->getAdoptionType());
        $adoption -> setHowMuch($values->howMuch ?: 1);
-       $this->adoptionsRepository->saveAdoption($adoption);
-       //poslat zprávu
 
+       $this->adoptionsRepository->saveAdoption($adoption);
+
+       //poslat zprávu
+        //vytvoříme si novou konverzaci
+            $conversation = new Conversations();
+            $conversation->setAdoption($adoption);
+            $conversation->setUser($user);
+            $conversation->setBlock(false);
+            $conversation->setAzyl($animal->getAzyl());
+            $conversation->setComment('Adopce | '.$adoption->getId());
+
+        $this->conversationsRepository->save($conversation);
+
+            //přidáme do ní zprávu
             $message =new Messages();
             $message -> setType(MessageTypeEnum::FROMUSER_TYPE);
             $message -> setCreatedAt(new DateTimeImmutable());
-            $message ->setAdoption($adoption);
+            $message -> setAdoption($adoption);
+            $message -> setUser($user);
+            $message -> setConversation($conversation);
             $message ->setMessage('Uživatel: '.$user->getUserName(). ' požádal o adopci zvířete: '.$animal->getName().'. Tak mu dejte co nejdřív vědět! Podrobnosti najdete'.
-                                  '<a href="'.$this->getPresenter()->link('Azyl:adoptions',$adoption->getId()).'"> Zde</a>');
-            $message->setUser($user);
-            $message->setReceiver($reciver);
+                '<a href="'.$this->getPresenter()->link('Azyl:adoptions',$adoption->getId()).'"> Zde</a>');
             $message->setReaded(false);
+
             $this->messagesRepository->save($message);
-            //zpráva poslána
-       $this->getPresenter()->flashMessage('Žádost o adopci byla odeslána!', 'alert-success');
+
+
        $this->getPresenter()->redirect('this');
 
 
@@ -650,26 +673,6 @@ public function renderAdoptions($offset = 0): void
                        'Registrace na Virtuální Azyl',
                                          $html
                     );
-/*
-                )
-                $mail = new Message;
-                $mail->setFrom('Registrace Virtuální Azyl <registration@virtualniazyl.cz>')
-                    ->addTo(strval($values->email))
-                    ->setSubject('Registrace na Virtuální Azyl')
-                    ->setHtmlBody($html);
-
-                //Mail sending
-                $mailer = new SmtpMailer(
-                    host: 'smtp.seznam.cz',
-                    username: 'registration@virtualniazyl.cz',
-                    password: "ing('stri55+",
-                    port: 465,
-                    encryption: 'ssl',
-                    timeout: 600
-                );
-
-                $mailer->send($mail);
-*/
 
                 $this->getPresenter()->flashMessage('Registrace proběhla v pořádku :-)', 'alert-success');
                 $this->getPresenter()->redirect('Home:Registered');

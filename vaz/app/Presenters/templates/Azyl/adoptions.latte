@@ -125,6 +125,7 @@
         {/ifset}
 
         {ifset $adoption}
+
         <div class="title h2">Adopce</div>
         <div class="row">
             <div class="col-12 bg-light rounded p-4 m-1">
@@ -178,7 +179,7 @@
                         {foreach $adoption->getMessages() as $message}
                             <div class="w-100 ms-3">
                                 <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-0">{$message->getSender()->getUserName()}</h6>
+                                    <h6 class="mb-0">{$message->getUser()->getUserName()}</h6>
                                     <small>{$message->getCreatedAt()|date:'H:i d.m.Y'}</small>
                                 </div>
                         <span>{$message->getMessage()|safeHtml|noescape}</span>

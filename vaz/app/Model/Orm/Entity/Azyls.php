@@ -72,8 +72,6 @@ class Azyl
     #[ORM\OneToMany(mappedBy: "azyl", targetEntity: Messages::class)]
     public ?Collection $sentMessages;
 
-
-
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $city;
 

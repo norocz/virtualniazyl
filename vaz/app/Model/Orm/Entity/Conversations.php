@@ -46,7 +46,7 @@ class Conversations
     #[ORM\ManyToOne(targetEntity: Azyl::class, inversedBy: 'conversations')]
     private ?Azyl $azyl;
 
-    #[ORM\ManyToOne(targetEntity: Adoption::class, inversedBy: 'conversations')]
+    #[ORM\ManyToOne(targetEntity: Adoption::class, cascade: ["persist", "remove"], inversedBy: 'conversations')]
     private ?Adoption $adoption;
 
     #[ORM\OneToMany(mappedBy: 'conversation', targetEntity: Messages::class, cascade: ['persist', 'remove'])]

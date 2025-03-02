@@ -38,7 +38,7 @@ class ConversationsRepository extends EntityRepository
 
     public function findByUserAndAzyl(Users $user, Azyl $azyl): ?array
     {
-        return $this->findBy(['user' => $user, 'azyl' => $azyl]);
+        return $this->findBy(['user' => $user, 'azyl' => $azyl],['adoption' => 'ASC']);
     }
 
 
