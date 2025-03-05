@@ -142,6 +142,16 @@
                     <i class="fa fa-piggy-bank me-2"></i>Sbírky
                 </a>
 <hr>
+<div class="nav-item dropdown">
+    <a href="{link Admin:contracts}" class="nav-link dropdown-toggle {if isLinkCurrent('Admin:contracts') || isLinkCurrent('Admin:contracts')}active{/if}" data-bs-toggle="dropdown">
+        <i class="bi bi-file-earmark-text me-2"></i>Správa smluv
+    </a>
+        <div class="dropdown-menu bg-transparent border-0">
+            <a href="{link Admin:contractparts}" class="dropdown-item {if isLinkCurrent('Admin:contractparts')}active{/if}">Části smluv</a>
+            <a href="{link Admin:contracts}" class="dropdown-item {if isLinkCurrent('Admin:contracts')}active{/if}">Smlouvy</a>
+            <a href="{link Admin:contractsarchive}" class="dropdown-item {if isLinkCurrent('Admin:contractsarchive')}active{/if}">Archiv smluv</a>
+        </div>
+</div>
 <a href="{link Admin:citys}" class="nav-item nav-link {if isLinkCurrent('Admin:citys')}active{/if}">
     <i class="bi bi-compass me-2"></i>Lokality
 </a>

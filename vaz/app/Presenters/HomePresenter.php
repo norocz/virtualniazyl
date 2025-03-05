@@ -733,9 +733,6 @@ public function renderAdoptions($offset = 0): void
         {
             $this->flashMessage('Zpráva odeslána '.$azyl->getAzylName(), 'alert-success');
             $this->getPresenter()->redirect('this');
-
         }
-
     }
-
 }

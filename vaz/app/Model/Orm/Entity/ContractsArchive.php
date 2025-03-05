@@ -28,6 +28,9 @@ class ContractsArchive
     #[ORM\Column(type:'json')]
     private array $azyl;
 
+    #[ORM\Column(type: "string", length: 255)]
+    private string $fileName;
+
     public function getId(): int
     {
         return $this->id;
@@ -83,5 +86,15 @@ class ContractsArchive
         return $this;
     }
 
+    public function getFileName(): string
+    {
+        return $this->fileName;
+    }
+
+    public function setFileName(string $fileName): ContractsArchive
+    {
+        $this->fileName = $fileName;
+        return $this;
+    }
 
 }

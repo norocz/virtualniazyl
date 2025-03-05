@@ -8,7 +8,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use DateTimeImmutable;
 
-
 #[ORM\Entity]
 #[ORM\Table(name: "contract_parts")]
 
@@ -39,6 +38,10 @@ class ContractParts
 
     #[ORM\ManyToMany(targetEntity: Contracts::class, mappedBy: "contractParts")]
     private Collection $contracts;
+
+    #[ORM\OneToOne(targetEntity: ContractParts::class)]
+    #[ORM\Column(nullable: true)]
+    private ?ContractParts $oldVersion;
 
     public function getId(): int
     {
@@ -128,5 +131,14 @@ class ContractParts
         return $this;
     }
 
+    public function getOldVersion(): ?ContractParts
+    {
+        return $this->oldVersion;
+    }
 
+    public function setOldVersion(?ContractParts $oldVersion): ContractParts
+    {
+        $this->oldVersion = $oldVersion;
+        return $this;
+    }
 }

@@ -1,6 +1,39 @@
 <versions>
     <version>
-    <date>02.03.2025</date>
+        <date>05.03.2025</date>
+        <number>0.9.9.2</number>
+        <description>
+
+            Změny:
+            - formulář na hodnocení adoptujícícho
+            - formuláře pro části smluv
+            - změny v DB pro smlouvy a jejich verzování
+            - verzování smluv
+
+
+            Co je potřeba:
+            - přidat režim odstávky
+            - Zkontrolovat všechny odkazy jestli jsou OK zvlášť odkazy na fotky
+            - ADMIN: editor částí smluv (šablona smlouvy)
+            - ADMIN: kontrola smluv
+            - ADMIN: Hromadné zprávy
+            - ADMIN: Odpovědi na dotazy
+            - párování smlouvy
+            - archivace smlouvy
+            - pravidla pro adopce
+            - adopční podmínky - rozběhnutý proces poslaný mail
+            - Nastavit až bude správný účet
+
+            Rozvoj:
+            - Taby na profilu automaticky Switchovat
+            - Přidat taby (popořili jste, oblíbené azyly)
+
+            Nápady:
+            - podepisování smlouvy pomocí SMS (odeslání sms s kodem, zadání kódu pro podpis)
+        </description>
+    </version>
+    <version>
+    <date>01.03.2025</date>
     <number>0.9.9.1</number>
     <description>
             Velký úklid v kódu. Projit všechny TODO a dodělat je smazat zakomentovaný kód.
@@ -13,7 +46,6 @@
             - komunikace na straně uživatele
             - 64 zmněn v DB :D
             - opravena chyba v generování odkazu z "Moje adopce"
-
 
             Co je potřeba:
             - přidat režim odstávky

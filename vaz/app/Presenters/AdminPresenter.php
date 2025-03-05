@@ -8,6 +8,7 @@ use App\Components\Datagrids\CitysDatagridFactory;
 use App\Components\Datagrids\PagesDatagridFactory;
 use App\Components\Datagrids\UsersDatagridFactory;
 use App\Components\Datagrids\SpeciesDatagridFactory;
+use App\Forms\contractEditFormFactory;
 use App\Forms\newsFormFactory;
 use App\Forms\PageFormFactory;
 use App\Forms\SpeciesFormFactory;
@@ -15,6 +16,7 @@ use App\Forms\PhotoUploadFormFactory;
 use App\Forms\RegisterFormFactory;
 use App\Forms\roleFormFactory;
 use App\Forms\userDetailsFormFactory;
+use App\Model\Orm\Entity\ContractParts;
 use App\Model\Orm\Entity\Pages;
 use App\Model\Orm\Enums\RoleTypeEnum;
 use App\Model\Orm\Repository\adoptionsRepository;
@@ -38,8 +40,6 @@ use App\Components\Datagrids\NewsDatagridFactory;
 use App\Model\Orm\Entity\News;
 use App\Model\Orm\Repository\NewsRepository;
 use App\Model\Orm\Entity\Species;
-
-
 
 class AdminPresenter extends BasePresenter
 {
@@ -76,7 +76,8 @@ class AdminPresenter extends BasePresenter
                                 private adoptionsRepository             $adoptionsRepository,
                                 private PhotosRepository                $photosRepository,
                                 private readonly VersionService         $versionService,
-                                private readonly CollectionsRepository  $collectionsRepository)
+                                private readonly CollectionsRepository  $collectionsRepository,
+                                private readonly contractEditFormFactory $contractEditFormFactory,)
     {
         parent::__construct();
         $this->roleFormFactory = $roleFormFactory;
@@ -665,6 +666,26 @@ class AdminPresenter extends BasePresenter
         $grid->create(); // upraví instanci, nepřepíše ji novým objektem
 
         return $grid;
+    }
+
+    public function createComponentContractEditForm(): Form
+    {
+        $form = $this->contractEditFormFactory->create();
+        $form->onSuccess[] = [$this, 'contractEditFormSucceeded'];
+        return $form;
+    }
+
+    public function contractEditFormSucceeded(Form $form, \stdClass $values): void
+    {
+        $contractPart = new ContractParts();
+        $contractPart->setName($values->name);
+        $contractPart->setContent($values->content);
+        $contractPart->setPartNumber($values->partNumber);
+        $contractPart->setCreatedAt(new DateTimeImmutable());
+        $contractPart->setClosedAt(null);
+        $contractPart->setInUsage(false);
+
+        $this->contracPartsRepository->save($contractPart);
     }
 
 }
