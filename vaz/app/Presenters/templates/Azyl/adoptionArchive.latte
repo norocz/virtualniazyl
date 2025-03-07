@@ -1,0 +1,227 @@
+{block azylContent}
+    <style>
+        #photos {
+            min-height: 200px;
+        }
+        /* První obrázek větší než ostatní */
+        .gallery-item.large {
+            grid-row: span 2;
+        }
+
+        /* Styly pro ikonu mazání */
+        .delete-icon {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 5px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Modal pro zobrazení obrázku */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95); /* Tmavé, téměř černé pozadí */
+            overflow: hidden;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            max-width: 70vw; /* Max 80 % šířky okna */
+            max-height: 70vh; /* Max 80 % výšky okna */
+            object-fit: contain; /* Zachová poměr stran */
+            background-color: black; /* Nastaví tmavé pozadí přímo na obrázek */
+        }
+
+        .close {
+            position: absolute;
+            bottom: 20px; /* Umístění do pravého dolního rohu */
+            right: 20px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .gallery {
+            min-height: 400px;
+        }
+    </style>
+    <!-- Modal pro zvětšení obrázku -->
+    <div id="imageModal" class="modal">
+        <span class="close" onclick="closeModal()">X</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+
+    <div class="container">
+        {ifset $adoptions}
+            <div class="title h2">Vaše běžící adopce</div>
+            <div class="d-flex flex-wrap gap-2">
+
+
+                {foreach $adoptions as $item}
+
+                    <div class="card w-auto">
+                        {var $info = ''}
+                            {switch $item->getActionType()}
+                            {case 'Start adopce'}
+                            {var $bcg = 'bg-primary'}
+                            {var $info = 'Adopce začala'}
+                            {case 'Přerušení adopce'}
+                            {var $bcg = 'bg-warning'}
+                            {var $info = 'Adopce skončila'}
+                            {case 'Kontakt'}
+                            {var $bcg = 'bg-primary'}
+                            {var $info = 'Kontakt zájemce'}
+                            {case 'Telefonát'}
+                            {var $bcg = 'bg-primary'}
+                            {var $info = 'Telefonát zájemci'}
+                            {case 'Osobní kontakt'}
+                            {var $bcg = 'bg-primary'}
+                            {var $info = 'Osobní návštěva'}
+                            {case 'Ověření'}
+                            {var $bcg = 'bg-primary'}
+                            {var $info = 'Adopce ověřená'}
+                            {case 'Adopce se zdařila'}
+                            {var $bcg = 'bg-success'}
+                            {var $info = 'Adopce skončila'}
+                            {case 'Adopce se nezdařila'}
+                            {var $bcg = 'bg-danger'}
+                            {var $info = 'Adopce skončila'}
+                            {case 'Konec adopce'}
+                            {var $bcg = 'bg-warning'}
+                            {var $info = 'Adopce skončila'}
+
+                        {/switch}
+
+
+
+
+
+                        <div class="card-header {$bcg} bf- text-white">{$item->getAnimal()->getName()} </div>
+                        <div class="card-body">
+                            Začátek: <span class="card-text">{$item->getCreatedAt()|date:'H:i d.m.Y'}<br>Adoptující: {$item->getUser()->getUserName()}</span><hr>
+                            <a class="btn btn-outline-info btn-sm" href="{link azyl:adoptions $item->getId()}">K adopci</a>
+                            <a class="btn btn-outline-danger btn-sm" href="{link azyl:adoptions $item->getId()}">Stopnout</a>
+                        </div>
+                    </div>
+
+
+                {/foreach}
+
+            </div>
+
+        {/ifset}
+
+        {ifset $adoption}
+
+            <div class="title h2">Adopce</div>
+            <div class="row">
+                <div class="col-12 bg-light rounded p-4 m-1">
+                    <div class="row">
+                        <div class="col-xl-4 col-sm-12 rounded ">
+                            <span class="h2"> {$adoption->getAnimal()->getName()}</span><br>
+                            <span class="h4">{$adoption->getAnimal()->getSpecies()->getName()} </span><span class="h5"> - {$adoption->getAnimal()->getBreed()}</span>
+                            {var $photos = $adoption->getAnimal()->getPhotos()}
+
+                        </div>
+                        <div class="col-xl-8 col-sm-12 rounded p-4 border">
+                            {if $photos != null}
+                                {foreach $photos as $photo}
+                                    <img width="80em" src="{$basePath}{$photo->getPath()}{$photo->getName()}" alt="{$photo->getOriginalName()}" class="img-fluid image-thumbnail rounded" onclick="showImageModal(this.src)">
+
+                                {/foreach}
+                            {/if}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-lg-5 col-sm-12 bg-light rounded p-4 m-1 w-lg-100">
+                    <div class="title h6">Zájemce</div>
+                    <span class="h4 alert-warning">{$adoption->getUser()->getUserName()}</span> <br>
+                    Jméno:  {$adoption->getUser()->getFirstName()}
+                    {$adoption->getUser()->getLastName()}<br>
+                Email: {$adoption->getUser()->getEmail()}<br>
+                    Telefon:  {$adoption->getUser()->getPhone()}
+                    <div class="w-auto mt-2 border rounded">
+                            {$adoption->getDescription()}
+
+                    </div>
+
+
+                    {ifset $userPhotos}
+                        <div class="w-auto mt-2 border rounded">
+
+                            {foreach  $userPhotos as $userPhoto}
+                                <img width="80em" src="{$basePath}{$userPhoto->getPath()}{$userPhoto->getName()}" alt="{$userPhoto->getOriginalName()}" class="img-fluid image-thumbnail rounded" onclick="showImageModal(this.src)">
+
+                            {/foreach}
+                        </div>
+                    {/ifset}
+                </div>
+
+                <div class="col-lg-6 col-sm-12 bg-light rounded p-4 m-1 ms-xxl-auto">
+                    <h6 class="mb-0">Komunikace</h6>
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+
+
+                        {foreach $adoption->getMessages() as $message}
+                            <div class="w-100 ms-3">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-0">{$message->getUser()->getUserName()}</h6>
+                                    <small>{$message->getCreatedAt()|date:'H:i d.m.Y'}</small>
+                                </div>
+                                <span>{$message->getMessage()|safeHtml|noescape}</span>
+                            </div>
+                        {/foreach}
+
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-lg-12 col-sm-12 bg-light rounded p-4 m-2">
+
+                    <a class="btn btn-outline-success" href="{link endAdoption! $adoption->getId()}">Zvíře bylo adoptováno</a>
+                    <a class="btn btn-outline-danger" href="{link stopAdoption! $adoption->getId()}">Přerušit adopci</a>
+
+                </div>
+
+            </div>
+        {/ifset}
+    </div>
+
+
+
+{/block}
+{block scripts}
+    <script>
+
+        function showImageModal(src) {
+            const modal = document.getElementById("imageModal");
+            const modalImg = document.getElementById("modalImage");
+            modal.style.display = "flex";
+            modalImg.src = src;
+        }
+
+        function closeModal() {
+            document.getElementById("imageModal").style.display = "none";
+        }
+        document.getElementById("imageModal").addEventListener('click', closeModal);
+    </script>
+
+{/block}

@@ -69,7 +69,6 @@
                 <div class="col-xl-3 col-sm-12 flex-column bg-light p-3 text-dark m-2">
                                         <div class="adopce" id="adopce">
 
-
                         <div class="card azyl-card text-dark bg-light-subtle border-100">
                             <h5 class="card-header">{$adopce->getAzyl()->getAzylName()}</h5>
                             <div class="card-body">
@@ -173,7 +172,38 @@
 
                     <div class="adopce-message alert alert-success align-center">
 
-                        <span class="big-message"><h3>Tady už jste požádali o adopci!</h3> Zkuste jiné <a href="{link home:adoptions}">zvířátko</a>! Díky!</span>
+                        {if $adopt->getActionType() == 'Ověření'}
+
+                            <span class="big-message"><h3>Azyl Vaší nabídku přijal!</h3></span>
+
+
+
+                            <h4>Adopční smlouva - čtěte pozorně!</h4>
+                            <div class="bg-light m-1 p-1">
+                                Text adopční smlouvy
+                            </div>
+
+                            <h4>Adopční podmínky - čtěte pozorně!</h4>
+                            <div class="bg-light m-1 p-1">
+                                Text adopčních podmínek
+                            </div>
+
+                            <div class="bg-light m-1 p-1 rounded-2">
+                                {control contractSignForm}
+                            </div>
+
+
+
+                        {elseif $adopt->getActionType() == 'Přerušení adopce'}
+
+                            <span class="big-message"><h3>Je nám líto. Adopce byla přerušena!</h3> Zkuste jiné <a href="{link home:adoptions}">zvířátko</a>! Díky!</span>
+
+                        {elseif $adopt->getActionType() == 'Adopce se nezdařila'}
+                            <span class="big-message"><h3>Je nám líto. Adopce byla přerušena!</h3> Zkuste jiné <a href="{link home:adoptions}">zvířátko</a>! Díky!</span>
+                        {else}
+
+                            <span class="big-message"><h3>Tady už jste požádali o adopci!</h3> Zkuste jiné <a href="{link home:adoptions}">zvířátko</a>! Díky!</span>
+                        {/if}
 
                     </div>
 

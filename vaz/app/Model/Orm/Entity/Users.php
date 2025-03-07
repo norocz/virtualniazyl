@@ -635,4 +635,33 @@ class Users
         $this->collections = $collections;
         return $this;
     }
+
+    public function getUserAdoptionsRating(): ?array
+    {
+        $userRating =[];
+        $r=[];
+        $rew = [];
+        $ratings = $this->getRatings();
+        foreach ($ratings as $rating)
+        {
+         $r[] = $rating->getRating();
+         $rew[] = $rating->getReview();
+        }
+        $r = array_filter($r);
+        if(count($r))
+        {
+            $average = array_sum($r)/count($r);
+            $userRating['average'] = $average;
+            $userRating['reviews'] = $rew;
+            return $userRating;
+        }
+        else
+        {
+            $userRating['average'] = 0;
+            $userRating['reviews'] = null;
+            return $userRating;
+
+        }
+
+    }
 }

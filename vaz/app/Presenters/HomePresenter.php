@@ -6,6 +6,7 @@ namespace App\Presenters;
 
 use App\Forms\adoptionFormFactory;
 use App\Forms\azylSendMessageFormFactory;
+use App\Forms\contractSignFormFactory;
 use App\Forms\paymentFormFactory;
 use App\Forms\registerFormFactory;
 use App\Forms\searchFormFactory;
@@ -91,7 +92,8 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                                 private readonly VersionService              $versionService,
                                 private readonly azylSendMessageFormFactory $azylSendMessageFormFactory,
                                 private readonly searchFormFactory         $searchFormFactory,
-                                private  conversationsRepository $conversationsRepository,)
+                                private  conversationsRepository $conversationsRepository,
+                                private contractSignFormFactory        $contractSignFormFactory,)
     {
         parent::__construct();
         $this->entityManager = $entityManager;
@@ -230,6 +232,7 @@ public function renderAdoptions($offset = 0): void
         $this->getTemplate()->placeholders = $placeholders[array_rand($placeholders)];
         $this->getTemplate()->title = 'Všechny adopce';
         $this->getTemplate()->adoptions = $this->animalsRepository->findBy(['isDeleted' => false, 'toAdoption' => true],  ['id' => 'DESC'], 20, $offset);
+
     }
 
     public function renderAdopce(int $id): void
@@ -252,6 +255,7 @@ public function renderAdoptions($offset = 0): void
 
                     if ($test) {
                         $this->getTemplate()->status = true;
+                        $this->getTemplate()->adopt = $test;
                     } else {
                         $this->getTemplate()->status = false;
                     }
@@ -734,5 +738,20 @@ public function renderAdoptions($offset = 0): void
             $this->flashMessage('Zpráva odeslána '.$azyl->getAzylName(), 'alert-success');
             $this->getPresenter()->redirect('this');
         }
+    }
+
+    public function createComponentContractSignForm(): Form
+    {
+        $form = $this->contractSignFormFactory->create();
+        $form->onSuccess[] = [$this, 'contractSignFormSucceeded'];
+        return $form;
+
+    }
+
+    public function contractSignFormSucceeded(Form $form, \stdClass $values):void
+    {
+        $this->flashMessage('Smlouva je odsouhlasena', 'alert-success');
+        $this->redirect('this');
+
     }
 }

@@ -1,0 +1,30 @@
+{block content}
+<main class="main" id="top">
+    <div class="bg">
+        <div class="content">
+            <div class="row">
+                <div class="col-xl-5 col-md-12  flex-column">
+                    <h3>Azyly</h3>
+                    <div class="azyls" id="azyls">
+
+                        {foreach $azyls as $azyl}
+
+                            <div class="card azyl-card text-dark bg-light">
+                                <h5 class="card-header">{$azyl->getAzylName()}</h5>
+                                <div class="card-body">
+
+                                    <p class="card-text"> {$azyl->getShortDescription()}</p>
+
+                                    <a href="{link Home:azyl, $azyl->getId()}" class="btn btn-outline-info btn-sm">Stránka azylu</a>
+                                </div>
+
+                            </div>
+                        {/foreach}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+{/block}
+{block scripts-user}
+{/block}

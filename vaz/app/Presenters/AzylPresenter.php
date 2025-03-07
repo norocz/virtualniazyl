@@ -16,10 +16,12 @@ use App\Forms\newsFormFactory;
 use App\Forms\PhotoUploadFormFactory;
 use App\Forms\RegisterFormFactory;
 use App\Forms\userDetailsFormFactory;
+use App\Model\Orm\Entity\AdoptionAction;
 use App\Model\Orm\Entity\Animal;
 use App\Model\Orm\Entity\Collections;
 use App\Model\Orm\Entity\News;
 use App\Model\Orm\Entity\Photo;
+use App\Model\Orm\Enums\ActionTypeEnum;
 use App\Model\Orm\Repository\AdoptionsRepository;
 use App\Model\Orm\Repository\AnalyticsRepository;
 use App\Model\Orm\Repository\AnimalsRepository;
@@ -173,12 +175,55 @@ class AzylPresenter extends BasePresenter
     public function handleStopAdoption(int $id): void
     {
 
-
+    $this->flashMessage('Adopce zastavena','alert-warning');
     }
 
-    public function handleEndAdoption(int $id): void
+    public function handleEndAdoption(?int $id): void
     {
+        $adoption = $this->adoptionsRepository->findOneBy(['id' => $id]);
+        $adoption->setUpdatedAt(new DateTimeImmutable());
+        $adoption->setActionType(ActionTypeEnum::POSITIVE_ADOPTION_END);
+            $animal = $this->animalsRepository->findOneBy(['id'=>$adoption->getAnimal()->getId()]);
+            $animal->setAdopted(true);
+            $animal->setToAdoption(false);
+            $this->animalsRepository->saveAnimal($animal);
+        $this->adoptionsRepository->saveAdoption($adoption);
 
+        $this->flashMessage('Zvířátko bylo adoptováno Adopce se označí zelenou barvou a můžete jí ohodnotit.', 'alert-success');
+        if($this->isAjax())
+        {
+            $this->redrawControl('adoptions');
+        }
+        else
+        {
+            $this->redirect('this');
+        }
+    }
+
+
+    public function handleVerificateAdoption($user,$r):void
+    {
+        $this->flashMessage('Pro adopci byla vystavena smlouva a adoptující byl vyzván aby podepsal smlouvu a adopční podmínky','alert-success');
+    }
+
+    public function handleUserReview($user,$r):void
+    {
+        $this->flashMessage('Hodnocení uloženo','alert-success');
+    }
+
+    public function handleKontaktAdoption(?int $id): void
+    {
+        $this->flashMessage('Písemný kontakt','alert-warning');
+    }
+
+    public function handlePhoneAdoption(?int $id): void
+    {
+        $this->flashMessage('Telefonický kontakt','alert-primary');
+    }
+
+    public function handlePersonalAdoption(?int $id): void
+    {
+        $this->flashMessage('Osobní kontakt','alert-primary');
     }
 
 

@@ -40,11 +40,13 @@ class Animal
     #[ORM\Column(type: 'integer', length: 255)]
     private int $howMuch;
 
-    #[ORM\OneToMany(mappedBy: "animal", targetEntity: "Adoption")]
-    #[ORM\JoinColumn(name: "animal_id", referencedColumnName: "id")]
+
+    #[ORM\OneToMany(mappedBy: "animal", targetEntity: Adoption::class)]
+    #[ORM\JoinColumn(name: "adoption_id", referencedColumnName: "id")]
     private ?Collection $adoption;
 
     #[ORM\OneToMany(mappedBy: 'animal', targetEntity: Adoption::class)]
+    #[ORM\JoinColumn(name: "adoption_id", referencedColumnName: "id")]
     private ?Collection $adoptions;
 
     #[ORM\Column(type: AdoptionsTypeEnum::ADOPTION_TYPE_ENUM, length: 255)]
@@ -138,6 +140,7 @@ class Animal
         $this->photos = $photos;
     }
 
+    /*
     public function getAdoption(): ?Collection
     {
         return $this->adoption;
@@ -147,7 +150,7 @@ class Animal
     {
         $this->adoption = $adoption;
     }
-
+*/
     public function getName(): ?string
     {
         return $this->name;
@@ -220,6 +223,11 @@ class Animal
         return $this->adoptions;
     }
 
+    public function getAdoption(): Collection
+    {
+        return $this->adoptions;
+    }
+
     public function getAdoptionType(): string
     {
         return $this->adoptionType;
@@ -253,11 +261,6 @@ class Animal
         return $this;
     }
 
-
-
-
-
-
     public function toArray(): array
     {
         return [
@@ -267,7 +270,7 @@ class Animal
             'age' => $this->age,
             'breed' => $this->breed,
             'photos' => $this->photos->toArray(),
-            'adoption' => $this->adoption->toArray(),
+            'adoptions' => $this->adoptions->toArray(),
             'name' => $this->name,
             'description' => $this->description,
             'birthDate' => $this->birthDate->format('Y-m-d H:i:s'),

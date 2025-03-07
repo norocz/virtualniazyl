@@ -32,12 +32,13 @@ class Adoption
     private ?string $setings;
 
     #[ORM\ManyToOne(targetEntity: Animal::class, inversedBy: 'adoptions')]
+    #[ORM\JoinColumn(name: "animal_id", referencedColumnName: "id")]
     private Animal $animal;
    
-    #[ManyToOne(targetEntity: Azyl::class, inversedBy: "adoptions")]
+    #[ORM\ManyToOne(targetEntity: Azyl::class, inversedBy: "adoptions")]
     private Azyl $azyl;
 
-    #[ManyToOne(targetEntity: Users::class, inversedBy: "adoptions")]
+    #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: "adoptions")]
     #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id")]
     private Users $user;
 
@@ -63,7 +64,7 @@ class Adoption
     private string $adoptionType;
 
     #[ORM\Column(type: ActionTypeEnum::ACTION_TYPE_ENUM, length: 255)]
-    private string $actionType;
+    private ?string $actionType;
 
     #[ORM\OneToMany(mappedBy: 'adoption', targetEntity: Messages::class)]
     private ?Collection $messages;
@@ -126,12 +127,12 @@ class Adoption
         return $this;
     }
 
-    public function getActionType(): string
+    public function getActionType(): ?string
     {
         return $this->actionType;
     }
 
-    public function setActionType(string $actionType): Adoption
+    public function setActionType(?string $actionType): Adoption
     {
         $this->actionType = $actionType;
         return $this;
@@ -267,7 +268,5 @@ class Adoption
     {
         return $this->conversations;
     }
-
-
 
 }
