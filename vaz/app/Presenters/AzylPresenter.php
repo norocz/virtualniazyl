@@ -17,11 +17,13 @@ use App\Forms\PhotoUploadFormFactory;
 use App\Forms\RegisterFormFactory;
 use App\Forms\userDetailsFormFactory;
 use App\Model\Orm\Entity\AdoptionAction;
+use App\Model\Orm\Entity\AdoptionLog;
 use App\Model\Orm\Entity\Animal;
 use App\Model\Orm\Entity\Collections;
 use App\Model\Orm\Entity\News;
 use App\Model\Orm\Entity\Photo;
 use App\Model\Orm\Enums\ActionTypeEnum;
+use App\Model\Orm\Repository\AdoptionLogRepository;
 use App\Model\Orm\Repository\AdoptionsRepository;
 use App\Model\Orm\Repository\AnalyticsRepository;
 use App\Model\Orm\Repository\AnimalsRepository;
@@ -59,7 +61,7 @@ use App\Services\AzylAddressService;
 
 class AzylPresenter extends BasePresenter
 {
-    private EntityManagerInterface $entityManager;
+
     private AnimalsRepository $animalsRepository;
     private AnimalFormFactory $animalFormFactory;
     private AzylSetingsFormFactory $azylSetingsFormFactory;
@@ -95,7 +97,9 @@ class AzylPresenter extends BasePresenter
                                 private readonly azylSendMessageFormFactory $azylSendMessageFormFactory,
                                 private AzylAddressService      $azylAddressService,
                                 private ConversationsRepository $conversationsRepository,
-                                 EntityManagerInterface          $entityManager)
+                                private EntityManagerInterface  $entityManager,
+                                private AdoptionLogRepository $adoptionLogRepository,
+                )
     {
         parent::__construct();
         $this->animalsRepository = $animalsRepository;
@@ -174,8 +178,31 @@ class AzylPresenter extends BasePresenter
 
     public function handleStopAdoption(int $id): void
     {
+        $adoption = $this->adoptionsRepository->findOneBy(['id' => $id]);
+        $adoption->setUpdatedAt(new DateTimeImmutable());
+        $adoption->setActionType(ActionTypeEnum::NEGATIVE_ADOPTION_END);
+        $animal = $this->animalsRepository->findOneBy(['id'=>$adoption->getAnimal()->getId()]);
+        $animal->setAdopted(false);
+        $animal->setToAdoption(true);
+        $this->animalsRepository->saveAnimal($animal);
+        $this->adoptionsRepository->saveAdoption($adoption);
 
-    $this->flashMessage('Adopce zastavena','alert-warning');
+        $log = new AdoptionLog();
+        $log->setAdoption($adoption);
+        $log->setCreatedAt(new DateTimeImmutable());
+        $log->setActionType(ActionTypeEnum::NEGATIVE_ADOPTION_END);
+        $log->setComment('Adopce z nějakého důvodu zastavena');
+        $this->adoptionLogRepository->save($log);
+
+         $this->flashMessage('Adopce zastavena','alert-warning');
+        if($this->isAjax())
+        {
+            $this->redrawControl('adoptionInteraction');
+        }
+        else
+        {
+            $this->redirect('this');
+        }
     }
 
     public function handleEndAdoption(?int $id): void
@@ -189,10 +216,17 @@ class AzylPresenter extends BasePresenter
             $this->animalsRepository->saveAnimal($animal);
         $this->adoptionsRepository->saveAdoption($adoption);
 
+        $log = new AdoptionLog();
+        $log->setAdoption($adoption);
+        $log->setCreatedAt(new DateTimeImmutable());
+        $log->setActionType(ActionTypeEnum::POSITIVE_ADOPTION_END);
+        $log->setComment('Zvířátko bylo adoptováno');
+        $this->adoptionLogRepository->save($log);
+
         $this->flashMessage('Zvířátko bylo adoptováno Adopce se označí zelenou barvou a můžete jí ohodnotit.', 'alert-success');
         if($this->isAjax())
         {
-            $this->redrawControl('adoptions');
+            $this->redrawControl('adoptionInteraction');
         }
         else
         {
@@ -201,29 +235,130 @@ class AzylPresenter extends BasePresenter
     }
 
 
-    public function handleVerificateAdoption($user,$r):void
+    public function handleVerificateAdoption(?int $id):void
     {
+        $adoption = $this->adoptionsRepository->findOneBy(['id' => $id]);
+        $adoption->setUpdatedAt(new DateTimeImmutable());
+        $adoption->setActionType(ActionTypeEnum::VERIFICATION_ADOPTION);
+        $animal = $this->animalsRepository->findOneBy(['id'=>$adoption->getAnimal()->getId()]);
+        $animal->setAdopted(false);
+        $animal->setToAdoption(false);
+        $this->animalsRepository->saveAnimal($animal);
+        $this->adoptionsRepository->saveAdoption($adoption);
+
+        $log = new AdoptionLog();
+        $log->setAdoption($adoption);
+        $log->setCreatedAt(new DateTimeImmutable());
+        $log->setActionType(ActionTypeEnum::VERIFICATION_ADOPTION);
+        $log->setComment('Pro adopci byla vystavena smlouva a adoptující byl vyzván aby podepsal smlouvu a adopční podmínky');
+        $this->adoptionLogRepository->save($log);
+
         $this->flashMessage('Pro adopci byla vystavena smlouva a adoptující byl vyzván aby podepsal smlouvu a adopční podmínky','alert-success');
+
+        if($this->isAjax())
+        {
+            $this->redrawControl('adoptionInteraction');
+        }
+        else
+        {
+            $this->redirect('this');
+        }
+
     }
 
     public function handleUserReview($user,$r):void
     {
+
         $this->flashMessage('Hodnocení uloženo','alert-success');
     }
 
     public function handleKontaktAdoption(?int $id): void
     {
+        $adoption = $this->adoptionsRepository->findOneBy(['id' => $id]);
+        $adoption->setUpdatedAt(new DateTimeImmutable());
+        $adoption->setActionType(ActionTypeEnum::CONTACT_ADOPTION);
+        $animal = $this->animalsRepository->findOneBy(['id'=>$adoption->getAnimal()->getId()]);
+        $animal->setAdopted(false);
+        $animal->setToAdoption(true);
+        $this->animalsRepository->saveAnimal($animal);
+        $this->adoptionsRepository->saveAdoption($adoption);
+
+        $log = new AdoptionLog();
+        $log->setAdoption($adoption);
+        $log->setCreatedAt(new DateTimeImmutable());
+        $log->setActionType(ActionTypeEnum::CONTACT_ADOPTION);
+        $log->setComment('S zájemcem byl navázán písemný kontakt');
+        $this->adoptionLogRepository->save($log);
+
         $this->flashMessage('Písemný kontakt','alert-warning');
+
+        if($this->isAjax())
+        {
+            $this->redrawControl('adoptionInteraction');
+        }
+        else
+        {
+            $this->redirect('this');
+        }
     }
 
     public function handlePhoneAdoption(?int $id): void
     {
+        $adoption = $this->adoptionsRepository->findOneBy(['id' => $id]);
+        $adoption->setUpdatedAt(new DateTimeImmutable());
+        $adoption->setActionType(ActionTypeEnum::PHONE_CALL_ADOPTION);
+        $animal = $this->animalsRepository->findOneBy(['id'=>$adoption->getAnimal()->getId()]);
+        $animal->setAdopted(false);
+        $animal->setToAdoption(true);
+        $this->animalsRepository->saveAnimal($animal);
+        $this->adoptionsRepository->saveAdoption($adoption);
+
+        $log = new AdoptionLog();
+        $log->setAdoption($adoption);
+        $log->setCreatedAt(new DateTimeImmutable());
+        $log->setActionType(ActionTypeEnum::PHONE_CALL_ADOPTION);
+        $log->setComment('S zájemcem byl navázán telefonická kontakt');
+        $this->adoptionLogRepository->save($log);
+
         $this->flashMessage('Telefonický kontakt','alert-primary');
+        if($this->isAjax())
+        {
+            $this->redrawControl('adoptionInteraction');
+        }
+        else
+        {
+            $this->redirect('this');
+        }
     }
 
     public function handlePersonalAdoption(?int $id): void
     {
+        $adoption = $this->adoptionsRepository->findOneBy(['id' => $id]);
+        $adoption->setUpdatedAt(new DateTimeImmutable());
+        $adoption->setActionType(ActionTypeEnum::PERSONAL_VISIT_ADOPTION);
+        $animal = $this->animalsRepository->findOneBy(['id'=>$adoption->getAnimal()->getId()]);
+        $animal->setAdopted(false);
+        $animal->setToAdoption(true);
+        $this->animalsRepository->saveAnimal($animal);
+        $this->adoptionsRepository->saveAdoption($adoption);
+
+        $log = new AdoptionLog();
+        $log->setAdoption($adoption);
+        $log->setCreatedAt(new DateTimeImmutable());
+        $log->setActionType(ActionTypeEnum::PERSONAL_VISIT_ADOPTION);
+        $log->setComment('S zájemcem byl navázán osobní kontakt by ptověřen');
+        $this->adoptionLogRepository->save($log);
+
+
         $this->flashMessage('Osobní kontakt','alert-primary');
+        if($this->isAjax())
+        {
+            $this->redrawControl('adoptionInteraction');
+        }
+        else
+        {
+            $this->redirect('this');
+        }
     }
 
 

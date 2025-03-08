@@ -57,6 +57,22 @@
         .gallery {
             min-height: 400px;
         }
+
+        /* Příchozí zprávy */
+        .in {
+            background-color: #d1e7dd;
+            text-align: left;
+            margin-left: 0;
+
+        }
+
+        /* Odchozí zprávy */
+        .out{
+            background-color: #f0f0f0;
+            text-align: right;
+            margin-left: auto;
+            padding-right: 2em;
+        }
     </style>
     <!-- Modal pro zvětšení obrázku -->
     <div id="imageModal" class="modal">
@@ -244,49 +260,71 @@
                     {/ifset}
                 </div>
 
-                <div class="col-lg-6 col-sm-12 bg-light rounded p-4 m-1 ms-xxl-auto">
+                <div class="col-lg-6 col-sm-12 bg-light rounded p-4 m-1 ms-xxl-auto" style="overflow-y: auto; max-height: 40vh;">
                     <h6 class="mb-0">Komunikace</h6>
-                        <div class="d-flex align-items-center justify-content-between mb-2">
+                       {foreach $adoption->getMessages() as $message}
 
+                           <div class="d-flex align-items-center border-bottom py-3" >
+                               <div class="w-100 ms-3">
+                                   <div class="d-flex w-100 justify-content-between">
+                                       <div class="me-4 ps-4 p-3 shadow rounded-2 msg {if$message->getAzyl() == null}in{else}out{/if}">
+                                           <span>{$message->getMessage()|safeHtml|noescape}</span><br>
+                                           <span class="small">{$message->getCreatedAt()|date:'H:i d.m.Y'}</span>
+                                       </div>
+                                   </div>
+                               </div>
+                           </div>
 
-                        {foreach $adoption->getMessages() as $message}
-                            <div class="w-100 ms-3">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-0">{$message->getUser()->getUserName()}</h6>
-                                    <small>{$message->getCreatedAt()|date:'H:i d.m.Y'}</small>
-                                </div>
-                        <span>{$message->getMessage()|safeHtml|noescape}</span>
-                            </div>
                         {/foreach}
 
-
-                        </div>
                 </div>
 
-        </div>
-        <div class="row">
-            <div class="col-lg-12 col-sm-12 bg-light rounded p-4 m-2">
+                        </div>
+
+
+
+            <div class="row">
+            <div class="col-lg-3 col-sm-12 rounded p-2 m-3 ">
             {if $runnig}
-                <a class="btn btn-outline-primary" href="{link kontaktAdoption! $adoption->getId()}">Písemný kontakt</a>
-                <a class="btn btn-outline-primary" href="{link phoneAdoption! $adoption->getId()}">Telefonát</a>
-                <a class="btn btn-outline-primary" href="{link personalAdoption! $adoption->getId()}">Osobní kontakt</a>
-                <a class="btn btn-outline-warning" href="{link verificateAdoption! $adoption->getId()}">Předschválit adopci</a>
-                <a class="btn btn-outline-success" href="{link endAdoption! $adoption->getId()}">Zvíře bylo adoptováno</a>
-                <a class="btn btn-outline-danger" href="{link stopAdoption! $adoption->getId()}">Přerušit adopci</a>
+                <div class="btn-group-vertical btn-group-sm bg-light" role="group">
+                    <a class="btn btn-outline-primary ajax" href="{link kontaktAdoption! $adoption->getId()}">Písemný kontakt</a>
+                    <a class="btn btn-outline-primary ajax" href="{link phoneAdoption! $adoption->getId()}">Telefonát</a>
+                    <a class="btn btn-outline-primary ajax" href="{link personalAdoption! $adoption->getId()}">Osobní kontakt</a>
+                    <a class="btn btn-outline-primary ajax" href="{link verificateAdoption! $adoption->getId()}">Předschválit adopci</a>
+                    <a class="btn btn-outline-success ajax" href="{link endAdoption! $adoption->getId()}">Zvíře bylo adoptováno</a>
+                    <a class="btn btn-outline-danger ajax" href="{link stopAdoption! $adoption->getId()}">Přerušit adopci</a>
+                </div>
             {else}
             Adopce už neběží:
                 Hodnotit adoptujícího (jako ve škole):
-                <div class="btn-group btn-group-lg" role="group">
-                    <a class="btn btn-success" href="{link userReview! $adoption->getUser()->getId(),1}">1</a>
-                    <a class="btn btn-success" href="{link userReview! $adoption->getUser()->getId(),2}">2</a>
-                    <a class="btn btn-warning" href="{link userReview! $adoption->getUser()->getId(),3}">3</a>
-                    <a class="btn btn-warning" href="{link userReview! $adoption->getUser()->getId(),4}">4</a>
-                    <a class="btn btn-danger" href="{link userReview! $adoption->getUser()->getId(),5}">5</a>
+                <div class="btn-group-vertical btn-group-lg" role="group">
+                    <a class="btn btn-success ajax" href="{link userReview! $adoption->getUser()->getId(),1}">1</a>
+                    <a class="btn btn-success ajax" href="{link userReview! $adoption->getUser()->getId(),2}">2</a>
+                    <a class="btn btn-warning ajax" href="{link userReview! $adoption->getUser()->getId(),3}">3</a>
+                    <a class="btn btn-warning ajax" href="{link userReview! $adoption->getUser()->getId(),4}">4</a>
+                    <a class="btn btn-danger ajax" href="{link userReview! $adoption->getUser()->getId(),5}">5</a>
                 </div>
+
+
             {/if}
             </div>
+            <div class="col-lg-8 col-sm-12 rounded p-2 m-3" style="overflow-y: auto; max-height: 20vh;">
+            {snippet adoptionInteraction}
+                <table class="table-striped table-hover table">
+                 {foreach $adoption->getLogs() as $log}
+                     <tr>
+                         <td>{$log->getCreatedAt()|date:'H:i d.m.Y'}</td>
+                         <td>{$log->getActionType()}</td>
+                         <td>{$log->getComment()}</td>
+                     </tr>
+                 {/foreach}
+                </table>
+            {/snippet}
+            </div>
+            </div>
 
-        </div>
+
+
         {/ifset}
     </div>
 

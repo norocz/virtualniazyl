@@ -72,6 +72,9 @@ class Adoption
     #[ORM\Column(type: 'integer', length: 255)]
     private int $howMuch;
 
+    #[ORM\OneToMany(mappedBy: 'adoption', targetEntity: AdoptionLog::class)]
+    private ?Collection $logs;
+
     public function setAdoptionKey(string $adoptionKey): Adoption
     {
         $this->adoptionKey = $adoptionKey;
@@ -268,5 +271,18 @@ class Adoption
     {
         return $this->conversations;
     }
+
+    public function getLogs(): ?Collection
+    {
+        return $this->logs;
+    }
+
+    public function setLogs(?Collection $logs): Adoption
+    {
+        $this->logs = $logs;
+        return $this;
+    }
+
+
 
 }

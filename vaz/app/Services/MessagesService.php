@@ -60,6 +60,7 @@ class MessagesService
             $message->setCreatedAt(new DateTimeImmutable());
             $message->setReaded(false);
             $message->setType(MessageTypeEnum::TOUSER_TYPE);
+            $message->setAdoption($conversation->getAdoption());
             $this->messagesRepository->save($message);
 
             if ($presenter->isAjax()) {
