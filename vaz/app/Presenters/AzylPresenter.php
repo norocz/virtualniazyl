@@ -38,6 +38,7 @@ use App\Model\Orm\Repository\MessagesRepository;
 use App\Model\Orm\Repository\NewsRepository;
 use App\Model\Orm\Repository\PaymentsRepository;
 use App\Model\Orm\Repository\PhotosRepository;
+use App\Model\Orm\Repository\UsersRatingsRepository;
 use App\Model\Orm\Repository\UsersRepository;
 use App\Model\Services\Menu;
 use App\Repository\SpeciesRepository;
@@ -106,6 +107,7 @@ class AzylPresenter extends BasePresenter
                                 private AdoptionLogRepository               $adoptionLogRepository,
                                 private AdoptionStateChangeFormFactory      $adoptionStateChangeFormFactory,
                                 private UserScoreFormFactory                $userScoreFormFactory,
+                                private UsersRatingsRepository              $usersRatingsRepository,
     )
     {
         parent::__construct();
@@ -272,7 +274,7 @@ class AzylPresenter extends BasePresenter
 
     public function createComponentUserScoreForm(): Form
     {
-       $form = $this->userScoreFormatFactory->create();
+       $form = $this->userScoreFormFactory->create();
         $form->onSuccess[] = [$this, 'userScoreFormSubmitted'];
         return $form;
 
@@ -283,7 +285,7 @@ class AzylPresenter extends BasePresenter
         $userRating = new UsersRatings();
         $userRating->setReviewer($this->usersRepository->getUserById($this->getUser()->getId()));
         $userRating->setCreatedAt(new DateTimeImmutable());
-        $userRating->setAzyl($this->azylRepository->findOneBy($this->getUser()->getIdentity()->getData()['Azyl']->getId()));
+        $userRating->setAzyl($this->azylRepository->findOneBy(['id' => $this->getUser()->getIdentity()->getData()['Azyl']->getId()]));
         $userRating->setUser($this->adoptionsRepository->findOneBy(['id' => intval($this->getParameter('id'))])->getUser());
         if ($form['1']->isSubmittedBy())
         {
@@ -307,7 +309,7 @@ class AzylPresenter extends BasePresenter
         }
 
         $userRating->setReview($values->comment);
-        $this->userRatingsRpository->save($userRating);
+        $this->usersRatingsRepository->save($userRating);
 
         $this->flashMessage('Hodnocení adoptujícího uloženo',' alert-success');
         if($this->isAjax())
