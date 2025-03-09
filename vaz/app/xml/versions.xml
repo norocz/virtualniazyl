@@ -1,6 +1,6 @@
 <versions>
     <version>
-        <date>08.03.2025</date>
+        <date>09.03.2025</date>
         <number>0.9.9.3</number>
         <description>
 
@@ -9,6 +9,7 @@
             - zmeny stavu adopce
             - zobrazení smlouvy a podmínek
             - opravená chyba přeřazování zpráv k adopci
+            - Přepracované zpracování hlasování a změny stavů - místo odkazů formuláře jde přidávat komenty
 
 
 

@@ -7,6 +7,7 @@ namespace App\Presenters;
 use App\Components\CityDataSource;
 use App\Components\Datagrids\AnimalsDatagridFactory;
 use App\Components\Datagrids\NewsDatagridFactory;
+use App\Forms\adoptionStateChangeFormFactory;
 use App\Forms\animalFormFactory;
 use App\Forms\azylSendMessageFormFactory;
 use App\Forms\azylSetingsFormFactory;
@@ -16,12 +17,14 @@ use App\Forms\newsFormFactory;
 use App\Forms\PhotoUploadFormFactory;
 use App\Forms\RegisterFormFactory;
 use App\Forms\userDetailsFormFactory;
+use App\Forms\userScoreFormFactory;
 use App\Model\Orm\Entity\AdoptionAction;
 use App\Model\Orm\Entity\AdoptionLog;
 use App\Model\Orm\Entity\Animal;
 use App\Model\Orm\Entity\Collections;
 use App\Model\Orm\Entity\News;
 use App\Model\Orm\Entity\Photo;
+use App\Model\Orm\Entity\UsersRatings;
 use App\Model\Orm\Enums\ActionTypeEnum;
 use App\Model\Orm\Repository\AdoptionLogRepository;
 use App\Model\Orm\Repository\AdoptionsRepository;
@@ -50,10 +53,12 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use JetBrains\PhpStorm\NoReturn;
 use libphonenumber\NumberParseException;
+use Nette;
 use Nette\Application\UI\Form;
 use Nette\Application\UI\InvalidLinkException;
 use Random\RandomException;
 use Selectt\SelecttAutocompleteControl;
+use Symfony\Component\VarExporter\Internal\Values;
 use Ublaboo\DataGrid\DataGrid;
 use Ublaboo\DataGrid\Exception\DataGridColumnStatusException;
 use Ublaboo\DataGrid\Exception\DataGridException;
@@ -67,48 +72,47 @@ class AzylPresenter extends BasePresenter
     private AzylSetingsFormFactory $azylSetingsFormFactory;
 
 
-    public function __construct(AnimalsRepository              $animalsRepository,
-                                AnimalFormFactory              $animalFormFactory,
-                                AzylSetingsFormFactory         $azylSetingsFormFactory,
-                                public NewsRepository          $newsRepository,
-                                public NewsFormFactory         $newsFormFactory,
-                                public NewsDatagridFactory     $newsDatagridFactory,
-                                public AnimalsDatagridFactory  $animalsDatagridFactory,
-                                public Photo                   $photos,
-                                public PhotosRepository        $photosRepository,
-                                public SpeciesRepository       $speciesRepository,
-                                public UsersRepository         $usersRepository,
-                                public AzylRepository          $azylRepository,
-                                private MessagesRepository          $messagesRepository,
-                                private messagesFormFactory         $messagesFormFactory,
-                                private messagesService             $messagesService,
-                                private AnalyticsRepository         $analyticsRepository,
-                                private AnalyticsService            $analyticsService,
-                                private AdoptionsRepository         $adoptionsRepository,
-                                private CollectionsRepository       $collectionsRepository,
-                                private CollectionFormFactory       $collectionFormFactory,
-                                private collectionKeyService        $collectionKeyService,
-                                private PhotoUploadFormFactory      $photoUploadFormFactory,
-                                private readonly PaymentsRepository $paymentsRepository,
-                                private readonly cityRepository $cityRepository,
-                                private readonly CityDataSource $cityDataSource,
-                                private readonly RegisterFormFactory $registerFormFactory,
-                                private readonly userDetailsFormFactory $userDetailsFormFactory,
+    public function __construct(AnimalsRepository                           $animalsRepository,
+                                AnimalFormFactory                           $animalFormFactory,
+                                AzylSetingsFormFactory                      $azylSetingsFormFactory,
+                                public NewsRepository                       $newsRepository,
+                                public NewsFormFactory                      $newsFormFactory,
+                                public NewsDatagridFactory                  $newsDatagridFactory,
+                                public AnimalsDatagridFactory               $animalsDatagridFactory,
+                                public Photo                                $photos,
+                                public PhotosRepository                     $photosRepository,
+                                public SpeciesRepository                    $speciesRepository,
+                                public UsersRepository                      $usersRepository,
+                                public AzylRepository                       $azylRepository,
+                                private MessagesRepository                  $messagesRepository,
+                                private messagesFormFactory                 $messagesFormFactory,
+                                private messagesService                     $messagesService,
+                                private AnalyticsRepository                 $analyticsRepository,
+                                private AnalyticsService                    $analyticsService,
+                                private AdoptionsRepository                 $adoptionsRepository,
+                                private CollectionsRepository               $collectionsRepository,
+                                private CollectionFormFactory               $collectionFormFactory,
+                                private collectionKeyService                $collectionKeyService,
+                                private PhotoUploadFormFactory              $photoUploadFormFactory,
+                                private readonly PaymentsRepository         $paymentsRepository,
+                                private readonly cityRepository             $cityRepository,
+                                private readonly CityDataSource             $cityDataSource,
+                                private readonly RegisterFormFactory        $registerFormFactory,
+                                private readonly userDetailsFormFactory     $userDetailsFormFactory,
                                 private readonly azylSendMessageFormFactory $azylSendMessageFormFactory,
-                                private AzylAddressService      $azylAddressService,
-                                private ConversationsRepository $conversationsRepository,
-                                private EntityManagerInterface  $entityManager,
-                                private AdoptionLogRepository $adoptionLogRepository,
-                )
+                                private AzylAddressService                  $azylAddressService,
+                                private ConversationsRepository             $conversationsRepository,
+                                private EntityManagerInterface              $entityManager,
+                                private AdoptionLogRepository               $adoptionLogRepository,
+                                private AdoptionStateChangeFormFactory      $adoptionStateChangeFormFactory,
+                                private UserScoreFormFactory                $userScoreFormFactory,
+    )
     {
         parent::__construct();
         $this->animalsRepository = $animalsRepository;
         $this->animalFormFactory = $animalFormFactory;
         $this->azylSetingsFormFactory = $azylSetingsFormFactory;
         $this->entityManager = $entityManager;
-
-
-
 
 
     }
@@ -139,7 +143,6 @@ class AzylPresenter extends BasePresenter
                 }
             }
         }
-
 
 
     }
@@ -176,25 +179,87 @@ class AzylPresenter extends BasePresenter
         $this->redirect('this');
     }
 
-    public function handleStopAdoption(int $id): void
-    {
-        $adoption = $this->adoptionsRepository->findOneBy(['id' => $id]);
-        $adoption->setUpdatedAt(new DateTimeImmutable());
-        $adoption->setActionType(ActionTypeEnum::NEGATIVE_ADOPTION_END);
-        $animal = $this->animalsRepository->findOneBy(['id'=>$adoption->getAnimal()->getId()]);
-        $animal->setAdopted(false);
-        $animal->setToAdoption(true);
-        $this->animalsRepository->saveAnimal($animal);
-        $this->adoptionsRepository->saveAdoption($adoption);
 
+    public function createComponentAdoptionStateForm(): Form
+    {
+        $form = $this->adoptionStateChangeFormFactory->create();
+        $form->onSuccess[] = [$this, 'adoptionStateChangeFormSubmitted'];
+        return $form;
+    }
+
+    public function adoptionStateChangeFormSubmitted(Form $form, \stdClass $values): void
+    {
         $log = new AdoptionLog();
+        $adoption = $this->adoptionsRepository->findOneBy(['id' => intval($this->getPresenter()->getParameter('id'))]);
+        $animal = $this->animalsRepository->findOneBy(['id'=>$adoption->getAnimal()->getId()]);
+        $adoption->setUpdatedAt(new DateTimeImmutable());
         $log->setAdoption($adoption);
         $log->setCreatedAt(new DateTimeImmutable());
-        $log->setActionType(ActionTypeEnum::NEGATIVE_ADOPTION_END);
-        $log->setComment('Adopce z nějakého důvodu zastavena');
-        $this->adoptionLogRepository->save($log);
 
-         $this->flashMessage('Adopce zastavena','alert-warning');
+            if ($form['comment']->isSubmittedBy())  //jen komentář
+                {
+                    $log->setComment($values->commentText);
+                    $log->setActionType($adoption->getActionType());
+                    $this->flashMessage('Komentář k adopci přidán.','alert-primary');
+                }
+            elseif($form['writ']->isSubmittedBy()) //písemný kontakt
+                {
+                    $log->setComment($values->commentText);
+                    $animal->setAdopted(false);
+                    $animal->setToAdoption(true);
+                    $adoption->setActionType(ActionTypeEnum::CONTACT_ADOPTION);
+                    $log->setActionType(ActionTypeEnum::CONTACT_ADOPTION);
+                    $this->flashMessage('Písemný kontakt.','alert-primary');
+                }
+            elseif($form['phon']->isSubmittedBy()) //telefonický kontakt
+                {
+                    $log->setComment($values->commentText);
+                    $animal->setAdopted(false);
+                    $animal->setToAdoption(true);
+                    $adoption->setActionType(ActionTypeEnum::PHONE_CALL_ADOPTION);
+                    $log->setActionType(ActionTypeEnum::PHONE_CALL_ADOPTION);
+                    $this->flashMessage('Telefonický kontakt.','alert-primary');
+                }
+            elseif($form['pers']->isSubmittedBy()) //osobní kontakt
+                {
+                    $log->setComment($values->commentText);
+                    $animal->setAdopted(false);
+                    $animal->setToAdoption(true);
+                    $adoption->setActionType(ActionTypeEnum::PERSONAL_VISIT_ADOPTION);
+                    $log->setActionType(ActionTypeEnum::PERSONAL_VISIT_ADOPTION);
+                    $this->flashMessage('Osobní kontakt.','alert-primary');
+                }
+            elseif($form['pre']->isSubmittedBy()) //předschválení adopce
+                {
+                    $log->setComment($values->commentText);
+                    $animal->setAdopted(false);
+                    $animal->setToAdoption(false);
+                    $adoption->setActionType(ActionTypeEnum::VERIFICATION_ADOPTION);
+                    $log->setActionType(ActionTypeEnum::VERIFICATION_ADOPTION);
+                    $this->flashMessage('Pro adopci byla vystavena smlouva a adoptující byl vyzván aby podepsal smlouvu a adopční podmínky','alert-success');
+                }
+            elseif($form['ok']->isSubmittedBy()) //potvrzení adopce
+                {
+                    $log->setComment($values->commentText);
+                    $animal->setAdopted(true);
+                    $animal->setToAdoption(false);
+                    $adoption->setActionType(ActionTypeEnum::POSITIVE_ADOPTION_END);
+                    $log->setActionType(ActionTypeEnum::POSITIVE_ADOPTION_END);
+                    $this->flashMessage('Super! Adopce dobře dopadlo... paráda na světě je zase o něco víc lásky! :-)','alert-success');
+                }
+            elseif($form['stop']->isSubmittedBy()) //zrušení adopce
+                {
+                    $log->setComment($values->commentText);
+                    $animal->setAdopted(false);
+                    $animal->setToAdoption(true);
+                    $adoption->setActionType(ActionTypeEnum::NEGATIVE_ADOPTION_END);
+                    $log->setActionType(ActionTypeEnum::NEGATIVE_ADOPTION_END);
+                    $this->flashMessage('Adopce zastavena','alert-warning');
+                }
+
+        $this->animalsRepository->saveAnimal($animal);
+        $this->adoptionsRepository->saveAdoption($adoption);
+        $this->adoptionLogRepository->save($log);
         if($this->isAjax())
         {
             $this->redrawControl('adoptionInteraction');
@@ -205,65 +270,54 @@ class AzylPresenter extends BasePresenter
         }
     }
 
-    public function handleEndAdoption(?int $id): void
+    public function createComponentUserScoreForm(): Form
     {
-        $adoption = $this->adoptionsRepository->findOneBy(['id' => $id]);
-        $adoption->setUpdatedAt(new DateTimeImmutable());
-        $adoption->setActionType(ActionTypeEnum::POSITIVE_ADOPTION_END);
-            $animal = $this->animalsRepository->findOneBy(['id'=>$adoption->getAnimal()->getId()]);
-            $animal->setAdopted(true);
-            $animal->setToAdoption(false);
-            $this->animalsRepository->saveAnimal($animal);
-        $this->adoptionsRepository->saveAdoption($adoption);
+       $form = $this->userScoreFormatFactory->create();
+        $form->onSuccess[] = [$this, 'userScoreFormSubmitted'];
+        return $form;
 
-        $log = new AdoptionLog();
-        $log->setAdoption($adoption);
-        $log->setCreatedAt(new DateTimeImmutable());
-        $log->setActionType(ActionTypeEnum::POSITIVE_ADOPTION_END);
-        $log->setComment('Zvířátko bylo adoptováno');
-        $this->adoptionLogRepository->save($log);
-
-        $this->flashMessage('Zvířátko bylo adoptováno Adopce se označí zelenou barvou a můžete jí ohodnotit.', 'alert-success');
-        if($this->isAjax())
-        {
-            $this->redrawControl('adoptionInteraction');
-        }
-        else
-        {
-            $this->redirect('this');
-        }
     }
 
-
-    public function handleVerificateAdoption(?int $id):void
+    public function userScoreFormSubmitted(Form $form, \stdClass $values): void
     {
-        $adoption = $this->adoptionsRepository->findOneBy(['id' => $id]);
-        $adoption->setUpdatedAt(new DateTimeImmutable());
-        $adoption->setActionType(ActionTypeEnum::VERIFICATION_ADOPTION);
-        $animal = $this->animalsRepository->findOneBy(['id'=>$adoption->getAnimal()->getId()]);
-        $animal->setAdopted(false);
-        $animal->setToAdoption(false);
-        $this->animalsRepository->saveAnimal($animal);
-        $this->adoptionsRepository->saveAdoption($adoption);
+        $userRating = new UsersRatings();
+        $userRating->setReviewer($this->usersRepository->getUserById($this->getUser()->getId()));
+        $userRating->setCreatedAt(new DateTimeImmutable());
+        $userRating->setAzyl($this->azylRepository->findOneBy($this->getUser()->getIdentity()->getData()['Azyl']->getId()));
+        $userRating->setUser($this->adoptionsRepository->findOneBy(['id' => intval($this->getParameter('id'))])->getUser());
+        if ($form['1']->isSubmittedBy())
+        {
+            $userRating->setRating(1);
+        }
+        elseif($form['2']->isSubmittedBy())
+        {
+            $userRating->setRating(2);
+        }
+        elseif($form['3']->isSubmittedBy())
+        {
+            $userRating->setRating(3);
+        }
+        elseif($form['4']->isSubmittedBy())
+        {
+            $userRating->setRating(4);
+        }
+        elseif($form['5']->isSubmittedBy())
+        {
+            $userRating->setRating(5);
+        }
 
-        $log = new AdoptionLog();
-        $log->setAdoption($adoption);
-        $log->setCreatedAt(new DateTimeImmutable());
-        $log->setActionType(ActionTypeEnum::VERIFICATION_ADOPTION);
-        $log->setComment('Pro adopci byla vystavena smlouva a adoptující byl vyzván aby podepsal smlouvu a adopční podmínky');
-        $this->adoptionLogRepository->save($log);
+        $userRating->setReview($values->comment);
+        $this->userRatingsRpository->save($userRating);
 
-        $this->flashMessage('Pro adopci byla vystavena smlouva a adoptující byl vyzván aby podepsal smlouvu a adopční podmínky','alert-success');
-
+        $this->flashMessage('Hodnocení adoptujícího uloženo',' alert-success');
         if($this->isAjax())
         {
-            $this->redrawControl('adoptionInteraction');
+            $this->redrawControl('rating');
         }
         else
         {
             $this->redirect('this');
         }
-
     }
 
     public function handleUserReview($user,$r):void
@@ -271,96 +325,6 @@ class AzylPresenter extends BasePresenter
 
         $this->flashMessage('Hodnocení uloženo','alert-success');
     }
-
-    public function handleKontaktAdoption(?int $id): void
-    {
-        $adoption = $this->adoptionsRepository->findOneBy(['id' => $id]);
-        $adoption->setUpdatedAt(new DateTimeImmutable());
-        $adoption->setActionType(ActionTypeEnum::CONTACT_ADOPTION);
-        $animal = $this->animalsRepository->findOneBy(['id'=>$adoption->getAnimal()->getId()]);
-        $animal->setAdopted(false);
-        $animal->setToAdoption(true);
-        $this->animalsRepository->saveAnimal($animal);
-        $this->adoptionsRepository->saveAdoption($adoption);
-
-        $log = new AdoptionLog();
-        $log->setAdoption($adoption);
-        $log->setCreatedAt(new DateTimeImmutable());
-        $log->setActionType(ActionTypeEnum::CONTACT_ADOPTION);
-        $log->setComment('S zájemcem byl navázán písemný kontakt');
-        $this->adoptionLogRepository->save($log);
-
-        $this->flashMessage('Písemný kontakt','alert-warning');
-
-        if($this->isAjax())
-        {
-            $this->redrawControl('adoptionInteraction');
-        }
-        else
-        {
-            $this->redirect('this');
-        }
-    }
-
-    public function handlePhoneAdoption(?int $id): void
-    {
-        $adoption = $this->adoptionsRepository->findOneBy(['id' => $id]);
-        $adoption->setUpdatedAt(new DateTimeImmutable());
-        $adoption->setActionType(ActionTypeEnum::PHONE_CALL_ADOPTION);
-        $animal = $this->animalsRepository->findOneBy(['id'=>$adoption->getAnimal()->getId()]);
-        $animal->setAdopted(false);
-        $animal->setToAdoption(true);
-        $this->animalsRepository->saveAnimal($animal);
-        $this->adoptionsRepository->saveAdoption($adoption);
-
-        $log = new AdoptionLog();
-        $log->setAdoption($adoption);
-        $log->setCreatedAt(new DateTimeImmutable());
-        $log->setActionType(ActionTypeEnum::PHONE_CALL_ADOPTION);
-        $log->setComment('S zájemcem byl navázán telefonická kontakt');
-        $this->adoptionLogRepository->save($log);
-
-        $this->flashMessage('Telefonický kontakt','alert-primary');
-        if($this->isAjax())
-        {
-            $this->redrawControl('adoptionInteraction');
-        }
-        else
-        {
-            $this->redirect('this');
-        }
-    }
-
-    public function handlePersonalAdoption(?int $id): void
-    {
-        $adoption = $this->adoptionsRepository->findOneBy(['id' => $id]);
-        $adoption->setUpdatedAt(new DateTimeImmutable());
-        $adoption->setActionType(ActionTypeEnum::PERSONAL_VISIT_ADOPTION);
-        $animal = $this->animalsRepository->findOneBy(['id'=>$adoption->getAnimal()->getId()]);
-        $animal->setAdopted(false);
-        $animal->setToAdoption(true);
-        $this->animalsRepository->saveAnimal($animal);
-        $this->adoptionsRepository->saveAdoption($adoption);
-
-        $log = new AdoptionLog();
-        $log->setAdoption($adoption);
-        $log->setCreatedAt(new DateTimeImmutable());
-        $log->setActionType(ActionTypeEnum::PERSONAL_VISIT_ADOPTION);
-        $log->setComment('S zájemcem byl navázán osobní kontakt by ptověřen');
-        $this->adoptionLogRepository->save($log);
-
-
-        $this->flashMessage('Osobní kontakt','alert-primary');
-        if($this->isAjax())
-        {
-            $this->redrawControl('adoptionInteraction');
-        }
-        else
-        {
-            $this->redirect('this');
-        }
-    }
-
 
     public function renderDefault(): void
     {

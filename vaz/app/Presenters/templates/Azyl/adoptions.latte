@@ -283,17 +283,29 @@
 
 
 
-            <div class="row">
-            <div class="col-lg-3 col-sm-12 rounded p-2 m-3 ">
+            <div class="row p-1 m-1">
+            <div class="col-lg-12 col-sm-12 rounded ">
             {if $runnig}
-                <div class="btn-group-vertical btn-group-sm bg-light" role="group">
-                    <a class="btn btn-outline-primary ajax" href="{link kontaktAdoption! $adoption->getId()}">Písemný kontakt</a>
-                    <a class="btn btn-outline-primary ajax" href="{link phoneAdoption! $adoption->getId()}">Telefonát</a>
-                    <a class="btn btn-outline-primary ajax" href="{link personalAdoption! $adoption->getId()}">Osobní kontakt</a>
-                    <a class="btn btn-outline-primary ajax" href="{link verificateAdoption! $adoption->getId()}">Předschválit adopci</a>
-                    <a class="btn btn-outline-success ajax" href="{link endAdoption! $adoption->getId()}">Zvíře bylo adoptováno</a>
-                    <a class="btn btn-outline-danger ajax" href="{link stopAdoption! $adoption->getId()}">Přerušit adopci</a>
+                <div class="row">
+                    <form n:name=adoptionStateForm>
+                        <div class="col-lg-12 col-sm-12 rounded">
+                            <textarea class="form-control text-bg-info" placeholder="Sem můžete napsat poznámku" rows="4" cols="5" n:name=commentText></textarea>
+                        </div>
+                    <div class="col-lg-12 col-sm-12 rounded p-3">
+                        <div class="btn-group btn-group-sm bg-light" role="group">
+                            <input n:name=comment class="btn btn-outline-primary ajax">
+                            <input n:name=writ class="btn btn-outline-primary ajax">
+                            <input n:name=phon class="btn btn-outline-primary ajax">
+                            <input n:name=pers class="btn btn-outline-primary ajax">
+                            <input n:name=pre class="btn btn-outline-primary ajax">
+                            <input n:name=ok class="btn btn-outline-success ajax">
+                            <input n:name=stop class="btn btn-outline-danger ajax">
+                        </div>
+                    </div>
+
+                    </form>
                 </div>
+
             {else}
             Adopce už neběží:
                 Hodnotit adoptujícího (jako ve škole):
@@ -308,7 +320,7 @@
 
             {/if}
             </div>
-            <div class="col-lg-8 col-sm-12 rounded p-2 m-3" style="overflow-y: auto; max-height: 20vh;">
+            <div class="col-lg-12 col-sm-12 rounded" style="overflow-y: auto; max-height: 25vh;">
             {snippet adoptionInteraction}
                 <table class="table-striped table-hover table">
                  {foreach $adoption->getLogs() as $log}

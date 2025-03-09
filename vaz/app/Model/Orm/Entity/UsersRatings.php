@@ -31,13 +31,13 @@ class UsersRatings
     private DateTimeImmutable $createdAt;
 
     #[ORM\OneToMany(mappedBy: 'userRatings', targetEntity: 'Photo')]
-    private Collection $photos;
+    private ?Collection $photos;
 
     #[ORM\ManyToOne(targetEntity: Users::class, inversedBy: 'userRatings')]
-    private Users $user;
+    private ?Users $user;
 
     #[ORM\ManyToOne(targetEntity: Azyl::class, inversedBy: 'reviewerRatings')]
-    private Azyl $azyl;
+    private ?Azyl $azyl;
 
        public function getReview(): string
     {
@@ -81,27 +81,46 @@ class UsersRatings
         $this->createdAt = $createdAt;
     }
 
-    public function getPhotos(): Collection
+    public function getPhotos(): ?Collection
     {
         return $this->photos;
     }
 
-    public function setPhotos(Collection $photos): void
+    public function setPhotos(?Collection $photos): void
     {
         $this->photos = $photos;
     }
 
-    public function getUser(): Collection
+    public function getUser(): ?Users
     {
         return $this->user;
     }
 
-    public function setUser(Collection $user): void
+    public function setUser(?Users $user): void
     {
         $this->user = $user;
     }
 
+    public function getId(): int
+    {
+        return $this->id;
+    }
 
+    public function setId(int $id): UsersRatings
+    {
+        $this->id = $id;
+        return $this;
+    }
 
+    public function getAzyl(): ?Azyl
+    {
+        return $this->azyl;
+    }
+
+    public function setAzyl(?Azyl $azyl): UsersRatings
+    {
+        $this->azyl = $azyl;
+        return $this;
+    }
 
 }
