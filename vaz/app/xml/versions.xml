@@ -1,6 +1,5 @@
 <versions>
-    <version>
-        <version>
+       <version>
             <date>14.03.2025</date>
             <number>0.9.9.5</number>
             <description>
@@ -69,6 +68,7 @@
                 - podepisování smlouvy pomocí SMS (odeslání sms s kodem, zadání kódu pro podpis)
             </description>
         </version>
+    <version>
         <date>09.03.2025</date>
         <number>0.9.9.3</number>
         <description>
