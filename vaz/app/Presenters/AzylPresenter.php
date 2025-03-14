@@ -766,11 +766,15 @@ class AzylPresenter extends BasePresenter
                     'name' => $animal->getName(),
                     'description' => $animal->getDescription(),
                     'species' => $animal->getSpecies()->getId(),
-                    'birthDate' => $animal->getBirthdate()->format('d-m-Y'),
+                    'birthDate' => !is_null($animal->getBirthdate()) ? $animal->getBirthdate()->format('d-m-Y') : null,
+                    'reception' => !is_null($animal->getReception()) ? $animal->getReception()->format('d-m-Y') : null,
                     'breed' => $animal->getBreed(),
                     'toAdoption' => $animal->isToAdoption(),
                     'adoptionType' => $animal->getAdoptionType(),
                     'multiAdoption' => $animal->getMultiAdoption(),
+                    'signed' => !is_null($animal->getSigned()) ? $animal->getSigned() : 'no',
+                    'weight' => $animal->getWeight(),
+                    'height' => $animal->getHeight(),
                     'howMuch' => $animal->getHowMuch()]
             );
         }
@@ -858,7 +862,11 @@ class AzylPresenter extends BasePresenter
             $animal->setBirthDate($values->birthDate);
             $animal->setBreed($values->breed);
             $animal->setHowMuch($values->howMuch);
+            $animal->setSigned($values->signed);
+            $animal->setHeight($values->height);
+            $animal->setWeight($values->weight);
             $animal->setMultiAdoption($values->multiAdoption);
+            $animal->setReception($values->reception);
             $this->animalsRepository->persist($animal);
             foreach ($values->photos as $photo) {
 
@@ -884,6 +892,10 @@ class AzylPresenter extends BasePresenter
             $animal->setAdoptionType($values->adoptionType);
             $animal->setHowMuch($values->howMuch);
             $animal->setMultiAdoption($values->multiAdoption);
+            $animal->setSigned($values->signed);
+            $animal->setHeight($values->height);
+            $animal->setWeight($values->weight);
+            $animal->setReception($values->reception);
 
             foreach ($values->photos as $photo) {
                 $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());

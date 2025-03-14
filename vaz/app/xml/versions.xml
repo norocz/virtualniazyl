@@ -1,5 +1,74 @@
 <versions>
     <version>
+        <version>
+            <date>14.03.2025</date>
+            <number>0.9.9.5</number>
+            <description>
+
+                Změny:
+                - Zvířátka mají parametr příchodu do útulku/azylu
+                - Váha zvířátka
+                - Velikost
+                - Kontrola aby narození nebylo dřív než datum přijetí :-)
+
+                Co je potřeba:
+                - přidat režim odstávky
+                - Zkontrolovat všechny odkazy jestli jsou OK zvlášť odkazy na fotky
+                - ADMIN: kontrola smluv
+                - ADMIN: Hromadné zprávy
+                - ADMIN: Odpovědi na dotazy
+                - párování smlouvy
+                - archivace smlouvy
+                - pravidla pro adopce
+                - adopční podmínky - rozběhnutý proces poslaný mail
+                - Nastavit až bude správný účet
+
+                Rozvoj:
+                - Taby na profilu automaticky Switchovat
+                - Přidat taby (popořili jste, oblíbené azyly)
+                - Azyl může mít vlastní stránky na profilu (editace včetně fotek a podobně)
+                - Azyl by měl mít archív adopcí
+                - hodnocení adopce (adoptéra po adopci)
+
+                Nápady:
+                - podepisování smlouvy pomocí SMS (odeslání sms s kodem, zadání kódu pro podpis)
+            </description>
+        </version>
+        <version>
+            <date>11.03.2025</date>
+            <number>0.9.9.4</number>
+            <description>
+
+                Změny:
+                - Propojení smlouvy
+                - Doplnění dalších parametrů ke zvířatům
+
+
+
+                Co je potřeba:
+                - přidat režim odstávky
+                - Zkontrolovat všechny odkazy jestli jsou OK zvlášť odkazy na fotky
+                - ADMIN: editor částí smluv (šablona smlouvy)
+                - ADMIN: kontrola smluv
+                - ADMIN: Hromadné zprávy
+                - ADMIN: Odpovědi na dotazy
+                - párování smlouvy
+                - archivace smlouvy
+                - pravidla pro adopce
+                - adopční podmínky - rozběhnutý proces poslaný mail
+                - Nastavit až bude správný účet
+
+                Rozvoj:
+                - Taby na profilu automaticky Switchovat
+                - Přidat taby (popořili jste, oblíbené azyly)
+                - Azyl může mít vlastní stránky na profilu (editace včetně fotek a podobně)
+                - Azyl by měl mít archív adopcí
+                - hodnocení adopce (adoptéra po adopci)
+
+                Nápady:
+                - podepisování smlouvy pomocí SMS (odeslání sms s kodem, zadání kódu pro podpis)
+            </description>
+        </version>
         <date>09.03.2025</date>
         <number>0.9.9.3</number>
         <description>

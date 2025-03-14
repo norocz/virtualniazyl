@@ -40,7 +40,6 @@ class Animal
     #[ORM\Column(type: 'integer', length: 255)]
     private int $howMuch;
 
-
     #[ORM\OneToMany(mappedBy: "animal", targetEntity: Adoption::class)]
     #[ORM\JoinColumn(name: "adoption_id", referencedColumnName: "id")]
     private ?Collection $adoption;
@@ -58,8 +57,6 @@ class Animal
     #[ORM\Column(type: 'string', length: 1024)]
     private string $description;
 
-    #[ORM\Column(type: 'datetime_immutable')]
-    private DateTimeImmutable $birthDate;
 
     #[ORM\Column(type: 'boolean')]
     private bool $toAdoption;
@@ -71,6 +68,19 @@ class Animal
 
     #[ORM\ManyToMany(targetEntity: Contracts::class, mappedBy: "animals")]
     private ?Collection $contracts;
+
+    #[ORM\Column(type: 'float', nullable: true)]
+    private ?float $height;  //výška
+    #[ORM\Column(type: 'float', nullable: true)]
+    private ?float $weight; //hmotnost
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
+    private ?string $signed;
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?DateTimeImmutable $birthdate;
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?DateTimeImmutable $reception;
+
+
 
     public function __construct()
     {
@@ -109,15 +119,10 @@ class Animal
 
     public function getAge(): ?int
     {
-        return $this->birthDate->diff(new DateTimeImmutable())->y;
-
+        return !is_null($this->birthdate) ? $this->birthdate->diff(new DateTimeImmutable())->y : null;
     }
 
-    public function setAge(int $age): Animal
-    {
-        $this->age = $age;
-        return $this;
-    }
+
 
     public function getBreed(): string
     {
@@ -173,14 +178,14 @@ class Animal
         return $this;
     }
 
-    public function getBirthDate(): DateTimeImmutable
+    public function getBirthdate(): ?DateTimeImmutable
     {
-        return $this->birthDate;
+        return $this->birthdate;
     }
 
-    public function setBirthDate(DateTimeImmutable $birthDate): Animal
+    public function setBirthdate(?DateTimeImmutable $birthdate): Animal
     {
-        $this->birthDate = $birthDate;
+        $this->birthdate = $birthdate;
         return $this;
     }
 
@@ -261,6 +266,62 @@ class Animal
         return $this;
     }
 
+    public function getContracts(): ?Collection
+    {
+        return $this->contracts;
+    }
+
+    public function setContracts(?Collection $contracts): Animal
+    {
+        $this->contracts = $contracts;
+        return $this;
+    }
+
+    public function getHeight(): ?float
+    {
+        return $this->height;
+    }
+
+    public function setHeight(?float $height): Animal
+    {
+        $this->height = $height;
+        return $this;
+    }
+
+    public function getWeight(): ?float
+    {
+        return $this->weight;
+    }
+
+    public function setWeight(?float $weight): Animal
+    {
+        $this->weight = $weight;
+        return $this;
+    }
+
+    public function getSigned(): ?string
+    {
+        return $this->signed;
+    }
+
+    public function setSigned(?string $signed): Animal
+    {
+        $this->signed = $signed;
+        return $this;
+    }
+
+    public function getReception(): ?DateTimeImmutable
+    {
+        return $this->reception;
+    }
+
+    public function setReception(?DateTimeImmutable $reception): Animal
+    {
+        $this->reception = $reception;
+        return $this;
+    }
+
+
     public function toArray(): array
     {
         return [
@@ -273,7 +334,8 @@ class Animal
             'adoptions' => $this->adoptions->toArray(),
             'name' => $this->name,
             'description' => $this->description,
-            'birthDate' => $this->birthDate->format('Y-m-d H:i:s'),
+            'birthdate' => $this->birthdate->format('Y-m-d H:i:s'),
+            'reception' => $this->reception->format('Y-m-d H:i:s'),
             'adopted' => $this->adopted,
             'isDeleted' => $this->isDeleted,
         ];
