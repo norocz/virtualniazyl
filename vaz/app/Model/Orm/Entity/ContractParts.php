@@ -109,12 +109,12 @@ class ContractParts
         return $this;
     }
 
-    public function getClosedAt(): DateTimeImmutable
+    public function getClosedAt(): ?DateTimeImmutable
     {
         return $this->closedAt;
     }
 
-    public function setClosedAt(DateTimeImmutable $closedAt): ContractParts
+    public function setClosedAt(?DateTimeImmutable $closedAt): ContractParts
     {
         $this->closedAt = $closedAt;
         return $this;

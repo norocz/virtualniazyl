@@ -385,16 +385,27 @@ class AzylPresenter extends BasePresenter
 
     public function handleStopCollection(int $key): void //TODO: platby a stopování sbírky
     {
+        $collection = $this->collectionsRepository->findOneByKey(intval($key));
+        $collection->setIsActive(false); //nastavit na vypnuto
+        $this->collectionsRepository->save($collection);
+        $this->flashMessage('Sbírka byla nastavena na neaktivní','alert-success');
+        if ($this->isAjax())
+        {
+            $this->redrawControl();
+        }
+        else
+        {
+            $this->redirect('this');
+        }
 
     }
 
     public function handleCollectionPayments(int $key): void
     {
-
-        $this->getTemplate()->payments = $this->collectionsRepository->findOneByKey($key)->getPayments();
+        $payments = $this->collectionsRepository->findOneByKey(intval($key))->getPayments();
+        $this->getTemplate()->payments = $this->collectionsRepository->findOneByKey(intval($key))->getPayments();
         if ($this->isAjax()) {
-            $this->getPresenter()->redrawControl('payments-' . $key);
-
+            $this->getPresenter()->redrawControl();
         }
     }
 
@@ -841,6 +852,9 @@ class AzylPresenter extends BasePresenter
         $this->redirect('this');
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
     #[NoReturn] public function animalFormSucceeded(Form $form, $values): void
     {
 
@@ -850,6 +864,10 @@ class AzylPresenter extends BasePresenter
 
             $animal = new Animal();
             $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
+            $city = $this->cityRepository->findCityById(intval($azyl->getCity()));
+            $cityName = $city->getCityName();
+            $region = $city->getRegion();
+            $office = $city->getCityOffice();
 
             $animal->setAzyl($azyl);
             $animal->setIsDeleted(false);
@@ -867,6 +885,8 @@ class AzylPresenter extends BasePresenter
             $animal->setWeight($values->weight);
             $animal->setMultiAdoption($values->multiAdoption);
             $animal->setReception($values->reception);
+            $tags = $cityName.' '.$region.' '.$office.' '.$values->name.' '.$values->breed.' '.$this->speciesRepository->findOneById($values->species);
+            $animal->setTags($tags);
             $this->animalsRepository->persist($animal);
             foreach ($values->photos as $photo) {
 

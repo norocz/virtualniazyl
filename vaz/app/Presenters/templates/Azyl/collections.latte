@@ -96,8 +96,9 @@
                                                 <a n:href="collectionPayments!, $collectionW->getCollectionKey()" class="btn btn-outline-warning btn-sm ajax">Platby</a>
 
                                             </div>
+                                            {ifset $payments}
                                             {snippet 'payments-'.$collectionW->getCollectionKey()}
-                                                {ifset $payments}
+
                                                     <div class="payments">
                                                         {foreach $payments as $payment}
                                                             {$payment->getPayedAt()->format('D:m:y H:m:s')} |
@@ -106,9 +107,10 @@
 
                                                         {/foreach}
                                                     </div>
+                                                {/snippet}
                                                 {/ifset}
 
-                                            {/snippet}
+
                                             <div class="card-footer">
 
                                                 Sdílet:

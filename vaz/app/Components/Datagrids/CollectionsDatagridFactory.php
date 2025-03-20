@@ -14,7 +14,7 @@ class CollectionsDatagridFactory extends DataGrid
 
     public function __construct(CollectionsRepository $collectionsRepository)
     {
-
+        parent::__construct();
         $this->collectionsRepository = $collectionsRepository;
     }
 

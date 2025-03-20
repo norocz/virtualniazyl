@@ -1,4 +1,26 @@
 <versions>
+    <version>
+        <date>20.03.2025</date>
+        <number>0.9.9.6</number>
+        <description>
+
+            Změny:
+            - zvyraznění typu adopce
+            - změna v DB pro souřadnice
+            - změna v DB pro vyhledávání a indexaci
+            - příprava na OpenSearch
+            - oprava chyby v detailu sbírky
+            - u sbírky vyřešen problém se sbírkou co už skončila
+
+
+            Chyby:
+            - virtualní adopce by měla vygenerovat QR kód
+            - provázat vlastnosti při vytváření adopce
+
+            Nápady:
+            - podepisování smlouvy pomocí SMS (odeslání sms s kodem, zadání kódu pro podpis)
+        </description>
+    </version>
        <version>
             <date>14.03.2025</date>
             <number>0.9.9.5</number>

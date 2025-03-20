@@ -5,6 +5,7 @@ namespace App\Presenters;
 
 use App\Components\Datagrids\AnimalsDatagridFactory;
 use App\Components\Datagrids\CitysDatagridFactory;
+use App\Components\Datagrids\ContractPartsDatagridFactory;
 use App\Components\Datagrids\PagesDatagridFactory;
 use App\Components\Datagrids\UsersDatagridFactory;
 use App\Components\Datagrids\SpeciesDatagridFactory;
@@ -23,6 +24,7 @@ use App\Model\Orm\Repository\adoptionsRepository;
 use App\Model\Orm\Repository\AnalyticsRepository;
 use App\Model\Orm\Repository\AnimalsRepository;
 use App\Model\Orm\Repository\CollectionsRepository;
+use App\Model\Orm\Repository\ContractPartsRepository;
 use App\Model\Orm\Repository\PageRepository;
 use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\UsersRepository;
@@ -47,10 +49,8 @@ class AdminPresenter extends BasePresenter
     private roleFormFactory $roleFormFactory;
     private UsersRepository $usersRepository;
     private EntityManagerInterface $entityManager;
-
     private PageFormFactory $pageFormFactory;
     private PageRepository $pageRepository;
-
 
     public function __construct(roleFormFactory                     $roleFormFactory,
                                 UsersRepository                     $usersRepository,
@@ -77,7 +77,9 @@ class AdminPresenter extends BasePresenter
                                 private PhotosRepository                $photosRepository,
                                 private readonly VersionService         $versionService,
                                 private readonly CollectionsRepository  $collectionsRepository,
-                                private readonly contractEditFormFactory $contractEditFormFactory,)
+                                private readonly contractEditFormFactory $contractEditFormFactory,
+                                private ContractPartsRepository $contractPartsRepository,
+                                private ContractPartsDatagridFactory $contractPartsDatagridFactory)
     {
         parent::__construct();
         $this->roleFormFactory = $roleFormFactory;
@@ -100,6 +102,7 @@ class AdminPresenter extends BasePresenter
 
         $this->usersDatagridFactory = $usersDatagridFactory;
         $this->photosRepository = $photosRepository;
+        $this->contractPartsDatagridFactory = $contractPartsDatagridFactory;
 
     }
 
@@ -532,6 +535,14 @@ class AdminPresenter extends BasePresenter
 
     }
 
+
+        public function actionContractparts(?int $id):void
+        {
+
+            $this->getTemplate()->title = 'Smlouvy';
+            $this->getTemplate()->contracts = $this->contractPartsRepository->fetchAll();
+
+        }
     public function createComponentOwnersDatagrid(): DataGrid
     {
         $grid = new UsersDatagridFactory($this->usersRepository);
@@ -680,12 +691,18 @@ class AdminPresenter extends BasePresenter
         $contractPart = new ContractParts();
         $contractPart->setName($values->name);
         $contractPart->setContent($values->content);
-        $contractPart->setPartNumber($values->partNumber);
+        $contractPart->setPartNumber(1);
         $contractPart->setCreatedAt(new DateTimeImmutable());
-        $contractPart->setClosedAt(null);
+        $contractPart->setClosedAt(new DateTimeImmutable($values->closedAt->format('Y-m-d')));
         $contractPart->setInUsage(false);
 
-        $this->contracPartsRepository->save($contractPart);
+        $this->contractPartsRepository->save($contractPart);
+    }
+
+    public function createComponentContractPartsDatagrid(): DataGrid
+    {
+        $datagrid = $this->contractPartsDatagridFactory->create();
+        return $datagrid;
     }
 
 }

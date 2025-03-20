@@ -1,5 +1,3 @@
-version: '3.9'
-
 networks:
   mynet:
 
@@ -42,4 +40,3 @@ services:
       - database
     networks:
       - mynet
-

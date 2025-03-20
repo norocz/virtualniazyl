@@ -13,6 +13,26 @@
     }
     .autohor-name { background-color: #9da9bb}
 
+    .bg-adopce-1 {
+        background: linear-gradient(to right, #f8cdd6, #f48aa2);
+        color: #1a1a1a;
+    }
+
+    .bg-adopce-2 {
+        background: linear-gradient(to right, #d4eaff, #74a9ff);
+        color: #1a1a1a;
+    }
+
+    .bg-adopce-3 {
+        background: linear-gradient(to right, #c8f7c5, #5fb760);
+        color: #1a1a1a;
+    }
+
+    .bg-adopce-4 {
+        background: linear-gradient(to right, #fff2cc, #f1c40f);
+        color: #1a1a1a;
+    }
+
 </style>
 <main class="main" id="top">
     <div class="bg">
@@ -70,6 +90,18 @@
                                     {/if}
                                     <h5 class="card-header">{$adoption->getName()}</h5>
                                     <div class="card-body">
+                                        <div class="
+                                                {switch $adoption->getAdoptionType()}
+                                                {case 'Virtuální adopce'} bg-adopce-1
+                                                {case 'Dočasná péče'} bg-adopce-2
+                                                {case 'Předadopce'} bg-adopce-3
+                                                {case 'Plná adopce'} bg-adopce-4
+                                                {default} bg-default
+                                                {/switch}
+                                                large p-1 border-2 bold rounded-1">
+
+                                            {$adoption->getAdoptionType()}
+                                        </div>
                                         {var $now = new DateTimeImmutable()}
                                         {var $interval = date_diff($vek = $adoption->getBirthdate(), $now)}
 

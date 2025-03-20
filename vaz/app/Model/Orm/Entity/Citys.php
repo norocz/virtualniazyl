@@ -38,6 +38,12 @@ class Citys
     #[ORM\Column(type: 'string', length: 5)]
     private string $psc;
 
+    #[ORM\Column(type: 'decimal', precision: 9, scale: 6, nullable: true)]
+    private ?float $latitude;
+
+    #[ORM\Column(type: 'decimal', precision: 9, scale: 6, nullable: true)]
+    private ?float $longitude;
+
 
     public function __construct()
     {
@@ -93,6 +99,30 @@ class Citys
         $this->psc = $psc;
         return $this;
     }
+
+    public function getLatitude(): ?float
+    {
+        return $this->latitude;
+    }
+
+    public function setLatitude(?float $latitude): Citys
+    {
+        $this->latitude = $latitude;
+        return $this;
+    }
+
+    public function getLongitude(): ?float
+    {
+        return $this->longitude;
+    }
+
+    public function setLongitude(?float $longitude): Citys
+    {
+        $this->longitude = $longitude;
+        return $this;
+    }
+
+
 
 
 }

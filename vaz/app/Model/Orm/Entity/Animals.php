@@ -80,6 +80,9 @@ class Animal
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?DateTimeImmutable $reception;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $tags;
+
 
 
     public function __construct()
@@ -340,4 +343,17 @@ class Animal
             'isDeleted' => $this->isDeleted,
         ];
     }
+
+    public function getTags(): ?string
+    {
+        return $this->tags;
+    }
+
+    public function setTags(?string $tags): Animal
+    {
+        $this->tags = $tags;
+        return $this;
+    }
+
+
 }

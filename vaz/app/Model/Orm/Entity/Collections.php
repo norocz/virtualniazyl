@@ -24,7 +24,7 @@ class Collections
     #[ORM\ManyToOne(targetEntity: Users::class, cascade: ['persist'], inversedBy: 'users')]
     private ?Users $user;
 
-    #[ORM\OneToMany(mappedBy: 'collection', targetEntity: Payments::class, cascade: ['persist'])]
+    #[ORM\OneToMany(mappedBy: 'collections', targetEntity: Payments::class, cascade: ['persist'])]
     private ?Collection $payments;
 
     #[ORM\Column(type: 'datetime_immutable')]

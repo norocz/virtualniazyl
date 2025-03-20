@@ -58,6 +58,26 @@
         border-radius: 5px;
     }
 
+    .bg-adopce-1 {
+        background: linear-gradient(to right, #f8cdd6, #f48aa2);
+        color: #1a1a1a;
+    }
+
+    .bg-adopce-2 {
+        background: linear-gradient(to right, #d4eaff, #74a9ff);
+        color: #1a1a1a;
+    }
+
+    .bg-adopce-3 {
+        background: linear-gradient(to right, #c8f7c5, #5fb760);
+        color: #1a1a1a;
+    }
+
+    .bg-adopce-4 {
+        background: linear-gradient(to right, #fff2cc, #f1c40f);
+        color: #1a1a1a;
+    }
+
 
 </style>
 
@@ -72,7 +92,7 @@
                         <div class="card azyl-card text-dark bg-light-subtle border-100">
                             <h5 class="card-header">{$adopce->getAzyl()->getAzylName()}</h5>
                             <div class="card-body">
-                                <p class="card-text">{$adopce->getAzyl()->getDescription()|noescape}</p>
+                                <p class="card-text">{$adopce->getAzyl()->getShortDescription()|noescape}</p>
                                 {if $adopce->getHowMuch() > 1 && $adopce->getMultiAdoption() == true}
                                 {var $multiAdopce = true}
                                 {else}
@@ -87,10 +107,29 @@
                 </div>
                 <div class="col-xl-8 col-sm-12 flex-column bg-light p-3 text-dark m-2">
                     <div class="animal-info">
+                        <div class="
+                                {switch $adopce->getAdoptionType()}
+                                {case 'Virtuální adopce'} bg-adopce-1
+                                {case 'Dočasná péče'} bg-adopce-2
+                                {case 'Předadopce'} bg-adopce-3
+                                {case 'Plná adopce'} bg-adopce-4
+                                {default} bg-default
+                                {/switch}
+                                large p-1 border-2 bold rounded-1">
+
+                            {$adopce->getAdoptionType()}
+                        </div>
+
                         {var $now = new DateTimeImmutable()}
                                         {var $interval = date_diff($vek = $adopce->getBirthdate(), $now)}
                       <h3>  {$adopce->getSpecies()->getName()} jménem {$adopce->getName()}</h3>
                         <h5>Věk: {$interval->y}, plemeno: {$adopce->getBreed()}</h5>
+                         {if !is_null($adopce->getHeight())}
+                            Výška: {$adopce->getHeight()} cm <br>
+                        {/if}
+                                            {if !is_null($adopce->getWeight())}
+                            Hmotnost: {$adopce->getWeight()} Kg <br>
+                        {/if}
                         <p>{$adopce->getDescription()|noescape}</p>
                         {if $multiAdopce}
                         <p class = "bg-warning p-2">Pozor je tu možnost adoptovat více zvířat najednou (například nenarozená štěňátka). Počet míst ve Vašem srdci můžete nastavit níže.</p>
@@ -163,7 +202,16 @@
                        </div>
                            <div class="col-xl-12 col-sm-12">
                         <div class="form-group">
-                            <button n:name="sendAdoption" class="btn btn-outline-primary ajax">Nabídnout domov 🥹</button>
+                            <button n:name="sendAdoption" class="btn btn-outline-primary ajax">
+
+                                {switch $adopce->getAdoptionType()}
+                                    {case 'Virtuální adopce'} Virtuálně adoptovat 🥹
+                                    {case 'Dočasná péče'} Nabídnout dočasný domov 🥹
+                                    {case 'Předadopce'} Nabídnout domov 🥹
+                                    {case 'Plná adopce'} Nabídnout domov 🥹
+                                    {default} bg-default
+                                {/switch}
+                            </button>
                         </div>
                        </div>
 
@@ -175,8 +223,6 @@
                         {if $adopt->getActionType() == 'Ověření'}
 
                             <span class="big-message"><h3>Azyl Vaší nabídku přijal!</h3></span>
-
-
 
                             <h4 >Adopční smlouva - čtěte pozorně!</h4>
                             <div class="bg-light m-1 p-1" style="overflow-y: auto; max-height: 40vh;">
