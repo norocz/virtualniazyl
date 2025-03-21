@@ -722,28 +722,21 @@ class AdminPresenter extends BasePresenter
         if($this->getPresenter()->getParameter('id') !== null) {
             $contract = $this->contractPartsRepository->findOneById(intval($this->getPresenter()->getParameter('id')));
 
-            if ($contract) {
-            $form->setDefaults([
-                'name' => $contract->getName(),
-                'content' => $contract->getContent(),
-                'closedAt' => $contract->getClosedAt(),
-
-            ]);
-
-            $form->addHidden('id',intval($this->getPresenter()->getParameter('id')));
-            }
-
-
+                if ($contract) {
+                $form->setDefaults([
+                    'name' => $contract->getName(),
+                    'content' => $contract->getContent(),
+                    'closedAt' => $contract->getClosedAt(),
+                ]);
+                $form->addHidden('id',intval($this->getPresenter()->getParameter('id')));
+                }
         }
-
-
         $form->onSuccess[] = [$this, 'contractEditFormSucceeded'];
         return $form;
     }
 
     public function contractEditFormSucceeded(Form $form, \stdClass $values): void
     {
-
         $contractPart = new ContractParts();
         $contractPart->setName($values->name);
         $contractPart->setContent($values->content);
@@ -760,7 +753,7 @@ class AdminPresenter extends BasePresenter
             $oldContract->setClosedAt(new DateTimeImmutable());
             $this->contractPartsRepository->persist($oldContract);
             $contractPart->setOldVersion($oldContract);
-            $this->flashMessage('Smlouva byla púřesunuta do archivu a je vytvořena nová verze', 'alert-success');
+            $this->flashMessage('Smlouva byla přesunuta do archivu a je vytvořena nová verze', 'alert-success');
             }
         $this->contractPartsRepository->persist($contractPart);
         $this->contractPartsRepository->flush();
@@ -789,7 +782,7 @@ class AdminPresenter extends BasePresenter
         }
         else
         {
-            $this->redirect('this');
+            $this->redirect('admin:contractparts');
         }
 
     }
