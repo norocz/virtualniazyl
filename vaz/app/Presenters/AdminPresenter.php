@@ -383,6 +383,11 @@ class AdminPresenter extends BasePresenter
     {
 
     }
+    public function actionContractsParts()
+    {
+        $this->getTemplate()->title = 'Contracts';
+       // $this->getTemplate()->contracts = $this->contractPartsRepository->findAll();
+    }
 
     public function actionContracts()
     {
