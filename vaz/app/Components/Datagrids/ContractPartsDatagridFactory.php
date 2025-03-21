@@ -21,9 +21,9 @@ class ContractPartsDatagridFactory
     /**
      * @throws DataGridException
      */
-    public function create(): void
+    public function create(): DataGrid
     {
-        $data = $this->contractPartsRepository->fetchAll();
+        $data = $this->contractPartsRepository->fetchAllDatagrid();
         $datagrid = new DataGrid();
         $datagrid->setTranslator((new SimpleTranslator([
             'ublaboo_datagrid.no_item_found_reset' => 'Žádné položky nenalezeny. Filtr můžete vynulovat',
@@ -59,9 +59,15 @@ class ContractPartsDatagridFactory
             ->setIcon('trash')
             ->setClass('btn btn-sm btn-danger')
             ->setConfirmation(new CallbackConfirmation(
-                function($item) {return 'Opravdu chcete smlouvu zneplatnit?'.$item->getTitle().'??';}
+                function($item) {return 'Opravdu chcete smlouvu zneplatnit?'.$item->getName().'??';}
             ));
 
+        return $datagrid;
+    }
+
+    public function handleContractPartClose(int $id): void
+    {
+        bdump($id);
     }
 
 

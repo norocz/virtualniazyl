@@ -33,9 +33,15 @@ use App\Model\VersionService;
 use App\Repository\SpeciesRepository;
 use App\Services\MessagesService;
 use Contributte\Application\UI\BasePresenter;
+use Contributte\PdfResponse\PdfResponse;
+use Contributte\PdfResponse\PdfResponseFactory;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use Latte\Engine;
+use Latte\Loaders\StringLoader;
+use Latte\Runtime\Template;
 use Nette\Application\UI\Form;
+use setasign\Fpdi\PdfReader\PdfReader;
 use Ublaboo\DataGrid\DataGrid;
 use Ublaboo\DataGrid\Exception\DataGridException;
 use App\Components\Datagrids\NewsDatagridFactory;
@@ -79,7 +85,8 @@ class AdminPresenter extends BasePresenter
                                 private readonly CollectionsRepository  $collectionsRepository,
                                 private readonly contractEditFormFactory $contractEditFormFactory,
                                 private ContractPartsRepository $contractPartsRepository,
-                                private ContractPartsDatagridFactory $contractPartsDatagridFactory)
+                                private ContractPartsDatagridFactory $contractPartsDatagridFactory,
+                                private PdfResponseFactory $pdfResponseFactory)
     {
         parent::__construct();
         $this->roleFormFactory = $roleFormFactory;
@@ -103,6 +110,7 @@ class AdminPresenter extends BasePresenter
         $this->usersDatagridFactory = $usersDatagridFactory;
         $this->photosRepository = $photosRepository;
         $this->contractPartsDatagridFactory = $contractPartsDatagridFactory;
+        $this->pdfResponseFactory = $pdfResponseFactory;
 
     }
 
@@ -376,6 +384,36 @@ class AdminPresenter extends BasePresenter
 
     }
 
+    public function actionContracts()
+    {
+        $this->getTemplate()->title = 'Contracts';
+        $this->getTemplate()->contracts = $this->contractPartsRepository->findAll();
+    }
+
+    public function actionContractPdf($contractId) //PDF creator
+    {
+        $params = ['predavajici' => 'Předávající',
+            'zadatel' => 'Jméno Příjmení',
+            'zvire' => 'TADY JE Jmeno zvířete',
+            'druh_zvirete' => 'DRUH',
+            'vek_zvirete' => 'Věk',
+            'datum_pece' => 'Přijmuto',
+            'zdravotni_stav' => 'Zdravotní stav',
+            'datum_vlastnictvi' => date('Y-m-d'),
+            'misto' => 'Ostopovice',
+            'datum' => date('Y-m-d')
+        ];
+        $template = new Engine();
+        $template->setTempDirectory(__DIR__ . '/../../temp');
+        $template->setLoader(new StringLoader(['string' => $this->contractPartsRepository->findOneById(intval($contractId))->getContent()]));
+        $toPDF = $template->renderToString('string', $params);
+        $response = $this->pdfResponseFactory->createResponse();
+        $response->setTemplate($toPDF);
+        $response->setSaveMode(PdfResponse::INLINE);
+
+        $this->sendResponse($response);
+    }
+
     public function actionPage(?int $id): void
     {
         $this->getTemplate()->Title = 'Pages';
@@ -538,9 +576,8 @@ class AdminPresenter extends BasePresenter
 
         public function actionContractparts(?int $id):void
         {
-
             $this->getTemplate()->title = 'Smlouvy';
-            $this->getTemplate()->contracts = $this->contractPartsRepository->fetchAll();
+            $this->getTemplate()->contracts = $this->contractPartsRepository->findAll();
 
         }
     public function createComponentOwnersDatagrid(): DataGrid
@@ -682,27 +719,79 @@ class AdminPresenter extends BasePresenter
     public function createComponentContractEditForm(): Form
     {
         $form = $this->contractEditFormFactory->create();
+        if($this->getPresenter()->getParameter('id') !== null) {
+            $contract = $this->contractPartsRepository->findOneById(intval($this->getPresenter()->getParameter('id')));
+
+            if ($contract) {
+            $form->setDefaults([
+                'name' => $contract->getName(),
+                'content' => $contract->getContent(),
+                'closedAt' => $contract->getClosedAt(),
+
+            ]);
+
+            $form->addHidden('id',intval($this->getPresenter()->getParameter('id')));
+            }
+
+
+        }
+
+
         $form->onSuccess[] = [$this, 'contractEditFormSucceeded'];
         return $form;
     }
 
     public function contractEditFormSucceeded(Form $form, \stdClass $values): void
     {
+
         $contractPart = new ContractParts();
         $contractPart->setName($values->name);
         $contractPart->setContent($values->content);
         $contractPart->setPartNumber(1);
         $contractPart->setCreatedAt(new DateTimeImmutable());
-        $contractPart->setClosedAt(new DateTimeImmutable($values->closedAt->format('Y-m-d')));
-        $contractPart->setInUsage(false);
+        $contractPart->setClosedAt( is_null($values->closedAt) ? null : new DateTimeImmutable($values->closedAt->format('Y-m-d')));
+        $contractPart->setInUsage(true);
+        $this->contractPartsRepository->persist($contractPart);
 
-        $this->contractPartsRepository->save($contractPart);
+        if (isset($values->id) && !is_null($values->id))
+            {
+            $oldContract = $this->contractPartsRepository->findOneById(intval($this->getPresenter()->getParameter('id')));
+            $oldContract->setInUsage(false);
+            $oldContract->setClosedAt(new DateTimeImmutable());
+            $this->contractPartsRepository->persist($oldContract);
+            $contractPart->setOldVersion($oldContract);
+            $this->flashMessage('Smlouva byla púřesunuta do archivu a je vytvořena nová verze', 'alert-success');
+            }
+        $this->contractPartsRepository->persist($contractPart);
+        $this->contractPartsRepository->flush();
+        $this->flashMessage('Smlouva byla uložena', 'alert-success');
+        $this->redirect('admin:contractparts');
     }
 
     public function createComponentContractPartsDatagrid(): DataGrid
     {
         $datagrid = $this->contractPartsDatagridFactory->create();
         return $datagrid;
+    }
+
+    public function handleContractPartClose(int $id): void
+    {
+        $oldContract = $this->contractPartsRepository->findOneById(intval($id));
+        $oldContract->setInUsage(false);
+        $oldContract->setClosedAt(new DateTimeImmutable());
+        $this->contractPartsRepository->persist($oldContract);
+        $this->contractPartsRepository->flush();
+        $this->flashMessage('Smlouva byla nastavena jako nepoužívaná', 'alert-success');
+        if($this->isAjax())
+        {
+            $this->redrawControl('datagrid');
+
+        }
+        else
+        {
+            $this->redirect('this');
+        }
+
     }
 
 }

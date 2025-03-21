@@ -5,6 +5,15 @@
         {control contractPartsDatagrid}
     {/snippet}
 
+    {foreach $contracts as $contract}
+        <div class="contract-part">
+            <div class="contract-name"><a target="_blank" href="{link admin:contractPdf, $contract->getId() }">{$contract->getName()}</a></div>
+            <div class="contract-content">
+                {$contract->getContent()|truncate:40}
+            </div>
+        </div>
+
+    {/foreach}
 {/block}
 
 {block scripts}

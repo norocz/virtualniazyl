@@ -1,6 +1,6 @@
 <versions>
     <version>
-        <date>20.03.2025</date>
+        <date>21.03.2025</date>
         <number>0.9.9.6</number>
         <description>
 
@@ -11,6 +11,8 @@
             - příprava na OpenSearch
             - oprava chyby v detailu sbírky
             - u sbírky vyřešen problém se sbírkou co už skončila
+            - Generátor HTML->PDF pro smlouvy
+            - Automatická archivace smluv a její návaznost (vazba na minulou verzi).
 
 
             Chyby:

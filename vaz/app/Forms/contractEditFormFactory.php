@@ -12,7 +12,7 @@ class contractEditFormFactory extends Form
 
         $form->addText('name', 'Jmeno smlouvy:')
             ->setHtmlAttribute('class', 'form-control');
-        $form->addDate('closedAt','Platnost:')
+        $form->addDate('closedAt','Platnost do:')
             ->setHtmlAttribute('class', 'form-control');
 
         $form->addTextArea('content', 'Smlouva:')

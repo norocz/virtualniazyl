@@ -19,6 +19,10 @@ services:
 	- App\Model\Orm\Entity\UsersRatings
 	- App\Model\Orm\Entity\Analytics
 	- App\Model\Orm\Entity\SystemSettings
+	- App\Model\Orm\Entity\Collections
+	- App\Model\Orm\Entity\Conversations
+	- App\Model\Orm\Entity\ContractParts
+
 	- App\Command\Test
 
 	##Enum##
@@ -42,6 +46,7 @@ services:
 	- App\Model\Orm\Repository\MessagesRepository
 	- App\Model\Orm\Repository\FirewallLogsRepository
 	- App\Model\Orm\Repository\SystemSetingsRepository
+	- App\Model\Orm\Repository\ContractPartsRepository
 
 	- App\Presenters\UserPresenter
 	- App\Model\VersionService('%appDir%/xml/versions.xml')
@@ -63,6 +68,7 @@ services:
 	    factory: App\Services\IpInfoService(%tempDir%)
 	emailService:
 	    factory: App\Services\EmailService(%smtp%)
+	- Contributte\PdfResponse\PdfResponseFactory([tempDir: %tempDir%])
 
 search:
 	-	in: %appDir%

@@ -40,8 +40,8 @@ class ContractParts
     private Collection $contracts;
 
     #[ORM\OneToOne(targetEntity: ContractParts::class)]
-    #[ORM\Column(nullable: true)]
-    private ?ContractParts $oldVersion;
+    #[ORM\JoinColumn(nullable: true)]
+    private ?ContractParts $oldVersion = null;
 
     public function getId(): int
     {

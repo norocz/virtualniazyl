@@ -88,6 +88,14 @@
       <excludeFolder url="file://$MODULE_DIR$/vaz/vendor/nepada/phone-number-doctrine" />
       <excludeFolder url="file://$MODULE_DIR$/vaz/vendor/symfony/type-info" />
       <excludeFolder url="file://$MODULE_DIR$/vaz/vendor/necris/selectt" />
+      <excludeFolder url="file://$MODULE_DIR$/vaz/vendor/contributte/pdf" />
+      <excludeFolder url="file://$MODULE_DIR$/vaz/vendor/mpdf/mpdf" />
+      <excludeFolder url="file://$MODULE_DIR$/vaz/vendor/mpdf/psr-http-message-shim" />
+      <excludeFolder url="file://$MODULE_DIR$/vaz/vendor/mpdf/psr-log-aware-trait" />
+      <excludeFolder url="file://$MODULE_DIR$/vaz/vendor/myclabs/deep-copy" />
+      <excludeFolder url="file://$MODULE_DIR$/vaz/vendor/paragonie/random_compat" />
+      <excludeFolder url="file://$MODULE_DIR$/vaz/vendor/psr/http-message" />
+      <excludeFolder url="file://$MODULE_DIR$/vaz/vendor/setasign/fpdi" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
