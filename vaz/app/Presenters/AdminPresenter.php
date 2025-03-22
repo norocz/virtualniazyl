@@ -559,10 +559,10 @@ class AdminPresenter extends BasePresenter
         $grid = new UsersDatagridFactory($this->usersRepository);
         $grid->setPresenter($this->getPresenter());
 
-        $grid->create(); // upraví instanci, nepřepíše ji novým objektem
-        $grid->setDataSource($this->usersRepository->findBy(['role' => RoleTypeEnum::ROLE_AZYL]));
+       $dataGrid =  $grid->create(); // upraví instanci, nepřepíše ji novým objektem
+       $dataGrid->setDataSource($this->usersRepository->findBy(['role' => RoleTypeEnum::ROLE_AZYL]));
 
-        return $grid;
+        return $dataGrid;
 
     }
 
@@ -571,10 +571,10 @@ class AdminPresenter extends BasePresenter
         $grid = new UsersDatagridFactory($this->usersRepository);
         $grid->setPresenter($this->getPresenter());
 
-        $grid->create(); // upraví instanci, nepřepíše ji novým objektem
-        $grid->setDataSource($this->usersRepository->findBy(['role' => RoleTypeEnum::ROLE_GUEST]));
+        $dataGrid = $grid->create(); // upraví instanci, nepřepíše ji novým objektem
+        $dataGrid->setDataSource($this->usersRepository->findBy(['role' => RoleTypeEnum::ROLE_GUEST]));
 
-        return $grid;
+        return $dataGrid;
 
     }
 
@@ -589,10 +589,11 @@ class AdminPresenter extends BasePresenter
     {
         $grid = new UsersDatagridFactory($this->usersRepository);
         $grid->setPresenter($this->getPresenter());
-        $grid->setDatasource($this->usersRepository->findAll());
-        $grid->create(); // upraví instanci, nepřepíše ji novým objektem
+        $dataGrid =  $grid->create(); // upraví instanci, nepřepíše ji novým objektem
+        $dataGrid->setDatasource($this->usersRepository->findAll());
 
-        return $grid;
+
+        return $dataGrid;
     }
     public function handleEditUser($id) : void
     {

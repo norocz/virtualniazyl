@@ -1,5 +1,25 @@
 <versions>
     <version>
+        <date>23.03.2025</date>
+        <number>0.9.9.7 RC1</number>
+        <description>
+
+            Změny:
+            - opravená šablona profilu
+            - SuperAdmin zpracování uživatelů (změna role)
+            - refaktorování UserDatagrid
+            - refaktorizace Admin User, Owner a Azyl
+
+
+            Chyby:
+            - virtualní adopce by měla vygenerovat QR kód
+            - provázat vlastnosti při vytváření adopce
+
+            Nápady:
+            - podepisování smlouvy pomocí SMS (odeslání sms s kodem, zadání kódu pro podpis)
+        </description>
+    </version>
+    <version>
         <date>21.03.2025</date>
         <number>0.9.9.6</number>
         <description>

@@ -34,8 +34,10 @@ private RoleTypeEnum $roleTypeEnum;
      * @throws DataGridException
      * @throws DataGridColumnStatusException
      */
-    public function create(): void
+    public function create(): DataGrid
     {
+        $grid = new DataGrid();
+
         $translator = new SimpleTranslator([
             'ublaboo_datagrid.no_item_found_reset' => 'Žádné položky nenalezeny. Filtr můžete vynulovat',
             'ublaboo_datagrid.no_item_found' => 'Žádné položky nenalezeny.',
@@ -58,23 +60,23 @@ private RoleTypeEnum $roleTypeEnum;
             'Name' => 'Jméno',
             'Inserted' => 'Vloženo'
         ]);
-        $this->setTranslator($translator);
+        $grid->setTranslator($translator);
 
 
-        $this->setRememberState(false);
-        $this->setDataSource($this->usersRepository->findBy(['role' => [RoleTypeEnum::ROLE_AZYL, RoleTypeEnum::ROLE_USER, RoleTypeEnum::ROLE_ADOPTER, RoleTypeEnum::ROLE_GUEST, RoleTypeEnum::ROLE_OWNER, RoleTypeEnum::ROLE_REVIEWER]]));
+        $grid->setRememberState(false);
+        $grid->setDataSource($this->usersRepository->findBy(['role' => [RoleTypeEnum::ROLE_AZYL, RoleTypeEnum::ROLE_USER, RoleTypeEnum::ROLE_ADOPTER, RoleTypeEnum::ROLE_GUEST, RoleTypeEnum::ROLE_OWNER, RoleTypeEnum::ROLE_REVIEWER]]));
 
-        $this->addColumnText('id', 'ID')
+        $grid->addColumnText('id', 'ID')
             ->setDefaultHide(true)
             ->setSortable();
-        $this->addColumnText('userName', 'Uživatelské jméno')
+        $grid->addColumnText('userName', 'Uživatelské jméno')
             ->setSortable()
             ->setFilterText();
-        $this->addColumnText('email', 'Email')
+        $grid->addColumnText('email', 'Email')
             ->setSortable()
             ->setFilterText();
 
-        $this->addColumnStatus('verified', 'Ověřený')
+        $grid->addColumnStatus('verified', 'Ověřený')
               ->setTemplate(__DIR__ .'/templates/column_status.latte')
             ->setRenderer(function ($item) {return $item->getVerified() ? 'Ano' : 'Ne';})
             ->setSortable()
@@ -89,7 +91,7 @@ private RoleTypeEnum $roleTypeEnum;
               ->endOption()
             ->onChange[] = [$this, 'updateVerifiedState'];
 
-        $this->addColumnStatus('deleted', 'Smazán')
+        $grid->addColumnStatus('deleted', 'Smazán')
             ->setTemplate(__DIR__ .'/templates/column_status.latte')
             ->addOption(true, 'Ano')
             ->setClass('btn-sm btn-warning')
@@ -100,9 +102,9 @@ private RoleTypeEnum $roleTypeEnum;
             ->setIcon('fa fa-times')
             ->setConfirmation(new StringConfirmation('Chcete nastavit stav ne?'))
             ->endOption()
-            ->onChange[] = [$this, 'updateDletedState'];
+            ->onChange[] = [$this, 'updateDeletedState'];
 
-        $this->addColumnStatus('baned' , 'Ban?')
+        $grid->addColumnStatus('baned' , 'Ban?')
             ->setTemplate(__DIR__ .'/templates/column_status.latte')
             ->setRenderer(function ($item) {return $item->isBaned() ? 'Ano' : 'Ne';})
             ->setSortable()
@@ -117,7 +119,8 @@ private RoleTypeEnum $roleTypeEnum;
             ->setConfirmation(new StringConfirmation('Chcete nastavit stav ne?'))
             ->endOption()
             ->onChange[] = [$this, 'updateBanState'];
-        $this->addColumnStatus('mailverified', 'Email')
+
+        $grid->addColumnStatus('mailverified', 'Email')
             ->setTemplate(__DIR__ .'/templates/column_status.latte')
             ->setRenderer(function ($item) {return $item->isMeilVerified() ? 'Ano' : 'Ne';})
             ->setSortable()
@@ -132,7 +135,7 @@ private RoleTypeEnum $roleTypeEnum;
             ->setConfirmation(new StringConfirmation('Chcete nastavit stav ne?'))
             ->endOption()
             ->onChange[] = [$this, 'updateMailVerifiedState'];
-        $this->addColumnStatus('phoneverified', 'Telefon ověřen')
+        $grid->addColumnStatus('phoneverified', 'Telefon ověřen')
             ->setTemplate(__DIR__ .'/templates/column_status.latte')
            // ->setRenderer(function ($item) {return $item->isPhoneVerified() ? 'Ano' : 'Ne';})
            // ->setSortable()
@@ -148,23 +151,24 @@ private RoleTypeEnum $roleTypeEnum;
                     ->endOption()
             ->onChange[] = [$this, 'updatePhoneVerifiedState'];
 
-        $this->addColumnDateTime('created_at', 'Registrace')
+        $grid->addColumnDateTime('created_at', 'Registrace')
             ->setFormat(format: 'd.m.Y H:i:s')
             ->setSortable()
             ->setFilterDate();
-        $this->addColumnDateTime('updated_at', 'Aktualizace')
+        $grid->addColumnDateTime('updated_at', 'Aktualizace')
             ->setFormat(format: 'd.m.Y H:i:s')
             ->setSortable()
             ->setFilterDate();
 
-        $this->addAction('edit', '', 'editUser!')
+        $grid->addAction('edit', '', 'editUser!')
             ->setIcon('pencil-alt')
             ->setClass('btn btn-sm btn-primary');
-        $this->addAction('delete', '', 'deleteUser!')
+        $grid->addAction('delete', '', 'deleteUser!')
             ->setIcon('trash')
             ->setClass('btn btn-sm btn-danger')
             ->addAttributes(['data-confirm' => 'Skutečně chcete smazat uživatele?']);
 
+        return $grid;
     }
 
     public function updateVerifiedState($id, string $newValue): void
@@ -241,7 +245,7 @@ private RoleTypeEnum $roleTypeEnum;
 
     }
 
-    public function updateDletedState($id, string $newValue): void
+    public function updateDeletedState($id, string $newValue): void
     {
         $user = $this->usersRepository->findOneBy(['id' => intval($id)]);
         $user -> setDeleted(boolval($newValue));

@@ -5,15 +5,18 @@ namespace App\Presenters;
 
 
 use App\Components\Datagrids\CollectionsDatagridFactory;
+use App\Components\Datagrids\UsersDatagridFactory;
 use App\Forms\collectionFormFactory;
 use App\Forms\systemSettingsFormFactory;
 use App\Model\Orm\Entity\SystemSettings;
+use App\Model\Orm\Enums\RoleTypeEnum;
 use App\Model\Orm\Repository\AnalyticsRepository;
 use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\CollectionsRepository;
 use App\Model\Orm\Repository\FirewallLogsRepository;
 use App\Model\Orm\Repository\PhotosRepository;
 use App\Model\Orm\Repository\SystemSetingsRepository;
+use App\Model\Orm\Repository\UsersRepository;
 use App\Services\IpInfoService;
 use Contributte\Application\UI\BasePresenter;
 use DateTimeImmutable;
@@ -24,7 +27,9 @@ use App\Forms\setAzylFormFactory;
 use Nette\Security\AuthenticationException;
 use Nette\Security\SimpleIdentity;
 use Nette\Utils\Paginator;
+use Ublaboo\DataGrid\Column\Action\Confirmation\StringConfirmation;
 use Ublaboo\DataGrid\DataGrid;
+use Ublaboo\DataGrid\Exception\DataGridColumnStatusException;
 use Ublaboo\DataGrid\Exception\DataGridException;
 
 class SuperAdminPresenter extends BasePresenter
@@ -41,17 +46,25 @@ class SuperAdminPresenter extends BasePresenter
     private collectionsDatagridFactory $collectionsDatagridFactory;
     private PhotosRepository $photosRepository;
     private SystemSetingsRepository $systemSetingsRepository;
-    public function __construct(setAzylFormFactory $setAzylFormFactory,
-                                azylRepository $azylRepository,
-                                firewallLogsRepository $firewallLogsRepository,
-                                analyticsRepository $analyticsRepository,
-                                ipInfoService $ipInfoService,
-                                systemSettingsFormFactory $systemSettingsFormFactory,
-                                collectionFormFactory $collectionFormFactory,
-                                CollectionsRepository $collectionsRepository,
-                                PhotosRepository     $photosRepository,
+
+    private UsersDatagridFactory $usersDatagridFactory;
+    private UsersRepository $usersRepository;
+    private RoleTypeEnum $roleTypeEnum;
+
+    public function __construct(setAzylFormFactory         $setAzylFormFactory,
+                                azylRepository             $azylRepository,
+                                firewallLogsRepository     $firewallLogsRepository,
+                                analyticsRepository        $analyticsRepository,
+                                ipInfoService              $ipInfoService,
+                                systemSettingsFormFactory  $systemSettingsFormFactory,
+                                collectionFormFactory      $collectionFormFactory,
+                                CollectionsRepository      $collectionsRepository,
+                                PhotosRepository           $photosRepository,
                                 CollectionsDatagridFactory $collectionsDatagridFactory,
-                                SystemSetingsRepository $systemSetingsRepository,)
+                                SystemSetingsRepository    $systemSetingsRepository,
+                                UsersDatagridFactory       $usersDatagridFactory,
+                                UsersRepository            $usersRepository,
+                                RoleTypeEnum               $roleTypeEnum)
     {
         parent::__construct();
         $this->setAzylFormFactory = $setAzylFormFactory;
@@ -65,14 +78,17 @@ class SuperAdminPresenter extends BasePresenter
         $this->photosRepository = $photosRepository;
         $this->collectionsDatagridFactory = $collectionsDatagridFactory;
         $this->systemSetingsRepository = $systemSetingsRepository;
+        $this->usersDatagridFactory = $usersDatagridFactory;
+        $this->usersRepository = $usersRepository;
+        $this->roleTypeEnum = $roleTypeEnum;
 
     }
 
-    public function startup():void
+    public function startup(): void
     {
         parent::startup();
 
-            if (!$this->getPresenter()->user->isLoggedIn() && !$this->getPresenter()->getUser()->isInRole('superadmin')) {
+        if (!$this->getPresenter()->user->isLoggedIn() && !$this->getPresenter()->getUser()->isInRole('superadmin')) {
             $this->getPresenter()->redirect('Home:default');
         }
 
@@ -94,12 +110,13 @@ class SuperAdminPresenter extends BasePresenter
             }, $html);
         });
     }
+
     public function renderDefault(): void
     {
         $this->template->title = 'Admin';
     }
 
-    public function renderAnalytics(int $page = 1):void
+    public function renderAnalytics(int $page = 1): void
     {
 
         $paginator = new Paginator();
@@ -108,23 +125,23 @@ class SuperAdminPresenter extends BasePresenter
         $paginator->setPage($page);
         $paginator->setBase(1);
         $this->getTemplate()->paginator = $paginator;
-        $this->getTemplate()->analytics = $this->analyticsRepository->findBy([], ['id' => 'DESC'],$paginator->getLength(),$paginator->getOffset());
+        $this->getTemplate()->analytics = $this->analyticsRepository->findBy([], ['id' => 'DESC'], $paginator->getLength(), $paginator->getOffset());
     }
 
     /**
      * @throws \Throwable
      */
-    public function handleIpInfo(int $id):void
+    public function handleIpInfo(int $id): void
     {
-        $ip='';
+        $ip = '';
         $ipInfo = [];
         $ip = $this->analyticsRepository->findOneBy(['id' => $id]);
-        if($this->isAjax()) {
+        if ($this->isAjax()) {
             $ipInfo = $this->ipInfoService->getIpInfo($ip->getIpAdress());
-           $this->getTemplate()->ipInfo = $ipInfo;
+            $this->getTemplate()->ipInfo = $ipInfo;
 
-           $this->redrawControl('ipInfoIp'.$ip->getIpAdress());
-           $this->redrawControl('ipInfoTable');
+            $this->redrawControl('ipInfoIp' . $ip->getIpAdress());
+            $this->redrawControl('ipInfoTable');
 
         }
     }
@@ -184,6 +201,7 @@ class SuperAdminPresenter extends BasePresenter
         $this->getTemplate()->title = 'Firewall setings';
         $this->getTemplate()->firewallLogs = $this->firewallLogsRepository->findAll();
     }
+
     //handle
 
     public function handleFirewallLogDelete($id): void
@@ -193,9 +211,9 @@ class SuperAdminPresenter extends BasePresenter
         $this->firewallLogsRepository->delete($id);
 
 
-        if($this->getPresenter()->isAjax()){
+        if ($this->getPresenter()->isAjax()) {
             $this->getPresenter()->redrawControl('firewallTable');
-            $this->getPresenter()->flashMessage('Záznam Firewallu ID: '.$id.' k IP:'.$ip.' smazán.');
+            $this->getPresenter()->flashMessage('Záznam Firewallu ID: ' . $id . ' k IP:' . $ip . ' smazán.');
         }
     }
 
@@ -212,14 +230,13 @@ class SuperAdminPresenter extends BasePresenter
         //}
 
 
-
         $firewallLog = $this->firewallLogsRepository->find($id);
         $firewallLog->setAction('firewall_blocked');
         $ip = $firewallLog->getIp();
         $this->firewallLogsRepository->save($firewallLog);
 
 
-        if($this->getPresenter()->isAjax()){
+        if ($this->getPresenter()->isAjax()) {
             $this->getPresenter()->redrawControl('firewallTable');
             $this->getPresenter()->flashMessage('Záznam přidán do Ubuntu Firewallu zablokovány porty 80 a 443.');
         }
@@ -236,9 +253,9 @@ class SuperAdminPresenter extends BasePresenter
         $this->firewallLogsRepository->save($firewallLog);
 
 
-        if($this->getPresenter()->isAjax()){
+        if ($this->getPresenter()->isAjax()) {
             $this->getPresenter()->redrawControl('firewallTable');
-            $this->getPresenter()->flashMessage('Přihlášení z IP:'.$ip.' adresy zablokováno.');
+            $this->getPresenter()->flashMessage('Přihlášení z IP:' . $ip . ' adresy zablokováno.');
         }
     }
 
@@ -261,7 +278,7 @@ class SuperAdminPresenter extends BasePresenter
     {
         $setings = $this->systemSetingsRepository->lastSetings();
         $form = $this->systemSettingsFormFactory->create();
-        if($setings) {
+        if ($setings) {
             $form->setDefaults([
                 'fee' => $setings->getFee(),
                 'dph' => $setings->getDph(),
@@ -296,7 +313,7 @@ class SuperAdminPresenter extends BasePresenter
      */
 
 
-    public function azylSetFormSuccessed(Form $form, \stdClass $values) : void
+    public function azylSetFormSuccessed(Form $form, \stdClass $values): void
     {
 
         $azyl = $this->azylRepository->findById($values->azyl);
@@ -306,7 +323,7 @@ class SuperAdminPresenter extends BasePresenter
             $newData = $identity->getData();
             $newData['Azyl'] = $azyl;
 
-            $newIdentity = new SimpleIdentity($identity->getId(),$identity->getRoles(),$newData);
+            $newIdentity = new SimpleIdentity($identity->getId(), $identity->getRoles(), $newData);
             $this->getUser()->logout();
             $this->getUser()->login($newIdentity);
 
@@ -320,26 +337,94 @@ class SuperAdminPresenter extends BasePresenter
      * @throws \DateMalformedStringException
      */
 
-    public function systemSetingsFormSuccessed(Form $form, \stdClass $values) : void
+    public function systemSetingsFormSuccessed(Form $form, \stdClass $values): void
     {
         $systemSetings = new SystemSettings();
-        $systemSetings ->setFee($values->fee);
-        $systemSetings ->setCreatedAt(new DateTimeImmutable());
-        $systemSetings ->setDph($values->dph);
-        $systemSetings ->setCron($values->cron);
-        $systemSetings ->setDphUse($values->dphUse);
-        $systemSetings ->setNextPayOut(new DateTimeImmutable($values->nextPayOut->format('Y-m-d H:i:s')));
-        $systemSetings ->setPayOutInterval($values->payOutInterval);
-        $systemSetings ->setDepricated(false);
-        $systemSetings ->setDatabaseClear($values->databaseClear);
-        $systemSetings ->setAnalyticsGarbage($values->analyticsGarbage);
-        $systemSetings ->setRelevantFrom(new DateTimeImmutable());
+        $systemSetings->setFee($values->fee);
+        $systemSetings->setCreatedAt(new DateTimeImmutable());
+        $systemSetings->setDph($values->dph);
+        $systemSetings->setCron($values->cron);
+        $systemSetings->setDphUse($values->dphUse);
+        $systemSetings->setNextPayOut(new DateTimeImmutable($values->nextPayOut->format('Y-m-d H:i:s')));
+        $systemSetings->setPayOutInterval($values->payOutInterval);
+        $systemSetings->setDepricated(false);
+        $systemSetings->setDatabaseClear($values->databaseClear);
+        $systemSetings->setAnalyticsGarbage($values->analyticsGarbage);
+        $systemSetings->setRelevantFrom(new DateTimeImmutable());
 
         $this->systemSetingsRepository->save($systemSetings);
 
-        $this->flashMessage('Nastavení systému byly uloženy','alert-success');
+        $this->flashMessage('Nastavení systému byly uloženy', 'alert-success');
         $this->redirect('this');
+    }
+
+    /**
+     * @throws DataGridColumnStatusException
+     * @throws DataGridException
+     */
+    public function createComponentUsersDatagrid(): DataGrid
+    {
+        $grid = new UsersDatagridFactory($this->usersRepository);
+        $grid->setPresenter($this->getPresenter());
+        $dataGrid = $grid->create(); // upraví instanci, nepřepíše ji novým objektem
+        $dataGrid->setDatasource($this->usersRepository->findAll());
+
+        $dataGrid->addColumnStatus('role', 'Role')
+            ->setTemplate(__DIR__ . '/../Components/Datagrids/templates/column_status.latte')
+            ->setRenderer(function ($item) { return $item->getRole();})
+            ->setSortable()
+            ->setCaret(true)
+            ->addOption(RoleTypeEnum::ROLE_GUEST, 'Nová registrace')
+            ->setClass('btn-sm btn-info')
+            ->setIcon('fa fa-warning')
+            ->endOption()
+            ->addOption(RoleTypeEnum::ROLE_USER, 'Uživatel')
+            ->setClass('btn-sm btn-primary')
+            ->setIcon('fa fa-warning')
+            ->endOption()
+            ->addOption(RoleTypeEnum::ROLE_AZYL, 'Azyl')
+            ->setClass('btn-sm btn-success')
+            ->setIcon('fa fa-warning')
+            ->endOption()
+            ->addOption(RoleTypeEnum::ROLE_ADMIN, 'Admin')
+            ->setClass('btn-sm btn-warning')
+            ->setIcon('fa fa-warning')
+            ->endOption()
+            ->addOption(RoleTypeEnum::ROLE_SUPERADMIN, 'The GOD')
+            ->setClass('btn-sm btn-danger')
+            ->setIcon('fa fa-warning')
+            ->endOption()
+            ->onChange[] = [$this,'handleUpdateRole'];
 
 
+        return $dataGrid;
+    }
+
+    public function handleUpdateRole($id): void
+    {
+        $user = $this->usersRepository->findOneBy(['id' => intval($id)]);
+       if ($user->getId() == $this->getPresenter()->getRequest()->getParameter('usersDatagrid-id'))
+       {
+           $user->setRole($this->getPresenter()->getRequest()->getParameter('usersDatagrid-value'));
+           $this->usersRepository->save($user);
+           $this->flashMessage('Role nastavena','alert-success');
+           if ($this->isAjax())
+           {
+               $this->getPresenter()->redrawControl('datagrid');
+           }
+           else
+           {
+               $this->getPresenter()->redirect('this');
+           }
+       }
+    }
+    public function handleEditUser($id) : void
+    {
+        $user = $this->usersRepository->findOneBy(['id' => intval($id)]);
+    }
+
+    public function handleDeleteUser($id) : void
+    {
+        $user = $this->usersRepository->findOneBy(['id' => intval($id)]);
     }
 }
