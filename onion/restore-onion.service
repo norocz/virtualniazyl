@@ -1,0 +1,12 @@
+[Unit]
+Description=Obnovení onion adresy po restartu
+After=network.target tor.service
+Requires=tor.service
+
+[Service]
+ExecStart=/usr/local/bin/restore_onion.sh
+Type=oneshot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

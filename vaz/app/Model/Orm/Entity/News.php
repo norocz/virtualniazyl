@@ -50,6 +50,9 @@ class News
     #[ORM\Column(type: 'boolean')]
     private bool $important;
 
+    #[ORM\Column(type: 'boolean')]
+    private bool $pined;
+
     public function toArray(): array //return array of all fields
     {
 
@@ -183,5 +186,15 @@ class News
         return $this;
     }
 
+    public function isPined(): bool
+    {
+        return $this->pined;
+    }
+
+    public function setPined(bool $pined): News
+    {
+        $this->pined = $pined;
+        return $this;
+    }
 
 }
