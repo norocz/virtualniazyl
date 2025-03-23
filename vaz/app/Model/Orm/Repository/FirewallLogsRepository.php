@@ -5,6 +5,7 @@ namespace App\Model\Orm\Repository;
 use App\Model\Orm\Entity\FirewallLog;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 
 class FirewallLogsRepository extends EntityRepository
 {
@@ -113,5 +114,18 @@ class FirewallLogsRepository extends EntityRepository
             ->setParameter('attempts', $attempts)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     */
+    public function findOneById(int $id): ?FirewallLog
+    {
+        return $this->createQueryBuilder('f')
+        ->where('f.id = :id')
+        ->setParameter('id', $id)
+        ->getQuery()
+        ->getOneOrNullResult();
+
     }
 }

@@ -1,6 +1,24 @@
 <versions>
     <version>
         <date>23.03.2025</date>
+        <number>0.9.9.8 RC2</number>
+        <description>
+
+            Změny:
+            - oprava chyby mazání zablokované IP adresy z FW. (rychlý patch)
+
+
+
+            Chyby:
+            - virtualní adopce by měla vygenerovat QR kód
+            - provázat vlastnosti při vytváření adopce
+
+            Nápady:
+            - podepisování smlouvy pomocí SMS (odeslání sms s kodem, zadání kódu pro podpis)
+        </description>
+    </version>
+    <version>
+        <date>23.03.2025</date>
         <number>0.9.9.7 RC1</number>
         <description>
 

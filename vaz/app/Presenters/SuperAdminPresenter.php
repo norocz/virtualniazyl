@@ -204,16 +204,24 @@ class SuperAdminPresenter extends BasePresenter
 
     //handle
 
+    /**
+     * @throws NonUniqueResultException
+     */
     public function handleFirewallLogDelete($id): void
     {
-        $firewallLog = $this->firewallLogsRepository->find($id);
+        $firewallLog = $this->firewallLogsRepository->findOneById(intval($id));
+        bdump($firewallLog);
         $ip = $firewallLog->getIp();
-        $this->firewallLogsRepository->delete($id);
+        $this->firewallLogsRepository->delete($firewallLog);
 
-
+        $this->getPresenter()->flashMessage('Záznam Firewallu ID: ' . $id . ' k IP:' . $ip . ' smazán.');
         if ($this->getPresenter()->isAjax()) {
             $this->getPresenter()->redrawControl('firewallTable');
-            $this->getPresenter()->flashMessage('Záznam Firewallu ID: ' . $id . ' k IP:' . $ip . ' smazán.');
+
+        }
+        else
+        {
+         $this->getPresenter()->redirect('this');
         }
     }
 
@@ -239,6 +247,10 @@ class SuperAdminPresenter extends BasePresenter
         if ($this->getPresenter()->isAjax()) {
             $this->getPresenter()->redrawControl('firewallTable');
             $this->getPresenter()->flashMessage('Záznam přidán do Ubuntu Firewallu zablokovány porty 80 a 443.');
+        }
+        else
+        {
+            $this->getPresenter()->redirect('this');
         }
 
     }
