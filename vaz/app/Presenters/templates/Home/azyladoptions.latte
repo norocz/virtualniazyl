@@ -139,10 +139,14 @@
 
                                         {$adoption->getAdoptionType()}
                                     </div>
+                                    {if !is_null($adoption->getAnimal()->getBirthdate())}
                                     {var $now = new DateTimeImmutable()}
                                         {var $interval = date_diff($vek = $adoption->getAnimal()->getBirthdate(), $now)}
 
                                 <h5 class="card-title">Plemeno: {$adoption->getAnimal()->getBreed()} Věk: {$interval->y} </h5>
+                                    {else}
+                                    <h5 class="card-title">Plemeno: {$adoption->getAnimal()->getBreed()}</h5>
+                                    {/if}
                                 <p class="card-text">{$adoption->getAnimal()->getDescription()}</p>
                                 {if $user->isLoggedIn()}
                                         <a href="{link Home:adopce $adoption->getAnimal()->getId()}" class="btn btn-sm btn-outline-primary">Chci adoptovat!</a>
