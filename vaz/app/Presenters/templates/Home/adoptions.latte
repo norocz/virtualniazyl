@@ -69,11 +69,14 @@
 
 
                                             </div>
-                                            {var $now = new DateTimeImmutable()}
-                                        {var $interval = date_diff($vek = $adoption->getBirthdate(), $now)}
+                                            {if !is_null($adoption->getBirthdate())}
+                                                {var $now = new DateTimeImmutable()}
+                                                {var $interval = date_diff($vek = $adoption->getBirthdate(), $now)}
 
-                                            <h5 class="card-title">Plemeno: {$adoption->getBreed()} </h5>
-                                            Věk: {$interval->y}
+                                                <h5 class="card-title">Plemeno: {$adoption->getBreed()} Věk: {$interval->y} </h5>
+                                            {else}
+                                                <h5 class="card-title">Plemeno: {$adoption->getBreed()}</h5>
+                                            {/if}
                                             {if !is_null($adoption->getHeight())}
                                             Výška: {$adoption->getHeight()} cm <br>
                                             {/if}

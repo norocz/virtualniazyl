@@ -9,6 +9,10 @@
             - SuperAdmin zpracování uživatelů (změna role)
             - refaktorování UserDatagrid
             - refaktorizace Admin User, Owner a Azyl
+            - oprava šablony azylu
+            - oprava šablony azyly adoptions
+            - oprava šablony adoptions
+            - oprava šablony adopce
 
 
             Chyby:

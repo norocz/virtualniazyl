@@ -120,10 +120,18 @@
                             {$adopce->getAdoptionType()}
                         </div>
 
+                        {if !is_null($adopce->getBirthdate())}
                         {var $now = new DateTimeImmutable()}
-                                        {var $interval = date_diff($vek = $adopce->getBirthdate(), $now)}
+                       {var $interval = date_diff($vek = $adopce->getBirthdate(), $now)}
                       <h3>  {$adopce->getSpecies()->getName()} jménem {$adopce->getName()}</h3>
-                        <h5>Věk: {$interval->y}, plemeno: {$adopce->getBreed()}</h5>
+                        <h5>Plemeno: {$adopce->getBreed()}</h5>
+                        Věk: {$interval->y} <br>
+                        {else}
+                            <h3>  {$adopce->getSpecies()->getName()} jménem {$adopce->getName()}</h3>
+                            <h5>Plemeno: {$adopce->getBreed()}</h5>
+
+                        {/if}
+
                          {if !is_null($adopce->getHeight())}
                             Výška: {$adopce->getHeight()} cm <br>
                         {/if}
