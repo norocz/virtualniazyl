@@ -52,6 +52,11 @@ class NewsRepository extends EntityRepository
         return $this->findBy(['important' => true, 'deleted' => false], ['visibleFrom' => 'DESC']);
     }
 
+    public function findOnePined(): ?News
+    {
+        return $this->findOneBy(['pined' => true],['id' => 'DESC']);
+    }
+
     public function findGlobal(): array
     {
         return $this->findBy(['global' => true, 'deleted' => false], ['createdAt' => 'asc']);

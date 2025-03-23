@@ -675,6 +675,7 @@ class AdminPresenter extends BasePresenter
                 $news->setUpdatedAt(new DateTimeImmutable());
                 $news->setDeleted(false);
                 $news->setImportant($values->important);
+                $news->setPined(is_null($values->pined) ? false:boolval($values->pined));
                 $this->newsRepository->save($news);
                 $this->flashMessage('Novinka byla aktualizována.', 'alert-success');
                 $this->redirect('Admin:news');
@@ -691,6 +692,7 @@ class AdminPresenter extends BasePresenter
             $news->setImportant($values->important);
             $news->setCreatedAt(new DateTimeImmutable());
             $news->setDeleted(false);
+            $news->setPined( is_null($values->pined) ? false:boolval($values->pined));
             $this->newsRepository->save($news);
             $this->flashMessage('Novinka byla uložena.', 'alert-success');
             $this->redirect('Admin:news');

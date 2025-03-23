@@ -132,6 +132,18 @@ class NewsDatagridFactory extends DataGrid
                 ->endOption()
             ->onChange[] = [$this, 'importantNewsChange'];
 
+        $this->addColumnStatus('pined', 'Připnutá')
+            ->setTemplate(__DIR__ .'/templates/column_status.latte')
+            ->addOption(true, 'Ano')
+            ->setClass('btn-sm btn-warning')
+            ->setIcon('bi bi-pin')
+            ->endOption()
+            ->addOption(false,'Ne')
+            ->setClass('btn-sm btn-primary')
+            ->setIcon('bi bi-pin-angle')
+            ->endOption()
+            ->onChange[] = [$this, 'pinedNewsChange'];
+
         $this->addAction('edit', '', 'news', ['id' => 'id'])
             ->setIcon('pencil-alt')
             ->setClass('btn btn-sm btn-primary');
@@ -148,6 +160,22 @@ class NewsDatagridFactory extends DataGrid
     #[NoReturn] public function updateGlobalState($id, string $newValue): void
     {
         $news = $this->newsRepository->findOneBy(['id' => intval($id)])->setGlobal( boolval($newValue));
+        $this->newsRepository->save($news);
+        $this->presenter->flashMessage('Změna globálnosti provedena', 'alert-success');
+        if($this->presenter->isAjax()) {
+            $this->presenter->redrawControl('datagrid');
+            $this->presenter->redrawControl('flash');
+
+        }
+        else
+        {
+            $this->presenter->redirect('this');
+        }
+    }
+
+    #[NoReturn] public function pinedNewsChange($id, string $newValue): void
+    {
+        $news = $this->newsRepository->findOneBy(['id' => intval($id)])->setPined( boolval($newValue));
         $this->newsRepository->save($news);
         $this->presenter->flashMessage('Změna globálnosti provedena', 'alert-success');
         if($this->presenter->isAjax()) {

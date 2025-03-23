@@ -186,7 +186,7 @@ class News
         return $this;
     }
 
-    public function isPined(): bool
+    public function getPined(): bool
     {
         return $this->pined;
     }

@@ -154,11 +154,13 @@ final class HomePresenter extends Nette\Application\UI\Presenter
     public function renderDefault(): void
     {
 
+
         $news = $this->newsRepository->findVisibleNews();
         $adoptions = $this->animalsRepository->findBy(['toAdoption' => true, 'isDeleted' => false],  ['id' => 'DESC'],8);
 
         $this->getTemplate()->title = 'Domácí stránka';
         $this->getTemplate()->adoptions = $adoptions;
+        $this->getTemplate()->pined = $this->newsRepository->findOnePined();
         $this->getTemplate()->news = $news;
         $this->getTemplate()->newsCount = $this->newsRepository->count(['deleted' => false, 'global' => true]);
 

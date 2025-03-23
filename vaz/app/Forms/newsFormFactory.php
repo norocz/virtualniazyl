@@ -24,6 +24,8 @@ class newsFormFactory extends Form
             ->setHtmlAttribute('class','form-check-input');
         $form->addCheckbox('important', 'Důležité')
             ->setHtmlAttribute('class','form-check-input');
+        $form->addCheckbox('pined', 'Připnout')
+            ->setHtmlAttribute('class','form-check-input');
         $form->addDateTime('visibleFrom', 'Viditelné od:')
             ->setHtmlAttribute('class','form-control')
             ->setDefaultValue(date('d.m.Y H:i'))
