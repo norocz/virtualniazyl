@@ -513,11 +513,9 @@ class UserPresenter extends BasePresenter
             $users->setUpdatedAt(new DateTimeImmutable());
             $users->setUpdatedBy($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()));
 
-
             $this->azylRepository->saveAzyl($azyl);
             $users->setAzyl($azyl->getId());
             $this->usersRepository->addUser($users);
-
 
             $this->getPresenter()->flashMessage('Od této chvíle jste v roli Azylu! Znovu se přihlašte!', 'alert-success');
             $this->getPresenter()->getUser()->logout();

@@ -98,7 +98,7 @@
 
                         <div class="photo sidebar">
                             {if $azylProfil->getMainPhoto() !== null}
-                                <img src="{$azylProfil->getMainPhoto()->getPath().$azylProfil->getMainPhoto()->getName()}" alt="{$azylProfil->getAzylName()}" class="img-fluid">
+                                <img src="{$basePath}{$azylProfil->getMainPhoto()->getPath().$azylProfil->getMainPhoto()->getName()}" alt="{$azylProfil->getAzylName()}" class="img-fluid">
                             {else}
                                 <img src="{$basePath}/assets/vazdata/img/pic/defaultPhoto.jpeg" alt="{$azylProfil->getAzylName()}" class="img-fluid">
                             {/if}
@@ -123,7 +123,7 @@
                                 {if !empty($adoption->getAnimal()->getPhotos()[0])}
                                     <img class="card-img-top" src="{$basePath}{$adoption->getAnimal()->getPhotos()[0]->getPath().$adoption->getAnimal()->getPhotos()[0]->getName()}" alt="{$adoption->getAnimal()->getPhotos()[0]->getName()}" />
                                 {else}
-                                    <img class="card-img-top" src="{$basePath}assets/vazdata/img/pic/love1.jpeg" alt="Happy dino" />
+                                    <img class="card-img-top" src="{$basePath}/assets/vazdata/img/pic/love1.jpeg" alt="Happy dino" />
                                 {/if}
                                 <h5 class="card-header">{$adoption->getAnimal()->getName()}</h5>
                                 <div class="card-body">

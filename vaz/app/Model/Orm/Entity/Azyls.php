@@ -52,7 +52,7 @@ class Azyl
 
     #[ORM\OneToOne(targetEntity: Photo::class, fetch: "EAGER")]
     #[ORM\JoinColumn(nullable: true)]
-    private ?Photo $mainPhoto;
+    private ?Photo $mainPhoto = null;
 
     #[ORM\OneToMany(mappedBy: "azyl", targetEntity: "Photo")]
     public ?Collection $photos;
