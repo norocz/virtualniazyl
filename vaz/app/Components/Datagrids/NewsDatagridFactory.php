@@ -132,7 +132,7 @@ class NewsDatagridFactory extends DataGrid
                 ->endOption()
             ->onChange[] = [$this, 'importantNewsChange'];
 
-        $this->addColumnStatus('pined', 'Připnutá')
+        $this->addColumnStatus('pined','pined', 'Připnutá')
             ->setTemplate(__DIR__ .'/templates/column_status.latte')
             ->addOption(true, 'Ano')
             ->setClass('btn-sm btn-warning')

@@ -885,7 +885,7 @@ class AzylPresenter extends BasePresenter
             $animal->setWeight($values->weight);
             $animal->setMultiAdoption($values->multiAdoption);
             $animal->setReception($values->reception);
-            $tags = $cityName.' '.$region.' '.$office.' '.$values->name.' '.$values->breed.' '.$this->speciesRepository->findOneById($values->species);
+            $tags = $cityName.' '.$region.' '.$office.' '.$values->name.' '.$values->breed.' '.$this->speciesRepository->findOneById($values->species)->getName();
             $animal->setTags($tags);
             $this->animalsRepository->persist($animal);
             foreach ($values->photos as $photo) {
@@ -936,6 +936,8 @@ class AzylPresenter extends BasePresenter
     public function createComponentNewsForm(): \Nette\Application\UI\Form
     {
         $form = $this->newsFormFactory->create();
+         $pined = $form->getComponent('pined');
+         $form->removeComponent($pined);
 
         if ($this->getPresenter()->getParameter('id') !== null) {
             $news = $this->newsRepository->findOneBy(['id' => $this->getPresenter()->getParameter('id')]);
@@ -976,6 +978,8 @@ class AzylPresenter extends BasePresenter
         return $form;
     }
 
+
+    //TODO: tohle by se mělo překopat a zpřehlednit je tu bordel!!!!
     public function newsFormSucceeded(Form $form, \stdClass $values): void
     {
 
@@ -993,6 +997,7 @@ class AzylPresenter extends BasePresenter
         $news->setCreatedAt(new DateTimeImmutable());
         $news->setDeleted(false);
         $news->setAzyl($azyl);
+        $news->setPined(false);
 
         $this->newsRepository->save($news);
 
@@ -1002,6 +1007,7 @@ class AzylPresenter extends BasePresenter
 
     }
 
+    //todo: Tady je BUG z nějakého důvodu se zobrazují i smazané novinky !!!! URGENT!!!!
     public function newsFormSucceededUpdate(Form $form, \stdClass $values): void
     {
         $id = $this->getPresenter()->getParameter('id');
@@ -1017,6 +1023,7 @@ class AzylPresenter extends BasePresenter
                 $news->setVisibleFrom($values->visibleFrom);
                 $news->setUpdatedAt(new DateTimeImmutable());
                 $news->setImportant($values->important);
+                $news->setPined(false);
                 $news->setAzyl($azyl);
 
                 $this->newsRepository->save($news);
@@ -1037,6 +1044,9 @@ class AzylPresenter extends BasePresenter
         $grid = new NewsDatagridFactory($this->newsRepository);
         $grid->setPresenter($this->getPresenter());
         $grid->create(); // upraví instanci, nepřepíše ji novým objektem
+
+
+        $grid->removeColumn('pined');
         $azyl = $this->azylRepository->findOneBy(['id' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]);
 
         $grid->setDataSource($azyl->getNews());

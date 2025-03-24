@@ -62,7 +62,7 @@ class NewsRepository extends EntityRepository
         return $this->findBy(['global' => true, 'deleted' => false], ['createdAt' => 'asc']);
     }
 
-    public function setDeleted(int $id): void
+    public function setDeletedId(int $id): void
     {
         $news = $this->find($id);
         $news->setDeleted(true);
