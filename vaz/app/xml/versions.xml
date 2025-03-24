@@ -1,7 +1,7 @@
 <versions>
     <version>
         <date>24.03.2025</date>
-        <number>0.9.9.8 RC2</number>
+        <number>0.9.9.8 RC3</number>
         <description>
 
             Změny:
@@ -10,6 +10,8 @@
             - kontrola emailu na straně serveru
             - registrace odstraní záznam ve FW pro IP adresu
             - upraveny titulky
+            - oprava chyb při ukládání zvířete (tag-druh)
+            - oprava chyb v aktualitách u azylu kde nemůžou dávat připnuté
 
             Chyby:
             - virtualní adopce by měla vygenerovat QR kód
