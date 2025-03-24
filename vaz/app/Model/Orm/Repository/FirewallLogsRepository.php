@@ -30,6 +30,11 @@ class FirewallLogsRepository extends EntityRepository
         return $this->findBy(['ip' => $ip], ['createdAt' => 'DESC']);
     }
 
+    public function findOneByIp(string $ip): ?FirewallLog
+    {
+        return $this->findOneBy(['ip' => $ip]);
+    }
+
     /**
      * Vrátí poslední záznam pro konkrétní IP adresu.
      */

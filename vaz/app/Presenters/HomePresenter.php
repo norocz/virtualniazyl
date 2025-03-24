@@ -26,6 +26,7 @@ use App\Model\Orm\Repository\AnimalsRepository;
 use App\Model\Orm\Repository\AzylRepository;
 use App\Model\Orm\Repository\CollectionsRepository;
 use App\Model\Orm\Repository\ConversationsRepository;
+use App\Model\Orm\Repository\FirewallLogsRepository;
 use App\Model\Orm\Repository\MessagesRepository;
 use App\Model\Orm\Repository\NewsRepository;
 use App\Model\Orm\Repository\PaymentsRepository;
@@ -93,7 +94,8 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                                 private readonly azylSendMessageFormFactory $azylSendMessageFormFactory,
                                 private readonly searchFormFactory         $searchFormFactory,
                                 private  conversationsRepository $conversationsRepository,
-                                private contractSignFormFactory        $contractSignFormFactory,)
+                                private contractSignFormFactory        $contractSignFormFactory,
+                                private FirewallLogsRepository          $firewallLogsRepository,)
     {
         parent::__construct();
         $this->entityManager = $entityManager;
@@ -475,8 +477,9 @@ public function renderAdoptions($offset = 0): void
 
         try {
             $this->getUser()->login($values->email, $values->password);
-            $this->getPresenter()->flashMessage('Přihlášení se zdařilo', 'alert-success');
             $this->firewall->unBlockUser();
+            $this->getPresenter()->flashMessage('Přihlášení se zdařilo', 'alert-success');
+
             if ($this->getUser()->isInRole('user')) {
                 $this->getPresenter()->redirect('User:first');
             }
@@ -638,6 +641,7 @@ public function renderAdoptions($offset = 0): void
         if(!($values->username === $this->usersRepository->getUserByUserName($values->username) || $values->email === $this->usersRepository->getUserByEmail($values->email) || $values->password === $values->password2))
         {
             $form->addError('Hesla nejsou stejná, nebo některý z údajů je již registrován!');
+            $this->flashMessage('Nelze registrovat účet některý z údajů koliduje s již existujícím účtem!','alert-warning');
         }
         else {
             try {
@@ -664,6 +668,14 @@ public function renderAdoptions($offset = 0): void
                 $user->setMailVerifyToken($token);
                 $this->usersRepository->addUser($user);
 
+                //Kontrola jestli daná IP není na Blacklistu pokud ano tak tam uklidit
+                 $fwlog = $this->firewallLogsRepository->findOneByIp($_SERVER['REMOTE_ADDR']);
+                 if (!is_null($fwlog))
+                 {
+                 $this->firewallLogsRepository->delete($fwlog);
+                 $this->flashMessage('Záznam ve Firewallu pro Vaší IP byl podmínečně odstraněn','alert-warning');
+
+                 }
                 //Send registration email
 
 

@@ -1,13 +1,14 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Forms;
+
 use App\Model\Orm\Repository\UsersRepository;
 use Nepada\PhoneNumberInput\PhoneNumberInput;
 use Nette\Application\LinkGenerator;
 use Nette\Application\UI\Form;
 use Doctrine\ORM\EntityManagerInterface;
 use Nette\Utils\Html;
-
 
 class RegisterFormFactory extends Form
 {
@@ -35,9 +36,12 @@ class RegisterFormFactory extends Form
             ->addRule(Form::Equal, 'Hesla se neshodují.', $form['password'])
             ->setRequired('Zadejte prosím heslo znovu.');
 
-        $form->addText('email', 'Email:')
+        $form->addEmail('email', 'Email:')
             ->setHtmlAttribute('class', 'form-control')
             ->addRule(Form::Email, 'Prosím zadejte platný email.')
+            ->addRule(function ($input) {
+                return !$this->usersRepository->findOneBy(['email' => $input->getValue()]);
+            }, 'Tento email je již registrován.')
             ->setRequired('Zadejte prosím email. Je důležitý pro přihlášení');
 
 
