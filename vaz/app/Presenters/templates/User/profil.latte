@@ -133,7 +133,7 @@
                                                 {if !is_null($adoption->getAnimal()->getPhotos()[0])}
                                                     <img class="card-img-top" src="{$basePath}{$adoption->getAnimal()->getPhotos()[0]->getPath().$adoption->getAnimal()->getPhotos()[0]->getName()}" alt="{$adoption->getAnimal()->getPhotos()[0]->getName()}" />
                                                 {else}
-                                                    <img class="card-img-top" src="{$basePath}assets/vazdata/img/pic/love1.jpeg" alt="Happy dino" />
+                                                    <img class="card-img-top" src="{$basePath}/assets/vazdata/img/pic/love1.jpeg" alt="Happy dino" />
                                                 {/if}
                                                 <div class="card-header {$bcg} text-white">{$adoption->getAnimal()->getName()}</div>
                                                 <div class="card-body">
@@ -216,7 +216,7 @@
                             </form>
 
                         </div>
-                        <div class="col-xl-4 col-sm-12 tab-content text-body">
+                        <div class="col-4 col-sm-12 tab-content text-body">
                             <h3>Proč?</h3>
                             <p class=""><strong>Jméno a příjmení</strong> - Pro nás důležité pro komunikaci s Vámi potřebné pro schválen přístupu k adopcím.</p>
                             <p><strong>Popis</strong> - Do popisu napište něco o sobě, podmínkách pro zvířátka a klidně i něco o sobě. </p>
@@ -243,7 +243,7 @@
                                     {if $personalPhoto != null}
                                         <img src="{$basePath}{$personalPhoto->getPath()}{$personalPhoto->getName()}" class="img-fluid img-thumbnail rounded card-img-top personalPhoto" alt="{$personalPhoto->getName()}">
                                     {else}
-                                        <img src="{$basePath}assets/vazdata/img/pic/love1.jpeg" class="img-fluid img-thumbnail rounded card-img-top personalPhoto" alt="Happy dino" />
+                                        <img src="{$basePath}/assets/vazdata/img/pic/love1.jpeg" class="img-fluid img-thumbnail rounded card-img-top personalPhoto" alt="Happy dino" />
                                     {/if}
 
 

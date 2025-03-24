@@ -1,6 +1,17 @@
 <versions>
     <version>
         <date>24.03.2025</date>
+        <number>0.9.9.8 RC4</number>
+        <description>
+
+            Změny:
+            - oprava linků na fotky
+            - oprava šablon 404
+            - oprava šablony azylu a profilu uživatele
+        </description>
+    </version>
+    <version>
+        <date>24.03.2025</date>
         <number>0.9.9.8 RC3</number>
         <description>
 
