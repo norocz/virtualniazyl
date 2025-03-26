@@ -1,5 +1,17 @@
 <versions>
     <version>
+        <date>26.03.2025</date>
+        <number>0.9.9.9 RC5</number>
+        <description>
+            Změny:
+            - změna v DB kvůli nastavení fotky
+            - změna v šablonách pro azyl/home
+            - změna nastavení fotky v azylu
+            - změna nastavení personál photo pro uživatele
+            - změna nastavení nastavení personál photo pro Azyl
+        </description>
+    </version>
+    <version>
         <date>24.03.2025</date>
         <number>0.9.9.8 RC4</number>
         <description>
