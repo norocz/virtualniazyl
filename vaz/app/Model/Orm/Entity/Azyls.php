@@ -50,9 +50,9 @@ class Azyl
     #[ORM\OneToMany(mappedBy: "azyl", targetEntity: News::class)]
     private ?Collection $news = null;
 
-    #[ORM\OneToOne(targetEntity: Photo::class, fetch: "EAGER")]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?Photo $mainPhoto = null;
+
+    #[ORM\Column(type: 'integer', length: 10, nullable: true)]
+    private ?int $mainPhoto = null;
 
     #[ORM\OneToMany(mappedBy: "azyl", targetEntity: "Photo")]
     public ?Collection $photos;
@@ -196,12 +196,12 @@ class Azyl
         return $this->id;
     }
 
-    public function getMainPhoto(): ?Photo
+    public function getMainPhoto(): ?int
     {
         return $this->mainPhoto;
     }
 
-    public function setMainPhoto(?Photo $mainPhoto): Azyl
+    public function setMainPhoto(?int $mainPhoto): Azyl
     {
         $this->mainPhoto = $mainPhoto;
         return $this;

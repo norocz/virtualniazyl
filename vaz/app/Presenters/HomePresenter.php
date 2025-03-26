@@ -347,6 +347,7 @@ public function renderAdoptions($offset = 0): void
 
         // Předáme data do šablony
         $this->getTemplate()->azylProfil = $azylProfil;
+        $this->getTemplate()->azylPhoto = $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]);
         $this->getTemplate()->azylNews = $azylNews;
         $this->getTemplate()->azylUser = $azylUser;
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
@@ -359,6 +360,7 @@ public function renderAdoptions($offset = 0): void
         $azylProfil = $this->azylRepository->findById($id);
 
         $azylUser = $this->usersRepository->getUserByAzylId($id);
+        $this->getTemplate()->azylPhoto = $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]);
         $this->getTemplate()->azylProfil = $azylProfil;
         $this->getTemplate()->azylUser = $azylUser;
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
@@ -372,6 +374,7 @@ public function renderAdoptions($offset = 0): void
 
         $azylUser = $this->usersRepository->getUserByAzylId($id);
         $this->getTemplate()->azylProfil = $azylProfil;
+        $this->getTemplate()->azylPhoto = $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]);
       $this->getTemplate()->azylNews = $azylProfil->getAzylNews();   // $this->newsRepository->findBy(['author'=> $azylUser->getId()], ['createdAt' => 'DESC']);
         $this->getTemplate()->azylUser = $azylUser;
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
@@ -385,6 +388,7 @@ public function renderAdoptions($offset = 0): void
 
         $azylUser = $this->usersRepository->getUserByAzylId($id);
         $this->getTemplate()->azylProfil = $azylProfil;
+        $this->getTemplate()->azylPhoto = $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]);
         $this->getTemplate()->azylPhotos = $this->photosRepository->fetchByAzylId($id);
         $this->getTemplate()->azylUser = $azylUser;
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();

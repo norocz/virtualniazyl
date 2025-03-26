@@ -193,6 +193,28 @@ class Users
         $this->description = $description;
     }
 
+    public function getMessages(): ?Collection
+    {
+        return $this->messages;
+    }
+
+    public function setMessages(?Collection $messages): Users
+    {
+        $this->messages = $messages;
+        return $this;
+    }
+
+    public function getContracts(): ?Collection
+    {
+        return $this->contracts;
+    }
+
+    public function setContracts(?Collection $contracts): Users
+    {
+        $this->contracts = $contracts;
+        return $this;
+    }
+
 
 
     public function setBaned($baned): void

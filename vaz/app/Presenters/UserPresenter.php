@@ -122,6 +122,7 @@ class UserPresenter extends BasePresenter
         });
 
         $this->getTemplate()->version = $this->versionService->getLastVersion();
+
     }
 
 #[NoReturn] public function actionDefault(): void
@@ -400,36 +401,43 @@ class UserPresenter extends BasePresenter
     }
 
 
-    public function createComponentUserUpdateForm(string $name): ?Nette\ComponentModel\IComponent
+    protected function createComponentUserUpdateForm(): Form
     {
        $form = $this->registerFormFactory->create();
        $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
-       $form->setDefaults($user->toArray());
+
        $form->addUpload('personalPhoto','Profilová fotka');
        $pass = $form->getComponent('password');
        $pass->setRequired(false);
        $pass2 = $form->getComponent('password2');
        $pass2->setRequired(false);
        $form->removeComponent($form->getComponent('phone'));
-        $form->removeComponent($form->getComponent('legalTerms'));
-        $form->removeComponent($form->getComponent('send'));
-        $form->removeComponent($form->getComponent('adoptionVerification'));
-       $form->addSubmit('aktualization','Aktualizovat');
+       $form->removeComponent($form->getComponent('legalTerms'));
+       $form->removeComponent($form->getComponent('send'));
+       $form->removeComponent($form->getComponent('adoptionVerification'));
+       $form->removeComponent($form->getComponent('email'));
+        $form->addEmail('email', 'Email')
+            ->addRule(Nette\Forms\Form::Email, 'Zadejte platný email.')
+            ->addRule(function ($input) {
+                $existingUser = $this->usersRepository->findOneBy(['email' => $input->value]);
+                return !$existingUser || $existingUser->getId() === $this->getPresenter()->getUser()->getId();
+            }, 'Tento email je již registrován.');
+        $form->setDefaults($user->toArray());
+       $form->addSubmit('update','Aktualizovat');
        $form->onSuccess[] = [$this, 'userUpdateFormSucceeded'];
-
        return $form;
     }
 
     #[NoReturn] public function userUpdateFormSucceeded(Form $form, \stdClass $values) : void
     {
-
        $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
        $user->setUpdatedAt(new DateTimeImmutable('now'));
        $user->setUpdatedBy($user);
 
        if($user->getEmail() !== $values->email) {
+           $sendUserEmail = $this->usersRepository->findOneBy(['email' => $values->email]);
 
-           if ($this->usersRepository->findBy(['email' => $values->email]))
+           if ($this->getPresenter()->getUser()->getId() == $sendUserEmail->getId())
            {
 
                $this->flashMessage('Email už je v systému nebyl aktualizován!', 'alert-success');
@@ -453,7 +461,6 @@ class UserPresenter extends BasePresenter
                $this->flashMessage('POZOR! Problém při aktualizaci hesla!', 'alert-danger');
            }
        }
-
        if ($values->personalPhoto->hasFile())
        {
            $photo = new Photo();
@@ -466,6 +473,7 @@ class UserPresenter extends BasePresenter
        }
         $this->usersRepository->save($user);
         $this->flashMessage('Nastavení uživatele aktualizováno', 'alert-success');
+
         $this->redirect('this');
     }
 

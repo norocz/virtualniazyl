@@ -229,7 +229,7 @@
                 <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
                     <div class="row">
                         <div class="col-xl-7 col-sm-12 bg-light p-2">
-                            <form class="row" n:name=userUpdateForm>
+                            <form class="row" n:name=userUpdateForm method="post">
                                 <div class="col-6">
                                     Uživatelské jméno:
                                     <input class="form-control" n:name=username readonly>
@@ -237,7 +237,7 @@
                                 <div class="col-6">Heslo: <input class="form-control" n:name=password></div><div class="col-6">Heslo znovu:<input class="form-control" n:name=password2></div>
                                 <div class="col-6">
                                     Profilová fotka:
-                                    <input class="form-control" n:name=personalPhoto>
+                                    <input class="form-control ajax" n:name=personalPhoto>
                                 </div>
                                 <div class="col-6 personalPhoto">
                                     {if $personalPhoto != null}
@@ -250,7 +250,7 @@
                                 </div>
 
                                 <div class="col-4" style="padding-top: 2em; ">
-                                    <input type="submit" class="form-control btn btn-success" value="Aktualizovat" n:name=aktualization>
+                                    <button class="form-control btn btn-success" n:name=update>Aktualizovat</button>
                                 </div>
                             </form>
                         </div>

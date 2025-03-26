@@ -724,7 +724,7 @@ class AzylPresenter extends BasePresenter
 
         if(!empty($photo))
         {
-                        $azyl->setMainPhoto($photo);
+                        $azyl->setMainPhoto($photo->getId());
                         $this->azylRepository->saveAzyl($azyl);
                         $this->flashMessage('Fotka nastavena', 'alert-success');
         }
@@ -1176,7 +1176,7 @@ class AzylPresenter extends BasePresenter
     {
         $form = $this->registerFormFactory->create();
         $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
-        $form->setDefaults($user->toArray());
+
         $form->addUpload('personalPhoto','Profilová fotka');
         $pass = $form->getComponent('password');
         $pass->setRequired(false);
@@ -1186,22 +1186,30 @@ class AzylPresenter extends BasePresenter
         $form->removeComponent($form->getComponent('legalTerms'));
         $form->removeComponent($form->getComponent('send'));
         $form->removeComponent($form->getComponent('adoptionVerification'));
-        $form->addSubmit('aktualization','Aktualizovat');
+        $form->removeComponent($form->getComponent('email'));
+        $form->addEmail('email', 'Email')
+            ->addRule(Nette\Forms\Form::Email, 'Zadejte platný email.')
+            ->addRule(function ($input) {
+                $existingUser = $this->usersRepository->findOneBy(['email' => $input->value]);
+                return !$existingUser || $existingUser->getId() === $this->getPresenter()->getUser()->getId();
+            }, 'Tento email je již registrován.');
+        $form->setDefaults($user->toArray());
+        $form->addSubmit('update','Aktualizovat');
         $form->onSuccess[] = [$this, 'userUpdateFormSucceeded'];
-
         return $form;
     }
 
+
     #[NoReturn] public function userUpdateFormSucceeded(Form $form, \stdClass $values) : void
     {
-
         $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId());
         $user->setUpdatedAt(new DateTimeImmutable('now'));
         $user->setUpdatedBy($user);
 
         if($user->getEmail() !== $values->email) {
+            $sendUserEmail = $this->usersRepository->findOneBy(['email' => $values->email]);
 
-            if ($this->usersRepository->findBy(['email' => $values->email]))
+            if ($this->getPresenter()->getUser()->getId() == $sendUserEmail->getId())
             {
 
                 $this->flashMessage('Email už je v systému nebyl aktualizován!', 'alert-success');
@@ -1225,7 +1233,6 @@ class AzylPresenter extends BasePresenter
                 $this->flashMessage('POZOR! Problém při aktualizaci hesla!', 'alert-danger');
             }
         }
-
         if ($values->personalPhoto->hasFile())
         {
             $photo = new Photo();
@@ -1238,6 +1245,7 @@ class AzylPresenter extends BasePresenter
         }
         $this->usersRepository->save($user);
         $this->flashMessage('Nastavení uživatele aktualizováno', 'alert-success');
+
         $this->redirect('this');
     }
 

@@ -97,8 +97,8 @@
                         <hr>
 
                         <div class="photo sidebar">
-                            {if $azylProfil->getMainPhoto() !== null}
-                                <img src="{$azylProfil->getMainPhoto()->getPath().$azylProfil->getMainPhoto()->getName()}" alt="{$azylProfil->getAzylName()}" class="img-fluid">
+                            {if $azylPhoto !== null}
+                                <img src="{$basePath}{$azylPhoto->getPath().$azylPhoto->getName()}" alt="{$azylProfil->getAzylName()}" class="img-fluid">
                             {else}
                                 <img src="{$basePath}/assets/vazdata/img/pic/defaultPhoto.jpeg" alt="{$azylProfil->getAzylName()}" class="img-fluid">
                             {/if}

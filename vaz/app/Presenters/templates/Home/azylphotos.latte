@@ -132,10 +132,10 @@
                         <hr>
 
                         <div class="photo sidebar">
-                            {if $azylProfil->getMainPhoto() !== null}
-                                <img src="{$basePath}{$azylProfil->getMainPhoto()->getPath().$azylProfil->getMainPhoto()->getName()}" alt="{$azylProfil->getAzylName()}" class="img-fluid">
+                             {if $azylPhoto !== null}
+                                <img src="{$basePath}{$azylPhoto->getPath().$azylPhoto->getName()}" alt="{$azylProfil->getAzylName()}" class="img-fluid">
                             {else}
-                                <img src="{$basePath}assets/vazdata/img/pic/defaultPhoto.jpeg" alt="{$azylProfil->getAzylName()}" class="img-fluid">
+                                <img src="{$basePath}/assets/vazdata/img/pic/defaultPhoto.jpeg" alt="{$azylProfil->getAzylName()}" class="img-fluid">
                             {/if}
                         </div>
 
@@ -148,17 +148,17 @@
                     <div class="col-xl-9 col-md-12 photos">
                         <h3>Fotky</h3>
                         <div class="row g-3 gallery">
-                            {foreach $azylPhotos as $azylPhoto}
+                            {foreach $azylPhotos as $photo}
                                 {if $iterator->first}
                                     <div class="col-12 col-md-6 gallery-item large">
                                         <div class="position-relative">
-                                            <img src="{$basePath}{$azylPhoto->getPath()}{$azylPhoto->getName()}" alt="{$azylPhoto->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
+                                            <img src="{$basePath}{$photo->getPath()}{$photo->getName()}" alt="{$photo->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
                                         </div>
                                     </div>
                                     {else}
                                      <div class="col-6 col-md-3 gallery-item">
                                           <div class="position-relative">
-                                            <img src="{$basePath}{$azylPhoto->getPath()}{$azylPhoto->getName()}" alt="{$azylPhoto->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
+                                            <img src="{$basePath}{$photo->getPath()}{$photo->getName()}" alt="{$photo->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
                                           </div>
                                         </div>
                                     {/if}
