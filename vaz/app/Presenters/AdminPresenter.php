@@ -164,7 +164,8 @@ class AdminPresenter extends BasePresenter
             return nl2br($text); // Zachování odřádkování
         });
 
-        $this->getTemplate()->personalPhoto = $this->photosRepository->findById($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId())->getId());
+
+        $this->getTemplate()->personalPhoto = $this->photosRepository->findById($this->user->getIdentity()->getData()['User']->getPersonalPhoto());
         $this->getTemplate()->version = $this->versionService->getLastVersion();
     }
 

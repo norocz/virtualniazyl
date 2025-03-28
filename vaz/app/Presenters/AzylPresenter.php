@@ -166,8 +166,10 @@ class AzylPresenter extends BasePresenter
                 return '<a>';
             }, $html);
         });
-        $this->getTemplate()->personalPhoto = $this->photosRepository->findById($this->usersRepository->getUserById($this->getPresenter()->getUser()->getId())->getId());
+        $this->getTemplate()->personalPhoto = $this->photosRepository->findById($this->user->getIdentity()->getData()['User']->getPersonalPhoto());
         $this->getTemplate()->random = $this->getUser()->getIdentity()->getData()['Azyl']->getRandom();
+
+
 
     }
 
@@ -1252,6 +1254,9 @@ class AzylPresenter extends BasePresenter
     public function createComponentOwnerPhotoUploadForm(): Form
     {
         $form = $this->photoUploadFormFactory->create();
+        $form['photos']->setHtmlAttribute('class', 'btn btn-outline-success form-control');
+        $form['send']->setHtmlAttribute('class','btn btn-outline-success form-control');
+
         $form->onSuccess[] = [$this, 'ownerPhotoUploadFormSucceeded'];
         return $form;
     }

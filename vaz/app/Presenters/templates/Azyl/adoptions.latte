@@ -222,7 +222,8 @@
 
         </div>
         <div class="row">
-           {var $hodnoceni = $adoption->getUser()->getUserAdoptionsRating()}
+           {var $hodnoceni = $adoption->getUser()->getRatings()}
+        {dump $hodnoceni}
                 <div class="col-lg-5 col-sm-12 bg-light rounded p-4 m-1 w-lg-100">
                     <div class="title h6">Zájemce</div>
                     <span class="h4 alert-warning">{$adoption->getUser()->getUserName()}</span> <br>
@@ -232,9 +233,9 @@
                   Telefon:  {$adoption->getUser()->getPhone()} <br>
                   Známka adoptujícího: {$hodnoceni['average']}<br>
                   Hodnocení:<br>
-                  {if ($hodnoceni['reviews'] !== null)}
-                  {foreach $hodnoceni['reviews'] as $hod}
-                   <p>{$hod}</p>
+                  {if ($hodnoceni !== null)}
+                  {foreach $hodnoceni as $hod}
+                   <p>{$hod->getRating()|safeHtml} - {$hod->getReview()|safeHtml}</p>
 
                   {/foreach}
                   {else}

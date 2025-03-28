@@ -50,10 +50,10 @@
 
                                                   <a class="ajax cont m-2 p-2 link-light btn-info rounded-3" style="min-width: auto;" n:href="chat! $chat->getId()">
 
-                                                           {if $chat->getAdoption() != null}
-                                                               Adopce:  {$chat->getAdoption()->getAnimal()->getName()} <br>
-                                                           {/if}
                                                       {$chat->getUser()->getUserName()}</a>
+                                                        {if $chat->getAdoption() != null}
+                                                            <a class="m-2 p-2 link-light btn-success rounded-3" href="{link azyl:adoptions , $chat->getAdoption()->getId()}">Adopce: {$chat->getAdoption()->getAnimal()->getName()}</a>
+                                                        {/if}
                                                     </div>
                                                 </div>
                                             </div>

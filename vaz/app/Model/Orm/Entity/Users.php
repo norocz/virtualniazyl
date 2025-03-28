@@ -625,7 +625,7 @@ class Users
         return $this;
     }
 
-    public function getRatings(): Collection
+    public function getRatings(): ?Collection
     {
         return $this->ratings;
     }
@@ -664,8 +664,10 @@ class Users
         $r=[];
         $rew = [];
         $ratings = $this->getRatings();
+        bdump($ratings);
         foreach ($ratings as $rating)
         {
+
          $r[] = $rating->getRating();
          $rew[] = $rating->getReview();
         }

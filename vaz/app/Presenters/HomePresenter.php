@@ -342,13 +342,13 @@ public function renderAdoptions($offset = 0): void
             $this->getTemplate()->conversation = $conversation->getId();
         }
 
-        $azylNews = $azylProfil->getAzylNews();
+
         $azylUser = $this->usersRepository->getUserByAzylId($id);
 
         // Předáme data do šablony
         $this->getTemplate()->azylProfil = $azylProfil;
-        $this->getTemplate()->azylPhoto = $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]);
-        $this->getTemplate()->azylNews = $azylNews;
+        $this->getTemplate()->azylPhoto = is_null($azylProfil->getMainPhoto()) ? null : $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]);
+        $this->getTemplate()->azylNews = is_null($azylProfil->getAzylNews()) ? null : $azylProfil->getAzylNews() ;
         $this->getTemplate()->azylUser = $azylUser;
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
         $this->getTemplate()->adoptions = $this->animalsRepository->findBy(['azyl' => $azylProfil, 'toAdoption' => true], ['id' => 'DESC']);
@@ -360,7 +360,7 @@ public function renderAdoptions($offset = 0): void
         $azylProfil = $this->azylRepository->findById($id);
 
         $azylUser = $this->usersRepository->getUserByAzylId($id);
-        $this->getTemplate()->azylPhoto = $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]);
+        $this->getTemplate()->azylPhoto = is_null($azylProfil->getMainPhoto()) ? null : $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]);
         $this->getTemplate()->azylProfil = $azylProfil;
         $this->getTemplate()->azylUser = $azylUser;
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
@@ -374,8 +374,8 @@ public function renderAdoptions($offset = 0): void
 
         $azylUser = $this->usersRepository->getUserByAzylId($id);
         $this->getTemplate()->azylProfil = $azylProfil;
-        $this->getTemplate()->azylPhoto = $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]);
-      $this->getTemplate()->azylNews = $azylProfil->getAzylNews();   // $this->newsRepository->findBy(['author'=> $azylUser->getId()], ['createdAt' => 'DESC']);
+        $this->getTemplate()->azylPhoto = is_null($azylProfil->getMainPhoto()) ? null : $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]);
+      $this->getTemplate()->azylNews = is_null($azylProfil->getAzylNews()) ? null : $azylProfil->getAzylNews() ;   // $this->newsRepository->findBy(['author'=> $azylUser->getId()], ['createdAt' => 'DESC']);
         $this->getTemplate()->azylUser = $azylUser;
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
         $this->getTemplate()->newsCount = $this->newsRepository->count(['deleted' => false, 'author' => $azylUser->getId()]);
@@ -388,7 +388,7 @@ public function renderAdoptions($offset = 0): void
 
         $azylUser = $this->usersRepository->getUserByAzylId($id);
         $this->getTemplate()->azylProfil = $azylProfil;
-        $this->getTemplate()->azylPhoto = $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]);
+        $this->getTemplate()->azylPhoto = is_null($azylProfil->getMainPhoto()) ? null : $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]);
         $this->getTemplate()->azylPhotos = $this->photosRepository->fetchByAzylId($id);
         $this->getTemplate()->azylUser = $azylUser;
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
@@ -628,8 +628,7 @@ public function renderAdoptions($offset = 0): void
             $message -> setAdoption($adoption);
             $message -> setUser($user);
             $message -> setConversation($conversation);
-            $message ->setMessage('Uživatel: '.$user->getUserName(). ' požádal o adopci zvířete: '.$animal->getName().'. Tak mu dejte co nejdřív vědět! Podrobnosti najdete'.
-                '<a href="'.$this->getPresenter()->link('Azyl:adoptions',$adoption->getId()).'"> Zde</a>');
+            $message ->setMessage('Uživatel: '.$user->getUserName(). ' požádal o adopci zvířete: '.$animal->getName().'. Tak mu dejte co nejdřív vědět! Třeba tak, že mů odepíšete.');
             $message->setReaded(false);
 
             $this->messagesRepository->save($message);

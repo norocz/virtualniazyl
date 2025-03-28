@@ -109,6 +109,8 @@ class SuperAdminPresenter extends BasePresenter
                 return '<a>';
             }, $html);
         });
+
+        $this->getTemplate()->personalPhoto = $this->photosRepository->findById($this->user->getIdentity()->getData()['User']->getPersonalPhoto());
     }
 
     public function renderDefault(): void
