@@ -550,4 +550,38 @@ class UserPresenter extends BasePresenter
     {
         return new ChatControl($this->entityManager, $this->usersRepository->getUserById($this->getPresenter()->getUser()->getId()) );
     }
+
+    public function handleDeleteUserPhoto(int $id): void
+    {
+
+        $photo = $this->photosRepository->findOneBy(['id' => $id, 'user' => $this->getPresenter()->getUser()->getId()]);
+        if(!empty($photo))
+        {
+            $photo->setDeleted(true);
+            $this->photosRepository->save($photo);
+            $this->flashMessage('Fotka smazána', 'alert-success');
+            if ($this->isAjax()) {
+
+                $this->redrawControl('photos');
+            }
+            else
+            {
+                $this->redirect('this');
+            }
+        }
+        else
+        {
+            $this->flashMessage('Fotku nelze smazat', 'alert-danger');
+            if ($this->isAjax()) {
+
+                $this->redrawControl('photos');
+            }
+            else
+            {
+                $this->redirect('this');
+            }
+
+        }
+
+    }
 }

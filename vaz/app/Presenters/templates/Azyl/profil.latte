@@ -266,32 +266,39 @@
                                 {control ownerPhotoUploadForm}
                             </div>
 
-                            {if !is_null($photos)}
-                                {snippet photos}
+                            {snippet photos}
+                                {if !is_null($photos)}
+
                                     <div class="col-xl-5 col-sm-12 photos">
                                         <h5>Fotky</h5>
                                         <div class="row g-3 gallery">
                                             {foreach $photos as $userPhoto}
-                                                {if $iterator->first}
-                                                    <div class="col-12 col-md-6 gallery-item large">
-                                                        <div class="position-relative">
-                                                            <img src="{$basePath}{$userPhoto->getPath()}{$userPhoto->getName()}" alt="{$userPhoto->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
+                                                {if !$userPhoto->isDeleted()}
+                                                    {if $iterator->first}
+                                                        <div class="col-12 col-md-6 gallery-item large">
+                                                            <div class="position-relative">
+                                                                <img src="{$basePath}{$userPhoto->getPath()}{$userPhoto->getName()}" alt="{$userPhoto->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
+                                                                <span class="delete-icon"><a class = "ajax btn btn-sm btn-sm-square btn-danger" href="{link deleteUserPhoto!, $userPhoto->getId()}"><i class="bi bi-trash"></i></a></span>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                {else}
-                                                    <div class="col-6 col-md-3 gallery-item">
-                                                        <div class="position-relative">
-                                                            <img src="{$basePath}{$userPhoto->getPath()}{$userPhoto->getName()}" alt="{$userPhoto->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
+                                                    {else}
+                                                        <div class="col-6 col-md-3 gallery-item">
+                                                            <div class="position-relative">
+                                                                <img src="{$basePath}{$userPhoto->getPath()}{$userPhoto->getName()}" alt="{$userPhoto->getOriginalName()}" class="img-fluid rounded" onclick="showImageModal(this.src)">
+                                                                <span class="delete-icon"><a class = "ajax btn btn-sm btn-sm-square btn-danger" href="{link deleteUserPhoto!, $userPhoto->getId()}"><i class="bi bi-trash"></i></a></span>
+                                                            </div>
                                                         </div>
-                                                    </div>
+                                                    {/if}
                                                 {/if}
                                             {/foreach}
                                         </div>
                                     </div>
-                                {/snippet}
-                            {else}
-                                <p>Nemáte žádné fotky</p>
-                            {/if}
+
+                                {else}
+
+                                    <p>Nemáte žádné fotky</p>
+                                {/if}
+                            {/snippet}
 
 
 

@@ -719,6 +719,40 @@ class AzylPresenter extends BasePresenter
         }
     }
 
+    public function handleDeleteUserPhoto(int $id): void
+    {
+
+        $photo = $this->photosRepository->findOneBy(['id' => $id, 'user' => $this->getPresenter()->getUser()->getId()]);
+        if(!empty($photo))
+        {
+            $photo->setDeleted(true);
+            $this->photosRepository->save($photo);
+            $this->flashMessage('Fotka smazána', 'alert-success');
+            if ($this->isAjax()) {
+
+                $this->redrawControl('photos');
+            }
+            else
+            {
+                $this->redirect('this');
+            }
+        }
+        else
+        {
+            $this->flashMessage('Fotku nelze smazat', 'alert-danger');
+            if ($this->isAjax()) {
+
+                $this->redrawControl('photos');
+            }
+            else
+            {
+                $this->redirect('this');
+            }
+
+        }
+
+    }
+
     public function handleSetHomeAzylPhoto(int $id): void //nastaví fotku jako hlavní fotku Azylového profilu kontorluje to azyl podle profilu a id fotky
     {
         $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());

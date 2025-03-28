@@ -277,57 +277,58 @@ public function renderAdoptions($offset = 0): void
         $userId = $this->getUser()->getId();
 
 
-
+        if($this->user->isLoggedIn()){}
         if ($userId !== null) {
             $user = $this->usersRepository->getUserById($userId);
             $conversations = $this->conversationsRepository->findByUserAndAzyl($user, $azylProfil);
 
-            if (count($conversations) > 1) {
-                $lastConversation = $conversations[0];
+            if($this->getPresenter()->getUser()->isLoggedIn())
+            {
+                    if (count($conversations) > 1) {
+                        $lastConversation = $conversations[0];
 
-                // Začneme transakci, aby vše probíhalo atomicky
-                $this->entityManager->beginTransaction();
+                        // Začneme transakci, aby vše probíhalo atomicky
+                        $this->entityManager->beginTransaction();
 
-                try {
-                    // Procházení všech konverzací a přesunutí zpráv
-                    foreach ($conversations as $conversation) {
-                        // Načteme všechny zprávy této konverzace
-                        $messagesToMove = $this->messagesRepository->findBytConversationMessages($conversation->getId());
-                        if (!is_null($conversation->getAdoption()))
-                        {
-                            break;
-                        }
+                        try {
+                            // Procházení všech konverzací a přesunutí zpráv
+                            foreach ($conversations as $conversation) {
+                                // Načteme všechny zprávy této konverzace
+                                $messagesToMove = $this->messagesRepository->findBytConversationMessages($conversation->getId());
+                                if (!is_null($conversation->getAdoption())) {
+                                    break;
+                                }
 
-                        // Přesuneme všechny zprávy pod novou konverzaci
-                        foreach ($messagesToMove as $messageToMove) {
-                            $messageToMove->setConversation($lastConversation);  // Nastavíme novou konverzaci
-                            $this->messagesRepository->save($messageToMove);    // Uložíme zprávu
+                                // Přesuneme všechny zprávy pod novou konverzaci
+                                foreach ($messagesToMove as $messageToMove) {
+                                    $messageToMove->setConversation($lastConversation);  // Nastavíme novou konverzaci
+                                    $this->messagesRepository->save($messageToMove);    // Uložíme zprávu
+                                }
+                            }
+
+                            // Uložíme všechny změny v zprávách
+                            $this->entityManager->flush();
+
+                            // Smazání starých konverzací
+                            foreach ($conversations as $conversation) {
+                                if (!is_null($conversation->getAdoption())) {
+                                    break;
+                                }
+                                $this->conversationsRepository->remove($conversation);
+                            }
+
+                            // Uložíme změny a commitujeme transakci
+                            $this->conversationsRepository->flush();
+                            $this->entityManager->commit();
+
+                            // Flash message, že konverzace byly spojeny
+                            $this->flashMessage('Konverzace byly spojeny do jedné', 'alert-success');
+                        } catch (\Exception $e) {
+                            // Pokud dojde k chybě, rollback transakce
+                            $this->entityManager->rollback();
+                            throw $e;  // Nebo můžeš logovat chybu
                         }
                     }
-
-                    // Uložíme všechny změny v zprávách
-                    $this->entityManager->flush();
-
-                    // Smazání starých konverzací
-                    foreach ($conversations as $conversation) {
-                        if (!is_null($conversation->getAdoption()))
-                        {
-                            break;
-                        }
-                        $this->conversationsRepository->remove($conversation);
-                    }
-
-                    // Uložíme změny a commitujeme transakci
-                    $this->conversationsRepository->flush();
-                    $this->entityManager->commit();
-
-                    // Flash message, že konverzace byly spojeny
-                    $this->flashMessage('Konverzace byly spojeny do jedné', 'alert-success');
-                } catch (\Exception $e) {
-                    // Pokud dojde k chybě, rollback transakce
-                    $this->entityManager->rollback();
-                    throw $e;  // Nebo můžeš logovat chybu
-                }
             }
 
             // Když není více než jedna konverzace, použije se první nebo nová konverzace

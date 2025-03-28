@@ -76,6 +76,7 @@
             <p>Žádné fotografie</p>
         {else}
         {foreach $photos as $photo}
+            {if $photo->}
             {if $iterator->first}
                         <div class="col-4 gallery-item large">
                             <div class="position-relative">
