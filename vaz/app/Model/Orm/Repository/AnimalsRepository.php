@@ -78,4 +78,49 @@ class AnimalsRepository extends EntityRepository
     {
         $this->getEntityManager()->flush();
     }
+
+    public function search(string $search): array
+    {
+        $words = array_filter(
+            preg_split('/\s+/', trim($search)),
+            fn($word) => mb_strlen($word) > 2
+        );
+
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('a')
+            ->from(Animal::class, 'a')
+            ->where('a.toAdoption = true'); // Přidání podmínky pro adopci
+
+        $orX = $qb->expr()->orX();
+
+        foreach ($words as $key => $word) {
+            $param = "word$key";
+            $orX->add($qb->expr()->like('a.tags', ":$param"));
+            $orX->add($qb->expr()->like('a.description', ":$param"));
+            $qb->setParameter($param, "%$word%");
+        }
+
+        $qb->andWhere($orX)
+            ->orderBy('a.id', 'DESC');
+        $query = $qb->getQuery();
+        $results = $query->getResult();
+        usort($results, function ($a, $b) use ($words) {
+            $scoreA = 0;
+            $scoreB = 0;
+
+            foreach ($words as $word) {
+                $scoreA += substr_count($a->getTags() ?? '', $word);
+                $scoreA += substr_count($a->getDescription() ?? '', $word);
+
+                $scoreB += substr_count($b->getTags() ?? '', $word);
+                $scoreB += substr_count($b->getDescription() ?? '', $word);
+            }
+
+            return $scoreB <=> $scoreA;
+        });
+        $export['results'] = $results;
+        $export['words'] = $words;
+        return $export;
+
+    }
 }

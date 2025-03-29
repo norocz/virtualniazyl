@@ -56,6 +56,7 @@ use Nette\Security\Passwords;
 use App\Model\Services\Menu;
 use Defr\QRPlatba\QRPlatba;
 use Nette\SmartObject;
+use App\Model\Orm\Entity\Animal;
 
 final class HomePresenter extends Nette\Application\UI\Presenter
 {
@@ -95,7 +96,8 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                                 private readonly searchFormFactory         $searchFormFactory,
                                 private  conversationsRepository $conversationsRepository,
                                 private contractSignFormFactory        $contractSignFormFactory,
-                                private FirewallLogsRepository          $firewallLogsRepository,)
+                                private FirewallLogsRepository          $firewallLogsRepository,
+                                )
     {
         parent::__construct();
         $this->entityManager = $entityManager;
@@ -235,7 +237,20 @@ public function renderAdoptions($offset = 0): void
 
         $this->getTemplate()->placeholders = $placeholders[array_rand($placeholders)];
         $this->getTemplate()->title = 'Všechny adopce';
-        $this->getTemplate()->adoptions = $this->animalsRepository->findBy(['isDeleted' => false, 'toAdoption' => true],  ['id' => 'DESC'], 20, $offset);
+
+        if($this->getPresenter()->getParameter('search'))
+        {
+            $e = $this->animalsRepository->search($this->getPresenter()->getParameter('search'));
+            $this->getTemplate()->adoptions = $e['results'];
+            $this->getTemplate()->words = $e['words'];
+            $this->getTemplate()->placeholders = $this->getPresenter()->getParameter('search');
+
+        }
+        else
+        {
+            $this->getTemplate()->adoptions = $this->animalsRepository->findBy(['isDeleted' => false, 'toAdoption' => true],  ['id' => 'DESC'], 20, $offset);
+        }
+
 
     }
 
@@ -348,7 +363,7 @@ public function renderAdoptions($offset = 0): void
 
         // Předáme data do šablony
         $this->getTemplate()->azylProfil = $azylProfil;
-        $this->getTemplate()->azylPhoto = is_null($azylProfil->getMainPhoto()) ? null : $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]);
+        $this->getTemplate()->azylPhoto = $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]) ?? null ;
         $this->getTemplate()->azylNews = is_null($azylProfil->getAzylNews()) ? null : $azylProfil->getAzylNews() ;
         $this->getTemplate()->azylUser = $azylUser;
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
@@ -361,7 +376,7 @@ public function renderAdoptions($offset = 0): void
         $azylProfil = $this->azylRepository->findById($id);
 
         $azylUser = $this->usersRepository->getUserByAzylId($id);
-        $this->getTemplate()->azylPhoto = is_null($azylProfil->getMainPhoto()) ? null : $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]);
+        $this->getTemplate()->azylPhoto = $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]) ?? null ;
         $this->getTemplate()->azylProfil = $azylProfil;
         $this->getTemplate()->azylUser = $azylUser;
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
@@ -375,8 +390,8 @@ public function renderAdoptions($offset = 0): void
 
         $azylUser = $this->usersRepository->getUserByAzylId($id);
         $this->getTemplate()->azylProfil = $azylProfil;
-        $this->getTemplate()->azylPhoto = is_null($azylProfil->getMainPhoto()) ? null : $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]);
-      $this->getTemplate()->azylNews = is_null($azylProfil->getAzylNews()) ? null : $azylProfil->getAzylNews() ;   // $this->newsRepository->findBy(['author'=> $azylUser->getId()], ['createdAt' => 'DESC']);
+        $this->getTemplate()->azylPhoto = $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]) ?? null ;
+        $this->getTemplate()->azylNews = is_null($azylProfil->getAzylNews()) ? null : $azylProfil->getAzylNews() ;   // $this->newsRepository->findBy(['author'=> $azylUser->getId()], ['createdAt' => 'DESC']);
         $this->getTemplate()->azylUser = $azylUser;
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
         $this->getTemplate()->newsCount = $this->newsRepository->count(['deleted' => false, 'author' => $azylUser->getId()]);
@@ -389,7 +404,7 @@ public function renderAdoptions($offset = 0): void
 
         $azylUser = $this->usersRepository->getUserByAzylId($id);
         $this->getTemplate()->azylProfil = $azylProfil;
-        $this->getTemplate()->azylPhoto = is_null($azylProfil->getMainPhoto()) ? null : $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]);
+        $this->getTemplate()->azylPhoto = $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]) ?? null ;
         $this->getTemplate()->azylPhotos = $this->photosRepository->fetchByAzylId($id);
         $this->getTemplate()->azylUser = $azylUser;
         $this->getTemplate()->title = 'Azyl -' . $azylProfil->getAzylName();
@@ -718,16 +733,19 @@ public function renderAdoptions($offset = 0): void
     public function createComponentSearchForm(): Form
     {
         $form = $this->searchFormFactory->create();
+        $form->setMethod('get');
+        $form->addHidden('do',null)
+            ->setDisabled();
+        $form->setDefaults(['search' => $this->getPresenter()->getParameter('search')]);
         $form->onSuccess[] = [$this, 'searchFormSucceeded'];
         return $form;
     }
 
-    public function searchFormSucceeded(Form $form, \stdClass $values):void
+    public function searchFormSucceeded(Form $form, \stdClass $values):void //vyhledávání
     {
 
+        $this->flashMessage('Hledání '.$values->search);
 
-
-        $this->flashMessage('Hledání'.$values->search);
     }
 
     public function azylSendMessageFormSucceeded($form, \stdClass $values):void

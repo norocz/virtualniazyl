@@ -36,14 +36,35 @@
                 <div class="col-xl-12 col-sm-12 flex-column">
 
                     <div class="row">
-                    <div class="h3 col-1 m-2">Adopce</div> <div class="col-10 m-2"> <form n:name=searchForm class="form-inline position-relative w-lg-50 ms-lg-4 ms-xl-9 mt-3 mt-lg-0">
+                    <div class="h3 col-1 m-2">Adopce</div>
+
+                        <div class="col-10 m-2">
+
+                            <form n:name=searchForm class="form-inline position-relative w-lg-50 ms-lg-4 ms-xl-9 mt-3 mt-lg-0">
                                 <div class="input-group mb-3" >
                                     <input n:name=search type="text" class="form-control search fs-8 bg-transparent form-control shadow" placeholder="{$placeholders}" aria-label="Recipient's username" aria-describedby="button-addon2">
                                     <input n:name=send class="btn btn-outline-secondary button shadow" type="submit" value="Hledat" id="button-addon2">
                                 </div>
 
-                            </form></div>
-                     <div class="adoptions d-flex flex-row flex-wrap" id="adoptions">
+                            </form>
+                        </div>
+                        {ifset $words}
+                        <div class="col-4 m-2">
+
+
+                                Filtr:&nbsp;
+                                {foreach $words as $word}
+                                    {if $iterator->last}
+                                        <span>{$word}</span>
+                                        {else}
+                                        <span>{$word}</span>,&nbsp;
+                                    {/if}
+
+                                {/foreach}
+
+                        </div>
+                        {/ifset}
+                        <div class="adoptions d-flex flex-row flex-wrap" id="adoptions">
                             {foreach $adoptions as $adoption}
                                 <div class="adoptions-border">
                                     <div class = "card adoptions-card" style="width: 23rem;">
