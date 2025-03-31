@@ -44,44 +44,6 @@
                         <p>{$pined->getContent()|noescape}</p>
                     </div>
                 {/if}
-                <div class="col-md-5 col-12 flex-column">
-                    <h3>Aktuality</h3>
-                    <div class="news" id="news">
-                      {if $newsCount !== 0}
-                        {foreach $news as $new}
-                        {var $newsUser = $new->getAuthor()}
-                        {var $newsAzyl = $new->getAzyl()}
-                        {if $new->getImportant() === true}
-                                   <div class = "card news-card text-dark bg-warning">
-                        {else}
-                                       <div class = "card news-card text-dark bg-light">
-                        {/if}
-                                    <h5 class="card-header">{$new->getTitle()}</h5>
-                                    <div class="card-body">
-                                        <p class="card-text"> {$new->getContent()|noescape}</p>
-                                         <small class="text-muted">Vytvořeno: {$new->getCreatedAt()->format('d.m.Y. H:m:s')}</small>
-
-                                        </p>
-                                        {if $newsAzyl != null}
-                                        <a href="{link Home:azyl, $newsAzyl->getId()}" class="btn btn-sm btn-outline-info">Na stránku azylu</a>
-                                            {else}
-                                            <small class="text-muted">Autor: Admin</small>
-                                        {/if}
-                                    </div>
-                                </div>
-                        {/foreach}
-                                       {if $newsCount !== 0}
-                                       <a n:href = "Home:news" class="btn btn-sm btn-outline-primary">Více novinek...</a>
-                                       {else}
-                                        <p>Žádné novinky</p>
-                                       {/if}
-                      {else}
-                        <p>Žádné novinky</p>
-                      {/if}
-
-
-                    </div>
-                </div>
                 <div class="col-md-7 col-12" >
                     <h3>Adopce</h3>
                     <div class="adoptions d-flex flex-row flex-wrap" id="adoptions">
@@ -133,6 +95,44 @@
                     </div>
                     <a n:href = "Home:adoptions" class="btn btn-sm btn-outline-primary">Více adopcí...</a>
                 </div>
+                <div class="col-md-5 col-12 flex-column">
+                    <h3>Aktuality</h3>
+                    <div class="news" id="news">
+                        {if $newsCount !== 0}
+                        {foreach $news as $new}
+                        {var $newsUser = $new->getAuthor()}
+                        {var $newsAzyl = $new->getAzyl()}
+                        {if $new->getImportant() === true}
+                        <div class = "card news-card text-dark bg-warning">
+                            {else}
+                            <div class = "card news-card text-dark bg-light">
+                                {/if}
+                                <h5 class="card-header">{$new->getTitle()}</h5>
+                                <div class="card-body">
+                                    <p class="card-text"> {$new->getContent()|noescape}</p>
+                                    <small class="text-muted">Vytvořeno: {$new->getCreatedAt()->format('d.m.Y. H:m:s')}</small>
+
+                                    </p>
+                                    {if $newsAzyl != null}
+                                        <a href="{link Home:azyl, $newsAzyl->getId()}" class="btn btn-sm btn-outline-info">Na stránku azylu</a>
+                                    {else}
+                                        <small class="text-muted">Autor: Admin</small>
+                                    {/if}
+                                </div>
+                            </div>
+                            {/foreach}
+                            {if $newsCount !== 0}
+                                <a n:href = "Home:news" class="btn btn-sm btn-outline-primary">Více novinek...</a>
+                            {else}
+                                <p>Žádné novinky</p>
+                            {/if}
+                            {else}
+                            <p>Žádné novinky</p>
+                            {/if}
+
+
+                        </div>
+                    </div>
             </div>
         </div>
     </div>

@@ -8,6 +8,7 @@ use App\Model\Services\Menu;
 use App\Model\VersionService;
 use Contributte\Application\UI\BasePresenter;
 use App\Model\Orm\Repository\MessagesRepository;
+use Nette;
 
 class PagePresenter extends BasePresenter
 {
@@ -66,17 +67,14 @@ class PagePresenter extends BasePresenter
     public function actionShow(string $link): void
     {
         $page = $this->PageRepository->findByLink($link);
-        if(!$page){
-            $this->getTemplate()->setFile(__DIR__ . '/templates/Page/default.latte');
-            $this->template->content = "404 - Stránka nebyla nalezena";
-            $this->template->kytka = 'kytka'.rand(1,4).'.jpeg';
+        if (!$page) {
+            throw new Nette\Application\BadRequestException("Tak tahle stránka tu není, možná je smazaný a možná tady nikdy nebyl", 404);
         }
-        else{
             $this->getTemplate()->setFile(__DIR__ . '/templates/Page/default.latte');
-            $this->template->content = $page->getContent();
-            $this->template->title = $page->getTitle();
-            $this->template->kytka = 'kytka'.rand(1,4).'.jpeg';
+            $this->getTemplate()->content = $page->getContent();
+            $this->getTemplate()->title = $page->getTitle();
+            $this->getTemplate()->kytka = 'kytka'.rand(1,4).'.jpeg';
 
-        }
+
     }
 }

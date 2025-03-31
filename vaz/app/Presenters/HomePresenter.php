@@ -174,7 +174,12 @@ final class HomePresenter extends Nette\Application\UI\Presenter
     public function renderCollection(int $key): void
     {
         $this->getTemplate()->title = 'Sbírka pro';
-        $this->getTemplate()->collection = $this->collectionsRepository->findOneByKey($key);
+        $collection = $this->collectionsRepository->findOneByKey($key);
+        if (!$collection) {
+            throw new Nette\Application\BadRequestException("Tak tahle sbírka tu není, možná je smazaný a možná tady nikdy nebyl", 404);
+        }
+
+        $this->getTemplate()->collection = $collection;
         $kolik = $this->paymentsRepository->getTotalPayByCollectionKey($key);
 
         $this->getTemplate()->collectionPayments = intval($this->paymentsRepository->getTotalPayByCollectionKey($key));
@@ -224,7 +229,6 @@ public function renderAdoptions($offset = 0): void
     {
         $name ='';
         $adopce = $this->animalsRepository->findById(intval($id));
-        //$adopce = $this->adoptionsRepository->findOneBy(['id' => intval($id)]);
         if (!$adopce) {
             throw new Nette\Application\BadRequestException("Tak tahle adopce tu není, možná je smazaný a možná tady nikdy nebyl", 404);
         }

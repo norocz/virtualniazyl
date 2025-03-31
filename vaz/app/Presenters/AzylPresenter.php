@@ -582,6 +582,9 @@ class AzylPresenter extends BasePresenter
 
         if (!is_null($id)) {
             $adoption = $this->adoptionsRepository->findOneBy(['id' => $id]);
+            if (!$adoption) {
+                throw new Nette\Application\BadRequestException('Stránka není dostupná', 404);
+            }
             $this->getTemplate()->adoption = $adoption;
 
         } else {

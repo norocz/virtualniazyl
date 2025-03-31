@@ -15,7 +15,7 @@ class CollectionsRepository extends EntityRepository
         parent::__construct($em, $em->getClassMetadata($class));
     }
 
-    public function findOneByKey(int $collectionKey): Collections
+    public function findOneByKey(int $collectionKey): ?Collections
     {
         return $this->findOneBy(['collectionKey' => $collectionKey]);
 
