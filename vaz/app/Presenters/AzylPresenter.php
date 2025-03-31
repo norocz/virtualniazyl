@@ -146,7 +146,6 @@ class AzylPresenter extends BasePresenter
             }
         }
 
-
     }
 
     /**
@@ -154,7 +153,7 @@ class AzylPresenter extends BasePresenter
      */
     protected function beforeRender(): void
     {
-        $this->template->addFilter('safeHtml', function (string $html): string {
+        $this->getTemplate()->addFilter('safeHtml', function (string $html): string {
             $allowedTags = ['b', 'i', 'a', 'p', 'br'];
             $html = strip_tags($html, '<' . implode('><', $allowedTags) . '>');
 
@@ -353,10 +352,6 @@ class AzylPresenter extends BasePresenter
             $this->getTemplate()->visitors = $this->analyticsRepository->getVisitorsForAzyl($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
         }
 
-
-        //  $this->template->newUsersCount = $this->usersRepository->CountNewUsers();
-        //  $this->template->usersCount = $this->usersRepository->CountUsers();
-        //  $this->template->azylsCount = $this->usersRepository->CountAzyls();
     }
 
     public function renderAnimals(): void

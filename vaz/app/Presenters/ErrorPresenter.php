@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Presenters;
 
+use App\Model\Services\Menu;
 use Nette;
 use Nette\Application\Responses;
 use Nette\Http;
@@ -16,13 +17,16 @@ use Tracy\ILogger;
 final class ErrorPresenter implements Nette\Application\IPresenter
 {
 	public function __construct(
+
 		private ILogger $logger,
+
 	) {
 	}
 
 
 	public function run(Nette\Application\Request $request): Nette\Application\Response
 	{
+        $menu = new Menu();
 		$exception = $request->getParameter('exception');
 
 		// If the exception is a 4xx HTTP error, forward to the Error4xxPresenter

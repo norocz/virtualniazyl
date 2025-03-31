@@ -1,15 +1,15 @@
 {block content}
-<h1 n:block=title xmlns:n="http://www.w3.org/1999/xhtml">404 stránka neexistuje</h1>
-
+<h1 n:block=title xmlns:n="http://www.w3.org/1999/xhtml">Stránku jsme nenašli, takže chyba 404</h1>
 <div class="container">
     <div class="row">
-        <div class="col-md-6">
-            <img size="60%" src="{$basePath}/assets/vazdata/img/pic/error404-dino.jpeg" alt="404" class="img-fluid">
+        <div class="col-md-6 col-sm-12">
+            <img alt="404" src="{$basePath}/assets/vazdata/img/pic/error404-dino.jpeg" class="img-fluid rounded-2">
         </div>
-        <div class="col-md-6">
-            <h2>404</h2>
-            <p>Hledali jsme Vaší stránku. Fakt jakože hodně! Ale prostě tu není... buď máte vy špatnou adresu nebo mi nemáme stránku.</p>
-            <img alt="404" src="{$basePath}/assets/vazdata/img/pic/error404-dino.jpeg" class="img-fluid">
+        <div class="col-md-6 col-sm-12">
+            <p class="text-black border border-3 rounded-2 m-2 p-2 display-5">Hledali jsme Vaší stránku. Fakt jakože hodně! Ale prostě tu není... buď máte vy špatnou adresu nebo mi nemáme stránku.</p>
+            <p class="text-black border border-3 rounded-2 m-2 p-2 display-5">
+                Možná by Vás mohly zajímat <a class= "link-info" href="{link home:adoptions}">Adopce</a>, <a class= "link-info" href="{link home:azyls}">Azyly</a> nebo prostě jen <a class= "link-info" href="{link home:default}">Hlavní stránka</a>.
+            </p>
         </div>
     </div>
 

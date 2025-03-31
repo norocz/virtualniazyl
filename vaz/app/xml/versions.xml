@@ -1,5 +1,27 @@
 <versions>
     <version>
+        <date>31.03.2025</date>
+        <number>0.9.9.9 RC9</number>
+        <description>
+            Změny:
+            - oprava podmínky pro vyhledávání v adopcích - isDeleted
+            - prepřacovaná 404
+            - odchytávání Exception 500 -> 404 u azylu a adopce
+            - pročištění presenteru
+
+        </description>
+    </version>
+    <version>
+        <date>29.03.2025</date>
+        <number>0.9.9.9 RC8</number>
+        <description>
+            Změny:
+            - vyladění funkce heldání v adopcích
+            - animal.latte
+            - adoptions.latte - přepracováné
+        </description>
+    </version>
+    <version>
         <date>28.03.2025</date>
         <number>0.9.9.9 RC7</number>
         <description>

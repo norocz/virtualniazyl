@@ -13,7 +13,6 @@ use App\Forms\searchFormFactory;
 use App\Forms\SignInFormFactory;
 use App\Model\Orm\Entity\Adoption;
 use App\Model\Orm\Entity\AdoptionAction;
-use App\Model\Orm\Entity\Azyl;
 use App\Model\Orm\Entity\Conversations;
 use App\Model\Orm\Entity\Messages;
 use App\Model\Orm\Entity\Payments;
@@ -44,9 +43,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use JetBrains\PhpStorm\NoReturn;
-use libphonenumber\NumberParseException;
-use libphonenumber\PhoneNumberFormat;
-use libphonenumber\PhoneNumberUtil;
 use Nette;
 use Nette\Bridges\ApplicationLatte\TemplateFactory;
 use Nette\Forms\Form;
@@ -55,19 +51,11 @@ use Nette\Security\AuthenticationException;
 use Nette\Security\Passwords;
 use App\Model\Services\Menu;
 use Defr\QRPlatba\QRPlatba;
-use Nette\SmartObject;
-use App\Model\Orm\Entity\Animal;
 
 final class HomePresenter extends Nette\Application\UI\Presenter
 {
     protected EntityManagerInterface $entityManager;
     protected UsersRepository $usersRepository;
-
-
-    public Azyl $azylProfil;
-    public Users $azylUser;
-
-
 
     public function __construct(UsersRepository                        $usersRepository,
                                 EntityManagerInterface                 $entityManager,
@@ -79,45 +67,30 @@ final class HomePresenter extends Nette\Application\UI\Presenter
                                 public readonly    AzylRepository         $azylRepository,
                                 public             AdoptionsRepository    $adoptionsRepository,
                                 public             PhotosRepository    $photosRepository,
-                                private MessagesRepository             $messagesRepository,
-                                private UserAddressService            $userAddressService,
-                                private QRPlatba                    $QRPlatba,
-                                private AnimalsRepository           $animalsRepository,
-                                private adoptionFormFactory         $adoptionFormFactory,
-                                private adoptionAction              $adoptionAction,
-                                private logingService               $logingService,
-                                private emailService                $emailService,
-                                private AnalyticsService         $analyticsService,
-                                private Firewall                    $firewall,
-                                private CollectionsRepository      $collectionsRepository,
-                                private paymentsRepository          $paymentsRepository,
+                                private readonly MessagesRepository             $messagesRepository,
+                                private readonly UserAddressService            $userAddressService,
+                                private readonly QRPlatba                    $QRPlatba,
+                                private readonly AnimalsRepository           $animalsRepository,
+                                private readonly adoptionFormFactory         $adoptionFormFactory,
+                                private readonly adoptionAction              $adoptionAction,
+                                private readonly logingService               $logingService,
+                                private readonly emailService                $emailService,
+                                private readonly AnalyticsService         $analyticsService,
+                                private readonly Firewall                    $firewall,
+                                private readonly CollectionsRepository      $collectionsRepository,
+                                private readonly paymentsRepository          $paymentsRepository,
                                 private readonly VersionService              $versionService,
                                 private readonly azylSendMessageFormFactory $azylSendMessageFormFactory,
                                 private readonly searchFormFactory         $searchFormFactory,
-                                private  conversationsRepository $conversationsRepository,
-                                private contractSignFormFactory        $contractSignFormFactory,
-                                private FirewallLogsRepository          $firewallLogsRepository,
+                                private readonly conversationsRepository $conversationsRepository,
+                                private readonly contractSignFormFactory        $contractSignFormFactory,
+                                private readonly FirewallLogsRepository          $firewallLogsRepository,
                                 )
     {
         parent::__construct();
         $this->entityManager = $entityManager;
         $this->usersRepository = $usersRepository;
-        $this->QRPlatba = $QRPlatba;
-        $this->emailService = $emailService;
-        $this->messagesRepository = $messagesRepository;
-        $this->userAddressService  = $userAddressService;
-        $this->animalsRepository = $animalsRepository;
-        $this->adoptionFormFactory = $adoptionFormFactory;
-        $this->adoptionAction = $adoptionAction;
-        $this->logingService = $logingService;
-        $this->analyticsService = $analyticsService;
-        $this->firewall = $firewall;
         $this->firewall->setPresenter($this->getPresenter());
-        $this->collectionsRepository = $collectionsRepository;
-        $this->paymentsRepository = $paymentsRepository;
-
-
-
     }
 
     public function startup(): void
@@ -202,13 +175,9 @@ final class HomePresenter extends Nette\Application\UI\Presenter
     {
         $this->getTemplate()->title = 'Sbírka pro';
         $this->getTemplate()->collection = $this->collectionsRepository->findOneByKey($key);
-
         $kolik = $this->paymentsRepository->getTotalPayByCollectionKey($key);
 
-
         $this->getTemplate()->collectionPayments = intval($this->paymentsRepository->getTotalPayByCollectionKey($key));
-        //$this->getTemplate()->collectionPayments = 104000;
-
     }
 
 public function renderAdoptions($offset = 0): void
@@ -244,14 +213,11 @@ public function renderAdoptions($offset = 0): void
             $this->getTemplate()->adoptions = $e['results'];
             $this->getTemplate()->words = $e['words'];
             $this->getTemplate()->placeholders = $this->getPresenter()->getParameter('search');
-
         }
         else
         {
             $this->getTemplate()->adoptions = $this->animalsRepository->findBy(['isDeleted' => false, 'toAdoption' => true],  ['id' => 'DESC'], 20, $offset);
         }
-
-
     }
 
     public function renderAdopce(int $id): void
@@ -259,6 +225,9 @@ public function renderAdoptions($offset = 0): void
         $name ='';
         $adopce = $this->animalsRepository->findById(intval($id));
         //$adopce = $this->adoptionsRepository->findOneBy(['id' => intval($id)]);
+        if (!$adopce) {
+            throw new Nette\Application\BadRequestException("Tak tahle adopce tu není, možná je smazaný a možná tady nikdy nebyl", 404);
+        }
 
         $this->getTemplate()->title = 'Adopce ';
         $this->getTemplate()->adopce = $adopce;
@@ -271,14 +240,12 @@ public function renderAdoptions($offset = 0): void
             $adoptions = $adopce->getAdoption();
             $test = $this->adoptionsRepository->findOneBy(['adoptionKey' => $adoptionKey]);
 
-
                     if ($test) {
                         $this->getTemplate()->status = true;
                         $this->getTemplate()->adopt = $test;
                     } else {
                         $this->getTemplate()->status = false;
                     }
-
 
         } else {
 
@@ -288,67 +255,69 @@ public function renderAdoptions($offset = 0): void
     }
     public function renderAzyl(int $id): void
     {
-        $azylProfil = $this->azylRepository->findById($id);
+        $azylProfil = $this->azylRepository->findById(intval($id));
+        if (!$azylProfil) {
+            throw new Nette\Application\BadRequestException("Tak tenhle azyl tu není, možná je smazaný a možná tady nikdy nebyl", 404);
+        }
+
         $userId = $this->getUser()->getId();
 
 
-        if($this->user->isLoggedIn()){}
         if ($userId !== null) {
             $user = $this->usersRepository->getUserById($userId);
             $conversations = $this->conversationsRepository->findByUserAndAzyl($user, $azylProfil);
 
-            if($this->getPresenter()->getUser()->isLoggedIn())
-            {
-                    if (count($conversations) > 1) {
-                        $lastConversation = $conversations[0];
+            if ($this->getPresenter()->getUser()->isLoggedIn()) {
+                if (count($conversations) > 1) {
+                    $lastConversation = $conversations[0];
 
-                        // Začneme transakci, aby vše probíhalo atomicky
-                        $this->entityManager->beginTransaction();
+                    // Začneme transakci, aby vše probíhalo atomicky
+                    $this->entityManager->beginTransaction();
 
-                        try {
-                            // Procházení všech konverzací a přesunutí zpráv
-                            foreach ($conversations as $conversation) {
-                                // Načteme všechny zprávy této konverzace
-                                $messagesToMove = $this->messagesRepository->findBytConversationMessages($conversation->getId());
-                                if (!is_null($conversation->getAdoption())) {
-                                    break;
-                                }
-
-                                // Přesuneme všechny zprávy pod novou konverzaci
-                                foreach ($messagesToMove as $messageToMove) {
-                                    $messageToMove->setConversation($lastConversation);  // Nastavíme novou konverzaci
-                                    $this->messagesRepository->save($messageToMove);    // Uložíme zprávu
-                                }
+                    try {
+                        // Procházení všech konverzací a přesunutí zpráv
+                        foreach ($conversations as $conversation) {
+                            // Načteme všechny zprávy této konverzace
+                            $messagesToMove = $this->messagesRepository->findBytConversationMessages($conversation->getId());
+                            if (!is_null($conversation->getAdoption())) {
+                                break;
                             }
 
-                            // Uložíme všechny změny v zprávách
-                            $this->entityManager->flush();
-
-                            // Smazání starých konverzací
-                            foreach ($conversations as $conversation) {
-                                if (!is_null($conversation->getAdoption())) {
-                                    break;
-                                }
-                                $this->conversationsRepository->remove($conversation);
+                            // Přesuneme všechny zprávy pod novou konverzaci
+                            foreach ($messagesToMove as $messageToMove) {
+                                $messageToMove->setConversation($lastConversation);  // Nastavíme novou konverzaci
+                                $this->messagesRepository->save($messageToMove);    // Uložíme zprávu
                             }
-
-                            // Uložíme změny a commitujeme transakci
-                            $this->conversationsRepository->flush();
-                            $this->entityManager->commit();
-
-                            // Flash message, že konverzace byly spojeny
-                            $this->flashMessage('Konverzace byly spojeny do jedné', 'alert-success');
-                        } catch (\Exception $e) {
-                            // Pokud dojde k chybě, rollback transakce
-                            $this->entityManager->rollback();
-                            throw $e;  // Nebo můžeš logovat chybu
                         }
+
+                        // Uložíme všechny změny v zprávách
+                        $this->entityManager->flush();
+
+                        // Smazání starých konverzací
+                        foreach ($conversations as $conversation) {
+                            if (!is_null($conversation->getAdoption())) {
+                                break;
+                            }
+                            $this->conversationsRepository->remove($conversation);
+                        }
+
+                        // Uložíme změny a commitujeme transakci
+                        $this->conversationsRepository->flush();
+                        $this->entityManager->commit();
+
+                        // Flash message, že konverzace byly spojeny
+                        $this->flashMessage('Konverzace byly spojeny do jedné', 'alert-success');
+                    } catch (\Exception $e) {
+                        // Pokud dojde k chybě, rollback transakce
+                        $this->entityManager->rollback();
+                        throw $e;  // Nebo můžeš logovat chybu
                     }
+                }
             }
 
             // Když není více než jedna konverzace, použije se první nebo nová konverzace
             $conversation = empty($conversations) ? new Conversations() : $conversations[0];
-            $conversation->setComment($this->getPresenter()->getAction().'|'.$this->getPresenter()->getName().'|'.$this->getUser()->getId());
+            $conversation->setComment($this->getPresenter()->getAction() . '|' . $this->getPresenter()->getName() . '|' . $this->getUser()->getId());
             $conversation->setBlock(false);
             $conversation->setAzyl($azylProfil);
             $conversation->setUser($user);
@@ -357,8 +326,6 @@ public function renderAdoptions($offset = 0): void
             $this->conversationsRepository->save($conversation);
             $this->getTemplate()->conversation = $conversation->getId();
         }
-
-
         $azylUser = $this->usersRepository->getUserByAzylId($id);
 
         // Předáme data do šablony
@@ -374,6 +341,9 @@ public function renderAdoptions($offset = 0): void
     public function actionAzylAdoptions(int $id) : void
     {
         $azylProfil = $this->azylRepository->findById($id);
+        if (!$azylProfil) {
+            throw new Nette\Application\BadRequestException("Tak tenhle azyl tu není, možná je smazaný a možná tady nikdy nebyl", 404);
+        }
 
         $azylUser = $this->usersRepository->getUserByAzylId($id);
         $this->getTemplate()->azylPhoto = $this->photosRepository->findOneBy(['id' => $azylProfil->getMainPhoto()]) ?? null ;
@@ -387,6 +357,9 @@ public function renderAdoptions($offset = 0): void
     public function actionAzylNews(int $id) : void
     {
         $azylProfil = $this->azylRepository->findById($id);
+        if (!$azylProfil) {
+            throw new Nette\Application\BadRequestException("Tak tenhle azyl tu není, možná je smazaný a možná tady nikdy nebyl", 404);
+        }
 
         $azylUser = $this->usersRepository->getUserByAzylId($id);
         $this->getTemplate()->azylProfil = $azylProfil;
@@ -401,6 +374,9 @@ public function renderAdoptions($offset = 0): void
     public function actionAzylPhotos(int $id) : void
     {
         $azylProfil = $this->azylRepository->findById($id);
+        if (!$azylProfil) {
+            throw new Nette\Application\BadRequestException("Tak tenhle azyl tu není, možná je smazaný a možná tady nikdy nebyl", 404);
+        }
 
         $azylUser = $this->usersRepository->getUserByAzylId($id);
         $this->getTemplate()->azylProfil = $azylProfil;
@@ -467,7 +443,7 @@ public function renderAdoptions($offset = 0): void
         $this->getTemplate()->azyl = $this->azylRepository->getAzyl($id);
     }
 
-    public function actionLogOut(): void
+    #[NoReturn] public function actionLogOut(): void
     {
         $this->getUser()->logout();
         $this->getPresenter()->flashMessage('Odhlášení proběhlo v pořádku.', 'alert-success');
@@ -476,7 +452,6 @@ public function renderAdoptions($offset = 0): void
 
     public function createComponentSignInForm(): Form
     {
-
         $passwords = new Nette\Security\Passwords;
         $form = (new SignInFormFactory())->create();
         $form->onSuccess[] = [$this, 'formSignInSucceeded'];
@@ -578,9 +553,7 @@ public function renderAdoptions($offset = 0): void
 
                 $this->redrawControl('qr');
             }
-
         }
-
     }
 
     public function createComponentRegisterForm(): Form
@@ -649,9 +622,7 @@ public function renderAdoptions($offset = 0): void
 
             $this->messagesRepository->save($message);
 
-
        $this->getPresenter()->redirect('this');
-
 
     }
 
@@ -697,9 +668,7 @@ public function renderAdoptions($offset = 0): void
                  }
                 //Send registration email
 
-
                 $verificationlink = $this->link('//Home:registered', ['vrf' => $token]);
-
 
                 $template = $this->templateFactory->createTemplate();
                 $html = $template->renderToString(__DIR__ . '/Template/Email/RegistrationEmail.latte', ['verificationLink' => $verificationlink]);
@@ -762,7 +731,6 @@ public function renderAdoptions($offset = 0): void
         $message->setMessage($values->message);
         $message->setReaded(FALSE);
         $this->messagesRepository->save($message);
-
 
         if($this->isAjax())
         {

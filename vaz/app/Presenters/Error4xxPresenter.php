@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Presenters;
 
+use App\Model\Services\Menu;
 use Nette;
+use App\Model\VersionService;
 
 
 /**
@@ -12,7 +14,16 @@ use Nette;
  */
 final class Error4xxPresenter extends Nette\Application\UI\Presenter
 {
-	protected function checkHttpMethod(): void
+    private VersionService $versionService;
+
+    public function __construct(VersionService $versionService)
+    {
+        parent::__construct();
+        $this->versionService = $versionService;
+
+    }
+
+    protected function checkHttpMethod(): void
 	{
 		// allow access via all HTTP methods and ensure the request is a forward (internal redirect)
 		if (!$this->getRequest()->isMethod(Nette\Application\Request::FORWARD)) {
@@ -23,12 +34,15 @@ final class Error4xxPresenter extends Nette\Application\UI\Presenter
 
 	public function renderDefault(Nette\Application\BadRequestException $exception): void
 	{
+        $menu = new Menu();
 		// renders the appropriate error template based on the HTTP status code
 		$code = $exception->getCode();
+        $this->getTemplate()->version = $this->versionService->getLastVersion();
 		$file = is_file($file = __DIR__ . "/templates/Error/$code.latte")
 			? $file
 			: __DIR__ . '/templates/Error/4xx.latte';
-		$this->template->httpCode = $code;
-		$this->template->setFile($file);
+		$this->getTemplate()->httpCode = $code;
+		$this->getTemplate()->setFile($file);
+        $this->getTemplate()->mainMenuItems = $menu->getMenu();
 	}
 }

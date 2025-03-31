@@ -8,7 +8,6 @@ use App\Model\Orm\Repository\UsersRepository;
 use Nette\Application\UI\Presenter;
 use Ublaboo\DataGrid\Column\Action\Confirmation\StringConfirmation;
 use Ublaboo\DataGrid\Exception\DataGridColumnStatusException;
-use Ublaboo\DataGrid\InlineEdit\InlineEdit;
 use Ublaboo\DataGrid\DataGrid;
 use Ublaboo\DataGrid\Exception\DataGridException;
 use Ublaboo\DataGrid\Localization\SimpleTranslator;

@@ -89,7 +89,8 @@ class AnimalsRepository extends EntityRepository
         $qb = $this->getEntityManager()->createQueryBuilder();
         $qb->select('a')
             ->from(Animal::class, 'a')
-            ->where('a.toAdoption = true'); // Přidání podmínky pro adopci
+            ->where('a.toAdoption = true')
+            ->andWhere('a.isDeleted = false'); // Přidání podmínky pro adopci
 
         $orX = $qb->expr()->orX();
 
