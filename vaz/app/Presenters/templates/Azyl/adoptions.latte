@@ -230,10 +230,11 @@
                     {$adoption->getUser()->getLastName()}<br>
                   <b>Email:</b> {$adoption->getUser()->getEmail()}<br>
                   <b>Telefon:</b>  {$adoption->getUser()->getPhone()} <br>
+                   {if ($hodnoceni !== null)}
                   <hr>
                   <b>Hodnocení:</b><br>
-                  {if ($hodnoceni !== null)}
-                    {var $avarge}  {var $div}
+
+                    {var $avarge}  {var $div = 1}
                       <div>
                       {foreach $hodnoceni as $hod}
 
@@ -242,11 +243,12 @@
                           {var $div = $div+1}
                       {/foreach}
                       </div>
-                      {else}
-                        <p class="large">Žádné slovní hodnocení</p>
-                      {/if}
                         <hr>
-                       <b class="display-6">Známka:</b> <span class="display-6 {if $avarge/$div > 3 } text-warning {else} text-success {/if}">{($avarge/$div)|round:1}</span> <br>
+                        <b class="display-6">Známka:</b> <span class="display-6 {if $avarge/$div > 3 } text-warning {else} text-success {/if}">{($avarge/$div)|round:1}</span> <br>
+                      {else}
+                        <p class="large">Žádné  hodnocení</p>
+                      {/if}
+
                         <hr>
                     <b>Zájemce napsal:</b><br>
                     <div>
