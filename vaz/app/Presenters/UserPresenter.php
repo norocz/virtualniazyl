@@ -25,6 +25,7 @@ use App\Model\VersionService;
 use App\Services\AnalyticsService;
 use Brick\PhoneNumber\PhoneNumberFormat;
 use Brick\PhoneNumber\PhoneNumberParseException;
+use Contributte\Translation\LocalesResolvers\Session;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,6 +33,7 @@ use App\Model\Services\Menu;
 use Contributte\Application\UI\BasePresenter;
 use DateTimeImmutable;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use JetBrains\PhpStorm\NoReturn;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumber;
@@ -83,11 +85,18 @@ class UserPresenter extends BasePresenter
 
     }
 
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
     public function startup(): void
     {
         parent::startup();
         if (!$this->getPresenter()->getUser()->isLoggedIn())
         {
+            bdump($this->getPresenter()->getAction());
+            $session = $this->getSession('back');
+            $session->set('backUrl', 'User:'.$this->getPresenter()->getAction());
             $this->redirect('Home:signIn');
 
         }
@@ -101,7 +110,7 @@ class UserPresenter extends BasePresenter
 
         
         $menu = new Menu();
-        $this->getTemplate()->messagesCount = '' ; //$this->messagesRepository->countUnreadMessages($this->getPresenter()->getUser()->getId());
+        $this->getTemplate()->messagesCount = $this->messagesRepository->countUnreadMessages($this->getUser()->getIdentity()->getData()['User']);
         $this->getTemplate()->mainMenuItems = $menu->getMenu();
 
     }
@@ -221,7 +230,7 @@ class UserPresenter extends BasePresenter
 
         $this->getTemplate()->messages = $messages;
         $this->getTemplate()->conversation = $id;
-      //  $this->messagesService->markMessagesAsRead($id);
+        $this->messagesService->markMessagesAsRead($id);
         $this->redrawControl('messagesCount');
         $this->redrawControl('chats');
         $this->redrawControl('messages');

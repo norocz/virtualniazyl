@@ -93,6 +93,10 @@ final class HomePresenter extends Nette\Application\UI\Presenter
         $this->firewall->setPresenter($this->getPresenter());
     }
 
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
     public function startup(): void
     {
         parent::startup();
@@ -100,7 +104,7 @@ final class HomePresenter extends Nette\Application\UI\Presenter
 
         if ($this->getPresenter()->getUser()->isLoggedIn())
         {
-            $this->getTemplate()->messagesCount = '' ;//$this->messagesRepository->countUnreadMessages($this->getPresenter()->getUser()->getId());
+            $this->getTemplate()->messagesCount = $this->messagesRepository->countUnreadMessages($this->getUser()->getIdentity()->getData()['User']);
 
         }
         $this->getTemplate()->mainMenuItems = $menu->getMenu();
@@ -484,12 +488,20 @@ public function renderAdoptions($offset = 0): void
             }
 
             if ($values->remember) {
-                $this->user->setExpiration('14 days'); // Uživatel zůstane přihlášen 14 dní
+                $this->getUser()->setExpiration('14 days'); // Uživatel zůstane přihlášen 14 dní
             } else {
-                $this->user->setExpiration('20 minutes', true); // Standardní 20 minutová expirace
+                $this->getUser()->setExpiration('20 minutes', true); // Standardní 20 minutová expirace
+            }
+                $backUrl = $this->getSession('back');
+                $back = $backUrl->get('backUrl');
+
+            if($back)
+            {
+                $this->getPresenter()->redirect($back);
+            }else{
+                $this->getPresenter()->redirect('Home:default');
             }
 
-            $this->getPresenter()->redirect('Home:default');
         } catch (AuthenticationException $e) {
             $this->firewall->logFailedLogin(); // Logování neúspěšného pokusu
             $this->getPresenter()->flashMessage('Email nebo heslo jsou špatně', 'alert-warning');

@@ -144,7 +144,7 @@ class MessagesService
         }
     }
 
-    public function markMessagesAsRead(string $id)
+    public function markMessagesAsRead(string $id): void
     {
         $messages = $this->messagesRepository->findBytConversationMessages($id);
         foreach ($messages as $message)

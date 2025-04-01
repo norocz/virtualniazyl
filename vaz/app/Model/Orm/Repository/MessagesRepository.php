@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 
 class MessagesRepository extends EntityRepository
 {
@@ -18,21 +19,25 @@ class MessagesRepository extends EntityRepository
         parent::__construct($em, $em->getClassMetadata($entityClass));
     }
 
-    /*
-    public function countUnreadMessages(int $receiverId): int
+
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
+    public function countUnreadMessages(Users $user): int
     {
         return $this->createQueryBuilder('m')
             ->select('COUNT(m)')
             ->andWhere('m.readed = :readed')
-            ->andWhere('m.receiver = :receiverId')
+            ->andWhere('m.user = :User')
             ->andWhere('m.deletedAt IS NULL OR m.deletedAt > :now')
             ->setParameter('readed', false)
-            ->setParameter('receiverId', $receiverId)
+            ->setParameter('User', $user)
             ->setParameter('now', new \DateTimeImmutable())
             ->getQuery()
             ->getSingleScalarResult();
     }
-    */
+
 
 
     public function findBytConversationMessages(string $conversationId): ?array

@@ -123,6 +123,11 @@ class AzylPresenter extends BasePresenter
     {
         parent::startup();
         if (!$this->getPresenter()->getUser()->loggedIn) {
+            bdump($this->getPresenter()->getAction());
+          //  $session = $this->getPresenter()->getSession();
+          //  $session->set('backUrl', 'User:'.$this->getPresenter()->getAction());
+
+
             $this->redirect('Home:SignIn');
         } else {
 
@@ -585,7 +590,11 @@ class AzylPresenter extends BasePresenter
             if (!$adoption) {
                 throw new Nette\Application\BadRequestException('Stránka není dostupná', 404);
             }
+            $reviews = $this->usersRatingsRepository->findByUser($adoption->getUser());
+            bdump($reviews);
             $this->getTemplate()->adoption = $adoption;
+            $this->getTemplate()->userPhotos = $adoption->getUser()->getPhotos();
+            $this->getTemplate()->hodnoceni = $reviews;
 
         } else {
 
@@ -615,9 +624,13 @@ class AzylPresenter extends BasePresenter
         }
     }
 
+    /**
+     * @throws NonUniqueResultException
+     * @throws InvalidLinkException
+     */
     public function handleDeleteMsg(int $id): void
     {
-        $redirectAddress = $this->messagesRepository->getMessagesById($id)->getReceiverAddress();
+        $redirectAddress = $this->messagesRepository->getMessagesById($id, $this->getUser()->getIdentity()->getData()['user']);
         if ($this->messagesService->deleteMessage($id, $this->getPresenter())) {
             $this->flashMessage('Vzkaz byl smazán.', 'alert-success');
         } else {

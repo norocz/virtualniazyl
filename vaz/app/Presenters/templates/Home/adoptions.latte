@@ -42,7 +42,7 @@
 
                             <form n:name=searchForm class="form-inline position-relative w-lg-50 ms-lg-4 ms-xl-9 mt-3 mt-lg-0">
                                 <div class="input-group mb-3" >
-                                    <input n:name=search type="text" class="form-control search fs-8 bg-transparent form-control shadow" placeholder="{$placeholders}" aria-label="Recipient's username" aria-describedby="button-addon2">
+                                    <input n:name=search type="text" class="form-control search fs-8 bg-transparent form-control shadow" placeholder="{$placeholders}" aria-label="Search string" aria-describedby="button-addon2">
                                     <input n:name=send class="btn btn-outline-secondary button shadow" type="submit" value="Hledat" id="button-addon2">
                                 </div>
 
@@ -67,7 +67,7 @@
                         <div class="adoptions d-flex flex-row flex-wrap" id="adoptions">
                             {foreach $adoptions as $adoption}
                                 <div class="adoptions-border">
-                                    <div class = "card adoptions-card" style="width: 23rem;">
+                                    <div class = "card adoptions-card" style="width: 20rem;">
                                         {if !is_null($adoption->getPhotos()[0])}
                                             <img class="card-img-top" src="{$basePath}{$adoption->getPhotos()[0]->getPath().$adoption->getPhotos()[0]->getName()}" alt="{$adoption->getPhotos()[0]->getName()}" />
                                         {else}
@@ -108,11 +108,11 @@
                                             <p class="card-text">{$adoption->getDescription()}</p>
 
                                             {if $user->isLoggedIn()}
-                                                <a href="{link Home:adopce $adoption->getId()}" class="btn btn-sm btn-outline-primary">Chci adoptovat!</a>
+                                                <a href="{link Home:adopce $adoption->getId()}" class="btn btn-sm btn-outline-primary">Adoptovat 😍</a>
                                             {else}
                                                 <a href="{link Home:SignIn}" class="btn btn-sm btn-outline-primary">Přihlašení</a>
                                             {/if}
-                                            <a href="{link Home:azyl $adoption->getAzyl()->getId()}" class="btn btn-sm btn-outline-info">{$adoption->getAzyl()->getAzylName()}</a>
+                                            <a href="{link Home:azyl $adoption->getAzyl()->getId()}" class="btn btn-sm btn-outline-info">Stranka azylu 💚</a>
                                         </div>
                                     </div>
                                 </div>

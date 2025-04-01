@@ -222,28 +222,34 @@
 
         </div>
         <div class="row">
-           {var $hodnoceni = $adoption->getUser()->getRatings()}
-        {dump $hodnoceni}
-                <div class="col-lg-5 col-sm-12 bg-light rounded p-4 m-1 w-lg-100">
-                    <div class="title h6">Zájemce</div>
-                    <span class="h4 alert-warning">{$adoption->getUser()->getUserName()}</span> <br>
-                  Jméno:  {$adoption->getUser()->getFirstName()}
+
+                    <div class="col-lg-5 col-sm-12 bg-light rounded p-4 m-1 w-lg-100">
+                    <div class="title h6">Zájemce:</div>
+                    <span class="h4">{$adoption->getUser()->getUserName()}</span> <br>
+                  <b>Jméno:</b>  {$adoption->getUser()->getFirstName()}
                     {$adoption->getUser()->getLastName()}<br>
-                  Email: {$adoption->getUser()->getEmail()}<br>
-                  Telefon:  {$adoption->getUser()->getPhone()} <br>
-                  Známka adoptujícího: {$hodnoceni['average']}<br>
-                  Hodnocení:<br>
+                  <b>Email:</b> {$adoption->getUser()->getEmail()}<br>
+                  <b>Telefon:</b>  {$adoption->getUser()->getPhone()} <br>
+                  <hr>
+                  <b>Hodnocení:</b><br>
                   {if ($hodnoceni !== null)}
-                  {foreach $hodnoceni as $hod}
-                   <p>{$hod->getRating()|safeHtml} - {$hod->getReview()|safeHtml}</p>
+                    {var $avarge}  {var $div}
+                      <div>
+                      {foreach $hodnoceni as $hod}
 
-                  {/foreach}
-                  {else}
-                    <p class="large">Žádné slovní hodnocení</p>
-                  {/if}
-
-                    Zájemce napsal:<br>
-                    <div class="w-auto mt-2 border rounded border">
+                       <p class="{if $hod->getRating() > 3 } text-warning {else} text-success {/if}">{$hod->getReview()|safeHtml}</p>
+                          {var $avarge = $avarge + $hod->getRating()}
+                          {var $div = $div+1}
+                      {/foreach}
+                      </div>
+                      {else}
+                        <p class="large">Žádné slovní hodnocení</p>
+                      {/if}
+                        <hr>
+                       <b class="display-6">Známka:</b> <span class="display-6 {if $avarge/$div > 3 } text-warning {else} text-success {/if}">{($avarge/$div)|round:1}</span> <br>
+                        <hr>
+                    <b>Zájemce napsal:</b><br>
+                    <div>
 
                         {$adoption->getDescription()}
 
@@ -251,7 +257,9 @@
 
 
                     {ifset $userPhotos}
-                    <div class="w-auto mt-2 border rounded">
+                            <hr>
+                            <b>Fotky zájemce:</b>
+                    <div class="w-auto mt-2 m-1 rounded">
 
                         {foreach  $userPhotos as $userPhoto}
                             <img width="80em" src="{$basePath}{$userPhoto->getPath()}{$userPhoto->getName()}" alt="{$userPhoto->getOriginalName()}" class="img-fluid image-thumbnail rounded" onclick="showImageModal(this.src)">
