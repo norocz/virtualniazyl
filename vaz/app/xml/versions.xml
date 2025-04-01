@@ -7,7 +7,11 @@
             - zmenšený náhled adopce aby se vešli 4 vedle sebe
             - upraven vystup v adopci pro azyl
             - počet zpráv na hlavní stránce
-            - předělaná tlačítka u adopcí (aby se top vešlo)
+            - předělaná tlačítka u adopcí (aby se to vešlo)
+
+            - opravena chyba v šabloně
+            - oprava JS v šablonách
+            - oprava designu šablony
 
 
         </description>

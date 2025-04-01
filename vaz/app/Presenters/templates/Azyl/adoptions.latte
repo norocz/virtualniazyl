@@ -230,15 +230,13 @@
                     {$adoption->getUser()->getLastName()}<br>
                   <b>Email:</b> {$adoption->getUser()->getEmail()}<br>
                   <b>Telefon:</b>  {$adoption->getUser()->getPhone()} <br>
-                   {if ($hodnoceni !== null)}
+                   {if !is_null($hodnoceni)}
                   <hr>
                   <b>Hodnocení:</b><br>
-
                     {var $avarge}  {var $div = 1}
                       <div>
                       {foreach $hodnoceni as $hod}
-
-                       <p class="{if $hod->getRating() > 3 } text-warning {else} text-success {/if}">{$hod->getReview()|safeHtml}</p>
+                          <p class="{if $hod->getRating() > 3 } text-warning {else} text-success {/if}">{$hod->getReview()|safeHtml}</p>
                           {var $avarge = $avarge + $hod->getRating()}
                           {var $div = $div+1}
                       {/foreach}
@@ -246,7 +244,7 @@
                         <hr>
                         <b class="display-6">Známka:</b> <span class="display-6 {if $avarge/$div > 3 } text-warning {else} text-success {/if}">{($avarge/$div)|round:1}</span> <br>
                       {else}
-                        <p class="large">Žádné  hodnocení</p>
+                        <p class="display-6">Žádné hodnocení</p>
                       {/if}
 
                         <hr>
