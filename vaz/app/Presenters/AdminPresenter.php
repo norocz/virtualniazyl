@@ -628,6 +628,21 @@ class AdminPresenter extends BasePresenter
     {
         $form = $this->speciesFormFactory->create();
         $form->onSuccess[] = [$this, 'speciesFormSucceeded'];
+
+        if ($this->getPresenter()->getParameter('id') !== null)
+        {
+            $species = $this->speciesRepository->findOneBy(['id' => $this->getPresenter()->getParameter('id')]);
+            $form->addHidden('id', $this->getPresenter()->getParameter('id'));
+            $form->setDefaults([
+                'name' => $species->getName(),
+                'tags' => $species->getTags() ?? null,
+                'description' => $species->getDescription(),
+                'sex' => $species->getSex(),
+                'id' => $species->getId(),
+            ]);
+
+        }
+
         return $form;
     }
 
@@ -635,22 +650,26 @@ class AdminPresenter extends BasePresenter
 
     public function speciesFormSucceeded(Form $form, \stdClass $values): void
     {
+        bdump($values);
+        bdump($this->getRequest());
+        $species = $this->speciesRepository->findOneById(intval($this->getRequest()->getPost('id')));
 
-        if ($this->getPresenter()->getParameter('id') !== null) {
-            $species = $this->speciesRepository->findOneBy(['id' => $this->getPresenter()->getParameter('id')]);
-            if ($species) {
-                $species->setSpecies($values->species);
-                $species->setBreed($values->breed);
-                $species->setAzyl($values->azyl);
+        if ($species) {
+
+                $species->setSex($values->sex);
+                $species->setDescription($values->description);
+                $species->setTags($values->tags);
                 $this->speciesRepository->save($species);
                 $this->flashMessage('Druh byl aktualizován.', 'alert-success');
                 $this->redirect('Admin:species');
-            }
-        } else {
+        }
+        else
+        {
             $species = new Species();
             $species->setName($values->name);
             $species->setSex($values->sex);
             $species->setDescription($values->description);
+            $species->setTags($values->tags);
             $this->speciesRepository->save($species);
             $this->flashMessage('Druh byl uložen.', 'alert-success');
             $this->redirect('Admin:species');

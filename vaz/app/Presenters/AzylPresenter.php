@@ -932,7 +932,7 @@ class AzylPresenter extends BasePresenter
             $animal->setWeight($values->weight);
             $animal->setMultiAdoption($values->multiAdoption);
             $animal->setReception($values->reception);
-            $tags = $cityName.' '.$region.' '.$office.' '.$values->name.' '.$values->breed.' '.$this->speciesRepository->findOneById($values->species)->getName();
+            $tags = $cityName.' '.$region.' '.$office.' '.$values->name.' '.$values->breed.' '.$this->speciesRepository->findOneById($values->species)->getName().' '.$this->speciesRepository->findOneById($values->species)->getTags();
             $animal->setTags($tags);
             $this->animalsRepository->persist($animal);
             foreach ($values->photos as $photo) {
@@ -949,6 +949,12 @@ class AzylPresenter extends BasePresenter
             $this->redirect('Azyl:animals');
         } else {
 
+            $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
+            $city = $this->cityRepository->findCityById(intval($azyl->getCity()));
+            $cityName = $city->getCityName();
+            $region = $city->getRegion();
+            $office = $city->getCityOffice();
+
             $animal = $this->animalsRepository->findById(intval($id));
             $animal->setName($values->name);
             $animal->setDescription($values->description);
@@ -963,6 +969,9 @@ class AzylPresenter extends BasePresenter
             $animal->setHeight($values->height);
             $animal->setWeight($values->weight);
             $animal->setReception($values->reception);
+
+            $tags = $cityName.' '.$region.' '.$office.' '.$values->name.' '.$values->breed.' '.$this->speciesRepository->findOneById($values->species)->getName().' '.$this->speciesRepository->findOneById($values->species)->getTags();
+            $animal->setTags($tags);
 
             foreach ($values->photos as $photo) {
                 $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());

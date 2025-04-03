@@ -71,6 +71,8 @@ class AnimalsDatagridFactory extends DataGrid
         $this->addColumnText('age', 'Věk');
         $this->addColumnText('description', 'Popis')
             ->setFilterText();
+        $this->addColumnText('tags', 'Vyhledavání')
+            ->setFilterText();
 
         $this->addColumnStatus('toAdoption', 'K adopci')
             ->setTemplate(__DIR__ .'/templates/column_status.latte')
@@ -95,7 +97,7 @@ class AnimalsDatagridFactory extends DataGrid
         $this->addAction('edit', '', 'Azyl:animal', ['id' => 'id'])
             ->setIcon('pencil-alt')
             ->setTitle('Upravit')
-            ->setClass('btn btn-xs btn-primary');
+            ->setClass('btn btn-sm btn-primary');
         $this->addAction('delete', '', 'delete!', ['id' => 'id'])
             ->setIcon('trash')
             ->setTitle('Smazat')

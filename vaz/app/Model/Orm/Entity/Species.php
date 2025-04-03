@@ -27,6 +27,9 @@ class Species
     #[ORM\OneToMany(targetEntity: "Animal", mappedBy: "species")]
     private Collection $animals;
 
+    #[ORM\Column(type: 'string', length: 1024)]
+    private ?string $tags;
+
     public function getId(): int
     {
         return $this->id;
@@ -69,5 +72,18 @@ class Species
     {
         return $this->animals;
     }
+
+    public function getTags(): ?string
+    {
+        return $this->tags;
+    }
+
+    public function setTags(?string $tags): Species
+    {
+        $this->tags = $tags;
+        return $this;
+    }
+
+
 
 }

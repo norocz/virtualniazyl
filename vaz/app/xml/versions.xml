@@ -1,5 +1,17 @@
 <versions>
     <version>
+        <date>04.04.2025</date>
+        <number>1.O RC1 Cassidy</number>
+        <description>
+            Změny:
+           - vylepšeno vyhledávání
+           - vylepšené ukládání zvířat azylu
+           - upravená DB
+           - editace druhů
+           - přidání TAGů pro vyhledávání k druhu
+        </description>
+    </version>
+    <version>
         <date>01.04.2025</date>
         <number>0.9.9.9 RC13</number>
         <description>

@@ -48,8 +48,13 @@ class SpeciesDatagridFactory extends BaseDatagridFactory
             ->setFilterText();
         $grid->addColumnText('description', 'Popis')
             ->setFilterText();
+        $grid->addColumnText('tags','Tagy')
+            ->setFilterText();
         $grid->addColumnText('sex', 'Pohlaví')
         ->setFilterSelect($this->sexTypeEnum->getSexTypesForm());
+
+        $grid->addAction('edit', '', 'Admin:species', ['id' => 'id'])
+            ->setIcon('pencil-alt');
 
         return $grid;
     }

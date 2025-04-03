@@ -11,15 +11,15 @@ class LogingService
 {
     private string $description;
     private string $action;
-    private string $ip;
-    private string $hostName;
+    private ?string $ip;
+    private ?string $hostName;
     private Users $user;
     public loginoutRepository $loginoutRepository;
     public function __construct(loginoutRepository $loginoutRepository)
     {
 
-        $this->ip = $_SERVER['REMOTE_ADDR'];
-        $this->hostName = $_SERVER['HTTP_HOST'];
+        $this->ip = $_SERVER['REMOTE_ADDR'] ?? null;
+        $this->hostName = $_SERVER['HTTP_HOST'] ?? null;
 
     }
 
