@@ -34,7 +34,7 @@
                                     {ifset $payments}
                                         <div class="payments">
                                         {foreach $payments as $payment}
-                                        {$payment->getPayedAt()->format('D:m:y H:m:s')} |
+                                        {$payment->getPayedAt()->format('D:m:y H:i:s')} |
                                         {$payment->getPay()} {$payment->getCurrency()}
 
 
@@ -101,7 +101,7 @@
 
                                                     <div class="payments">
                                                         {foreach $payments as $payment}
-                                                            {$payment->getPayedAt()->format('D:m:y H:m:s')} |
+                                                            {$payment->getPayedAt()->format('D:m:y H:i:s')} |
                                                             {$payment->getPay()} {$payment->getCurrency()}
 
 

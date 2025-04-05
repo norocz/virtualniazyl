@@ -33,7 +33,7 @@
                                       {if $log->getTempId() != null}
                                     TempID:{$log->getTempId()}</td>
                                 {/if}
-                                <td class="">{$log->getDate()->format('d.m.Y. H:m:s')}</td>
+                                <td class="">{$log->getDate()->format('d.m.Y')}<br>{$log->getDate()->format('H:i:s')}</td>
 
                                 <td>IP:{$log->getIpAdress()} <a class="btn-sm btn-sm btn-outline-warning btn-sm-square ajax" href="{link ipInfo! $log->getId()}">IP?</a> <br> HOST:{$log->getHost()}
                                        {snippet ipInfoIp{$log->getIpAdress()}}

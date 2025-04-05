@@ -1,5 +1,14 @@
 <versions>
     <version>
+        <date>05.04.2025</date>
+        <number>1.O RC2 Cassidy</number>
+        <description>
+            Změny:
+            - Opravena chyba ve formátu data - napříč celým systémem jsem prostě Kokot :D (a nebo někdo kdo ten formát vymyslel je kokot) 
+
+        </description>
+    </version>
+    <version>
         <date>04.04.2025</date>
         <number>1.O RC1 Cassidy</number>
         <description>

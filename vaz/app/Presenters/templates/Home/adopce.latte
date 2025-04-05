@@ -211,7 +211,6 @@
                            <div class="col-xl-12 col-sm-12">
                         <div class="form-group">
                             <button n:name="sendAdoption" class="btn btn-outline-primary ajax">
-
                                 {switch $adopce->getAdoptionType()}
                                     {case 'Virtuální adopce'} Virtuálně adoptovat 🥹
                                     {case 'Dočasná péče'} Nabídnout dočasný domov 🥹
@@ -246,8 +245,6 @@
                                 {control contractSignForm}
                             </div>
 
-
-
                         {elseif $adopt->getActionType() == 'Přerušení adopce'}
 
                             <span class="big-message"><h3>Je nám líto. Adopce byla přerušena!</h3> Zkuste jiné <a href="{link home:adoptions}">zvířátko</a>! Díky!</span>
@@ -263,9 +260,7 @@
 
                     {elseif $adopce->isAdopted()}
                     <div class="adopce-message alert alert-primary align-center">
-
                         <span class="big-message"><h3>Zvířátko je už adoptované!</h3> Zkuste jiné <a href="{link home:adoptions}">zvířátko</a>! Díky!</span>
-
                     </div>
 
                     {elseif !$user->isLoggedIn()}
@@ -279,11 +274,6 @@
                     {/if}
                 </div>
             </div>
-
-
-
-
-
 
                 </div>
             </div>

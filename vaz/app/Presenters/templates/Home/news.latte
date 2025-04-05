@@ -28,7 +28,7 @@
                         <div class="card-body">
                             <p class="card-text"> {$new->getContent()|noescape}</p>
                             <p class="author-name card-text"><small class="text-muted">Autor: {$userName} </small>
-                                <br><small class="text-muted">Vytvořeno: {$new->getCreatedAt()->format('d.m.Y. H:m:s')}</small>
+                                <br><small class="text-muted">Vytvořeno: {$new->getCreatedAt()->format('d.m.Y H:i:s')}</small>
 
                             </p>
 
