@@ -55,6 +55,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use JetBrains\PhpStorm\NoReturn;
 use libphonenumber\NumberParseException;
 use Nette;
+use Nette\Application\Attributes\Parameter;
 use Nette\Application\UI\Form;
 use Nette\Application\UI\InvalidLinkException;
 use Random\RandomException;
@@ -67,7 +68,8 @@ use App\Services\AzylAddressService;
 
 class AzylPresenter extends BasePresenter
 {
-
+    #[Parameter]
+    public ?int $id;
     private AnimalsRepository $animalsRepository;
     private AnimalFormFactory $animalFormFactory;
     private AzylSetingsFormFactory $azylSetingsFormFactory;
@@ -124,8 +126,8 @@ class AzylPresenter extends BasePresenter
         parent::startup();
         if (!$this->getPresenter()->getUser()->loggedIn) {
             bdump($this->getPresenter()->getAction());
-          //  $session = $this->getPresenter()->getSession();
-          //  $session->set('backUrl', 'User:'.$this->getPresenter()->getAction());
+            //  $session = $this->getPresenter()->getSession();
+            //  $session->set('backUrl', 'User:'.$this->getPresenter()->getAction());
 
 
             $this->redirect('Home:SignIn');
@@ -174,7 +176,6 @@ class AzylPresenter extends BasePresenter
         $this->getTemplate()->random = $this->getUser()->getIdentity()->getData()['Azyl']->getRandom();
 
 
-
     }
 
 
@@ -199,88 +200,79 @@ class AzylPresenter extends BasePresenter
     {
         $log = new AdoptionLog();
         $adoption = $this->adoptionsRepository->findOneBy(['id' => intval($this->getPresenter()->getParameter('id'))]);
-        $animal = $this->animalsRepository->findOneBy(['id'=>$adoption->getAnimal()->getId()]);
+        $animal = $this->animalsRepository->findOneBy(['id' => $adoption->getAnimal()->getId()]);
         $adoption->setUpdatedAt(new DateTimeImmutable());
         $log->setAdoption($adoption);
         $log->setCreatedAt(new DateTimeImmutable());
 
-            if ($form['comment']->isSubmittedBy())  //jen komentář
-                {
-                    $log->setComment($values->commentText);
-                    $log->setActionType($adoption->getActionType());
-                    $this->flashMessage('Komentář k adopci přidán.','alert-primary');
-                }
-            elseif($form['writ']->isSubmittedBy()) //písemný kontakt
-                {
-                    $log->setComment($values->commentText);
-                    $animal->setAdopted(false);
-                    $animal->setToAdoption(true);
-                    $adoption->setActionType(ActionTypeEnum::CONTACT_ADOPTION);
-                    $log->setActionType(ActionTypeEnum::CONTACT_ADOPTION);
-                    $this->flashMessage('Písemný kontakt.','alert-primary');
-                }
-            elseif($form['phon']->isSubmittedBy()) //telefonický kontakt
-                {
-                    $log->setComment($values->commentText);
-                    $animal->setAdopted(false);
-                    $animal->setToAdoption(true);
-                    $adoption->setActionType(ActionTypeEnum::PHONE_CALL_ADOPTION);
-                    $log->setActionType(ActionTypeEnum::PHONE_CALL_ADOPTION);
-                    $this->flashMessage('Telefonický kontakt.','alert-primary');
-                }
-            elseif($form['pers']->isSubmittedBy()) //osobní kontakt
-                {
-                    $log->setComment($values->commentText);
-                    $animal->setAdopted(false);
-                    $animal->setToAdoption(true);
-                    $adoption->setActionType(ActionTypeEnum::PERSONAL_VISIT_ADOPTION);
-                    $log->setActionType(ActionTypeEnum::PERSONAL_VISIT_ADOPTION);
-                    $this->flashMessage('Osobní kontakt.','alert-primary');
-                }
-            elseif($form['pre']->isSubmittedBy()) //předschválení adopce
-                {
-                    $log->setComment($values->commentText);
-                    $animal->setAdopted(false);
-                    $animal->setToAdoption(false);
-                    $adoption->setActionType(ActionTypeEnum::VERIFICATION_ADOPTION);
-                    $log->setActionType(ActionTypeEnum::VERIFICATION_ADOPTION);
-                    $this->flashMessage('Pro adopci byla vystavena smlouva a adoptující byl vyzván aby podepsal smlouvu a adopční podmínky','alert-success');
-                }
-            elseif($form['ok']->isSubmittedBy()) //potvrzení adopce
-                {
-                    $log->setComment($values->commentText);
-                    $animal->setAdopted(true);
-                    $animal->setToAdoption(false);
-                    $adoption->setActionType(ActionTypeEnum::POSITIVE_ADOPTION_END);
-                    $log->setActionType(ActionTypeEnum::POSITIVE_ADOPTION_END);
-                    $this->flashMessage('Super! Adopce dobře dopadlo... paráda na světě je zase o něco víc lásky! :-)','alert-success');
-                }
-            elseif($form['stop']->isSubmittedBy()) //zrušení adopce
-                {
-                    $log->setComment($values->commentText);
-                    $animal->setAdopted(false);
-                    $animal->setToAdoption(true);
-                    $adoption->setActionType(ActionTypeEnum::NEGATIVE_ADOPTION_END);
-                    $log->setActionType(ActionTypeEnum::NEGATIVE_ADOPTION_END);
-                    $this->flashMessage('Adopce zastavena','alert-warning');
-                }
+        if ($form['comment']->isSubmittedBy())  //jen komentář
+        {
+            $log->setComment($values->commentText);
+            $log->setActionType($adoption->getActionType());
+            $this->flashMessage('Komentář k adopci přidán.', 'alert-primary');
+        } elseif ($form['writ']->isSubmittedBy()) //písemný kontakt
+        {
+            $log->setComment($values->commentText);
+            $animal->setAdopted(false);
+            $animal->setToAdoption(true);
+            $adoption->setActionType(ActionTypeEnum::CONTACT_ADOPTION);
+            $log->setActionType(ActionTypeEnum::CONTACT_ADOPTION);
+            $this->flashMessage('Písemný kontakt.', 'alert-primary');
+        } elseif ($form['phon']->isSubmittedBy()) //telefonický kontakt
+        {
+            $log->setComment($values->commentText);
+            $animal->setAdopted(false);
+            $animal->setToAdoption(true);
+            $adoption->setActionType(ActionTypeEnum::PHONE_CALL_ADOPTION);
+            $log->setActionType(ActionTypeEnum::PHONE_CALL_ADOPTION);
+            $this->flashMessage('Telefonický kontakt.', 'alert-primary');
+        } elseif ($form['pers']->isSubmittedBy()) //osobní kontakt
+        {
+            $log->setComment($values->commentText);
+            $animal->setAdopted(false);
+            $animal->setToAdoption(true);
+            $adoption->setActionType(ActionTypeEnum::PERSONAL_VISIT_ADOPTION);
+            $log->setActionType(ActionTypeEnum::PERSONAL_VISIT_ADOPTION);
+            $this->flashMessage('Osobní kontakt.', 'alert-primary');
+        } elseif ($form['pre']->isSubmittedBy()) //předschválení adopce
+        {
+            $log->setComment($values->commentText);
+            $animal->setAdopted(false);
+            $animal->setToAdoption(false);
+            $adoption->setActionType(ActionTypeEnum::VERIFICATION_ADOPTION);
+            $log->setActionType(ActionTypeEnum::VERIFICATION_ADOPTION);
+            $this->flashMessage('Pro adopci byla vystavena smlouva a adoptující byl vyzván aby podepsal smlouvu a adopční podmínky', 'alert-success');
+        } elseif ($form['ok']->isSubmittedBy()) //potvrzení adopce
+        {
+            $log->setComment($values->commentText);
+            $animal->setAdopted(true);
+            $animal->setToAdoption(false);
+            $adoption->setActionType(ActionTypeEnum::POSITIVE_ADOPTION_END);
+            $log->setActionType(ActionTypeEnum::POSITIVE_ADOPTION_END);
+            $this->flashMessage('Super! Adopce dobře dopadlo... paráda na světě je zase o něco víc lásky! :-)', 'alert-success');
+        } elseif ($form['stop']->isSubmittedBy()) //zrušení adopce
+        {
+            $log->setComment($values->commentText);
+            $animal->setAdopted(false);
+            $animal->setToAdoption(true);
+            $adoption->setActionType(ActionTypeEnum::NEGATIVE_ADOPTION_END);
+            $log->setActionType(ActionTypeEnum::NEGATIVE_ADOPTION_END);
+            $this->flashMessage('Adopce zastavena', 'alert-warning');
+        }
 
         $this->animalsRepository->saveAnimal($animal);
         $this->adoptionsRepository->saveAdoption($adoption);
         $this->adoptionLogRepository->save($log);
-        if($this->isAjax())
-        {
+        if ($this->isAjax()) {
             $this->redrawControl('adoptionInteraction');
-        }
-        else
-        {
+        } else {
             $this->redirect('this');
         }
     }
 
     public function createComponentUserScoreForm(): Form
     {
-       $form = $this->userScoreFormFactory->create();
+        $form = $this->userScoreFormFactory->create();
         $form->onSuccess[] = [$this, 'userScoreFormSubmitted'];
         return $form;
 
@@ -293,51 +285,38 @@ class AzylPresenter extends BasePresenter
         $userRating->setCreatedAt(new DateTimeImmutable());
         $userRating->setAzyl($this->azylRepository->findOneBy(['id' => $this->getUser()->getIdentity()->getData()['Azyl']->getId()]));
         $userRating->setUser($this->adoptionsRepository->findOneBy(['id' => intval($this->getParameter('id'))])->getUser());
-        if ($form['1']->isSubmittedBy())
-        {
+        if ($form['1']->isSubmittedBy()) {
             $userRating->setRating(1);
-        }
-        elseif($form['2']->isSubmittedBy())
-        {
+        } elseif ($form['2']->isSubmittedBy()) {
             $userRating->setRating(2);
-        }
-        elseif($form['3']->isSubmittedBy())
-        {
+        } elseif ($form['3']->isSubmittedBy()) {
             $userRating->setRating(3);
-        }
-        elseif($form['4']->isSubmittedBy())
-        {
+        } elseif ($form['4']->isSubmittedBy()) {
             $userRating->setRating(4);
-        }
-        elseif($form['5']->isSubmittedBy())
-        {
+        } elseif ($form['5']->isSubmittedBy()) {
             $userRating->setRating(5);
         }
 
         $userRating->setReview($values->comment);
         $this->usersRatingsRepository->save($userRating);
 
-        $this->flashMessage('Hodnocení adoptujícího uloženo',' alert-success');
-        if($this->isAjax())
-        {
+        $this->flashMessage('Hodnocení adoptujícího uloženo', ' alert-success');
+        if ($this->isAjax()) {
             $this->redrawControl('rating');
-        }
-        else
-        {
+        } else {
             $this->redirect('this');
         }
     }
 
-    public function handleUserReview($user,$r):void
+    public function handleUserReview($user, $r): void
     {
 
-        $this->flashMessage('Hodnocení uloženo','alert-success');
+        $this->flashMessage('Hodnocení uloženo', 'alert-success');
     }
 
     public function renderDefault(): void
     {
-        if(empty($this->getUser()->getIdentity()->getData()['Azyl']->getAzylName()))
-        {
+        if (empty($this->getUser()->getIdentity()->getData()['Azyl']->getAzylName())) {
             $this->flashMessage('Nejprve nastavte základní informace o Vašem azylu (nejsou stejné jako vaše uživatelská nastavení), důležitý je název nějaký smypatický popis a kontakt
                                          především město, podle něj se dá vyhodnotit jak blízko jste k zájemcům o adopci!', 'alert-warning');
 
@@ -372,16 +351,14 @@ class AzylPresenter extends BasePresenter
     public function actionCollections(?int $key = null): void
     {
         if ($key === null) {
-        $this->getTemplate()->collectionsNoActive = $this->collectionsRepository->findByAzylNoActive($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']);
-        $this->getTemplate()->collections = $this->collectionsRepository->findByAzylActive($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']);
-        $this->getTemplate()->collectionsWaiting = $this->collectionsRepository->findByAzylWaiting($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']);
-        }
-        else
-        {
             $this->getTemplate()->collectionsNoActive = $this->collectionsRepository->findByAzylNoActive($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']);
             $this->getTemplate()->collections = $this->collectionsRepository->findByAzylActive($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']);
             $this->getTemplate()->collectionsWaiting = $this->collectionsRepository->findByAzylWaiting($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']);
-            $this->getTemplate()->paymentsAll = $this->paymentsRepository->findBy(['variableSymbol'=> $key, 'azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']]);
+        } else {
+            $this->getTemplate()->collectionsNoActive = $this->collectionsRepository->findByAzylNoActive($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']);
+            $this->getTemplate()->collections = $this->collectionsRepository->findByAzylActive($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']);
+            $this->getTemplate()->collectionsWaiting = $this->collectionsRepository->findByAzylWaiting($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']);
+            $this->getTemplate()->paymentsAll = $this->paymentsRepository->findBy(['variableSymbol' => $key, 'azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']]);
         }
     }
 
@@ -390,13 +367,10 @@ class AzylPresenter extends BasePresenter
         $collection = $this->collectionsRepository->findOneByKey(intval($key));
         $collection->setIsActive(false); //nastavit na vypnuto
         $this->collectionsRepository->save($collection);
-        $this->flashMessage('Sbírka byla nastavena na neaktivní','alert-success');
-        if ($this->isAjax())
-        {
+        $this->flashMessage('Sbírka byla nastavena na neaktivní', 'alert-success');
+        if ($this->isAjax()) {
             $this->redrawControl();
-        }
-        else
-        {
+        } else {
             $this->redirect('this');
         }
 
@@ -414,8 +388,8 @@ class AzylPresenter extends BasePresenter
     public function createComponentCollectionForm(): Form
     {
         $form = $this->collectionFormFactory->create();
-        $form ->removeComponent($form->getComponent('send'));
-        $form ->addSubmit('send','Uložit sbírku')->setHtmlAttribute('class', 'btn btn-primary');
+        $form->removeComponent($form->getComponent('send'));
+        $form->addSubmit('send', 'Uložit sbírku')->setHtmlAttribute('class', 'btn btn-primary');
 
         $form->onSuccess[] = [$this, 'collectionFormSucceeded'];
 
@@ -510,11 +484,9 @@ class AzylPresenter extends BasePresenter
                 $photo->uploadCollectionHeadlinePhoto($values['headline']);
                 $this->photosRepository->save($photo);
                 $collection->setPhoto($photo);
-                }
-              else
-                 {
+            } else {
                 $collection->setPhoto(null);
-                }
+            }
 
             $this->collectionsRepository->save($collection);
             $this->flashMessage('Sbírka byla uložena, pokud je datum nastavené na dnešek ihned se spustí', 'alert-success');
@@ -539,9 +511,7 @@ class AzylPresenter extends BasePresenter
 
             $this->getTemplate()->city = $city->getId();
             $this->getTemplate()->region = $city->getRegion();
-        }
-        else
-        {
+        } else {
             $this->getTemplate()->regions = $this->cityRepository->fetchCountries();
             $this->getTemplate()->cities = $this->cityRepository->findCityByRegionArray('Kroměříž');
 
@@ -665,7 +635,7 @@ class AzylPresenter extends BasePresenter
 
     }
 
-    public function actionNews(): void
+    public function actionNews(?int $id): void
     {
         $this->getTemplate()->title = 'News';
     }
@@ -701,29 +671,22 @@ class AzylPresenter extends BasePresenter
     {
         $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
         $photo = $this->photosRepository->findOneBy(['id' => $photoId, 'azyl' => $azyl]);
-        if(!empty($photo))
-        {
+        if (!empty($photo)) {
             $photo->setDeleted(true);
             $this->photosRepository->save($photo);
             $this->flashMessage('Fotka smazána', 'alert-success');
             if ($this->isAjax()) {
 
                 $this->redrawControl('photos');
-            }
-            else
-            {
+            } else {
                 $this->redirect('this');
             }
-        }
-        else
-        {
+        } else {
             $this->flashMessage('Fotku nelze smazat', 'alert-danger');
             if ($this->isAjax()) {
 
                 $this->redrawControl('photos');
-            }
-            else
-            {
+            } else {
                 $this->redirect('this');
             }
 
@@ -734,29 +697,22 @@ class AzylPresenter extends BasePresenter
     {
 
         $photo = $this->photosRepository->findOneBy(['id' => $id, 'user' => $this->getPresenter()->getUser()->getId()]);
-        if(!empty($photo))
-        {
+        if (!empty($photo)) {
             $photo->setDeleted(true);
             $this->photosRepository->save($photo);
             $this->flashMessage('Fotka smazána', 'alert-success');
             if ($this->isAjax()) {
 
                 $this->redrawControl('photos');
-            }
-            else
-            {
+            } else {
                 $this->redirect('this');
             }
-        }
-        else
-        {
+        } else {
             $this->flashMessage('Fotku nelze smazat', 'alert-danger');
             if ($this->isAjax()) {
 
                 $this->redrawControl('photos');
-            }
-            else
-            {
+            } else {
                 $this->redirect('this');
             }
 
@@ -769,14 +725,11 @@ class AzylPresenter extends BasePresenter
         $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
         $photo = $this->photosRepository->findOneBy(['id' => $id, 'azyl' => $azyl]);
 
-        if(!empty($photo))
-        {
-                        $azyl->setMainPhoto($photo->getId());
-                        $this->azylRepository->saveAzyl($azyl);
-                        $this->flashMessage('Fotka nastavena', 'alert-success');
-        }
-        else
-        {
+        if (!empty($photo)) {
+            $azyl->setMainPhoto($photo->getId());
+            $this->azylRepository->saveAzyl($azyl);
+            $this->flashMessage('Fotka nastavena', 'alert-success');
+        } else {
             $this->flashMessage('Fotku nelze nastavit', 'alert-danger');
 
         }
@@ -786,8 +739,10 @@ class AzylPresenter extends BasePresenter
 
     public function handleNewsDelete(?int $id): void
     {
-        $news = $this->newsRepository->findOneBy(['id' => $id, 'azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']]);
-        if ($news === null) {
+        bdump($id);
+        $news = $this->newsRepository->findOneBy(['id' => $id]);
+        bdump($news);
+        if (!$news) {
             $this->flashMessage('Novinka nebyla nalezena.', 'alert-warning');
             if ($this->isAjax()) {
                 $this->redrawControl('flashes');
@@ -818,7 +773,7 @@ class AzylPresenter extends BasePresenter
         $form = $this->animalFormFactory->create();
         $form->onSuccess[] = [$this, 'animalFormSucceeded'];
         if ($this->getPresenter()->getParameter('id') !== null) {
-          //  $animal = $this->animalsRepository->findById(intval($this->getPresenter()->getParameter('id')));
+            //  $animal = $this->animalsRepository->findById(intval($this->getPresenter()->getParameter('id')));
             $animal = $this->animalsRepository->findOneBy(['id' => intval($this->getPresenter()->getParameter('id')), 'azyl' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']]);
             $form->setDefaults([
                     'name' => $animal->getName(),
@@ -850,8 +805,8 @@ class AzylPresenter extends BasePresenter
         $factory = $this->azylSetingsFormFactory;
         $factory->setLink($this->link('Json:select2'));
         $form = $factory->create();
-        if($city !== null){
-            $form['city']-> setItems([$city->getId() => $city->getCityName()], true);
+        if ($city !== null) {
+            $form['city']->setItems([$city->getId() => $city->getCityName()], true);
         }
 
         $form->setDefaults([
@@ -888,10 +843,9 @@ class AzylPresenter extends BasePresenter
         $azyl->setIco($values->ico);
         $azyl->setShortDescription($values->shortDescription);
         $azyl->setCity(intval($this->getRequest()->getPost('city')));
-        if(is_null($azyl->getMessageAddress()))
-        {
+        if (is_null($azyl->getMessageAddress())) {
             $azyl->setMessageAddress($this->azylAddressService->generateCommunicationAddress($azyl->getId(), $azyl->getEmail(), $azyl->getAzylName()));
-            $this->flashMessage('POZOR! Nastavena komunikační adresa interního systému.','alert-warning');
+            $this->flashMessage('POZOR! Nastavena komunikační adresa interního systému.', 'alert-warning');
         }
 
         $this->azylRepository->saveAzyl($azyl);
@@ -932,7 +886,7 @@ class AzylPresenter extends BasePresenter
             $animal->setWeight($values->weight);
             $animal->setMultiAdoption($values->multiAdoption);
             $animal->setReception($values->reception);
-            $tags = $cityName.' '.$region.' '.$office.' '.$values->name.' '.$values->breed.' '.$this->speciesRepository->findOneById($values->species)->getName().' '.$this->speciesRepository->findOneById($values->species)->getTags();
+            $tags = $cityName . ' ' . $region . ' ' . $office . ' ' . $values->name . ' ' . $values->breed . ' ' . $this->speciesRepository->findOneById($values->species)->getName() . ' ' . $this->speciesRepository->findOneById($values->species)->getTags();
             $animal->setTags($tags);
             $this->animalsRepository->persist($animal);
             foreach ($values->photos as $photo) {
@@ -970,7 +924,7 @@ class AzylPresenter extends BasePresenter
             $animal->setWeight($values->weight);
             $animal->setReception($values->reception);
 
-            $tags = $cityName.' '.$region.' '.$office.' '.$values->name.' '.$values->breed.' '.$this->speciesRepository->findOneById($values->species)->getName().' '.$this->speciesRepository->findOneById($values->species)->getTags();
+            $tags = $cityName . ' ' . $region . ' ' . $office . ' ' . $values->name . ' ' . $values->breed . ' ' . $this->speciesRepository->findOneById($values->species)->getName() . ' ' . $this->speciesRepository->findOneById($values->species)->getTags();
             $animal->setTags($tags);
 
             foreach ($values->photos as $photo) {
@@ -989,17 +943,15 @@ class AzylPresenter extends BasePresenter
         $this->redirect('this');
     }
 
-    public function createComponentNewsForm(): \Nette\Application\UI\Form
+    public function createComponentNewsForm(): Form
     {
         $form = $this->newsFormFactory->create();
-         $pined = $form->getComponent('pined');
-         $form->removeComponent($pined);
+        $pined = $form->getComponent('pined');
+        $form->removeComponent($pined);
 
         if ($this->getPresenter()->getParameter('id') !== null) {
             $news = $this->newsRepository->findOneBy(['id' => $this->getPresenter()->getParameter('id')]);
-
             if ($news) {
-
                 $form->addHidden('newsid', $news->getId());
                 $form->setDefaults(
                     [
@@ -1008,10 +960,7 @@ class AzylPresenter extends BasePresenter
                         'global' => $news->getGlobal(),
                         'visibleFrom' => $news->getVisibleFrom(),
                         'important' => $news->getImportant(),
-
-
                     ]);
-
                 $form->onSuccess[] = [$this, 'newsFormSucceededUpdate'];
                 return $form;
 
@@ -1020,10 +969,45 @@ class AzylPresenter extends BasePresenter
                 $this->redirect('Azyl:news');
             }
         } else {
-
-            $form->onSuccess[] = [$this, 'newsFormSucceeded'];
-
+            $form->onSuccess[] = [$this, 'newsFormSucceededNew'];
             return $form;
+        }
+
+    }
+
+    public function newsFormSucceeded(Form $form, \stdClass $values): void
+    {
+        if ($this->getPresenter()->getParameter('id') !== null) {
+            $news = $this->newsRepository->findOneBy(['id' => $this->getPresenter()->getParameter('id')]);
+            if ($news) {
+                $news->setTitle($values->title);
+                $news->setContent($values->content);
+                $news->setGlobal($values->global);
+                $news->setVisibleFrom($values->visibleFrom);
+                $news->setUpdatedAt(new DateTimeImmutable());
+                $news->setDeleted(false);
+                $news->setImportant($values->important);
+                $news->setPined(false);
+                $this->newsRepository->save($news);
+                $this->flashMessage('Novinka byla aktualizována.', 'alert-success');
+                $this->redirect('Admin:news');
+            }
+        } else {
+
+            $news = new News();
+            $author = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getIdentity()->getId());
+            $news->setAuthor($author);
+            $news->setTitle($values->title);
+            $news->setContent($values->content);
+            $news->setGlobal($values->global);
+            $news->setVisibleFrom($values->visibleFrom);
+            $news->setImportant($values->important);
+            $news->setCreatedAt(new DateTimeImmutable());
+            $news->setDeleted(false);
+            $news->setPined(false);
+            $this->newsRepository->save($news);
+            $this->flashMessage('Novinka byla uložena.', 'alert-success');
+            $this->redirect('Admin:news');
         }
     }
 
@@ -1036,35 +1020,54 @@ class AzylPresenter extends BasePresenter
 
 
     //TODO: tohle by se mělo překopat a zpřehlednit je tu bordel!!!!
-    public function newsFormSucceeded(Form $form, \stdClass $values): void
+    #[NoReturn] public function newsFormSucceededUpdate(Form $form, \stdClass $values): void
     {
 
-        $news = new News();
-        $user = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getIdentity()->getId());
+        $news = $this->newsRepository->findOneBy(['id' => $this->getPresenter()->getParameter('id')]);
+        if ($news) {
 
-        $azyl = $this->azylRepository->findOneBy(['id' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]);
+            $news->setTitle($values->title);
+            $news->setContent($values->content);
+            $news->setGlobal($values->global);
+            $news->setVisibleFrom($values->visibleFrom);
+            $news->setUpdatedAt(new DateTimeImmutable());
+            $news->setDeleted(false);
+            $news->setImportant($values->important);
+            $news->setPined(false);
+            $this->newsRepository->save($news);
+            $this->flashMessage('Novinka byla aktualizována.', 'alert-success');
+            $this->redirect('this');
+        } else
+        {
+            $this->flashMessage('Novinka nebyla aktualizována.', 'alert-warning');
+            $this->redirect('this');
+        }
+    }
 
-        $news->setAuthor($user);
-        $news->setTitle($values->title);
-        $news->setContent($values->content);
-        $news->setGlobal($values->global);
-        $news->setVisibleFrom($values->visibleFrom);
-        $news->setImportant($values->important);
-        $news->setCreatedAt(new DateTimeImmutable());
-        $news->setDeleted(false);
-        $news->setAzyl($azyl);
-        $news->setPined(false);
+    #[NoReturn] public function newsFormSucceededNew(Form $form, \stdClass $values): void
+    {
 
-        $this->newsRepository->save($news);
-
-
-        $this->flashMessage('Novinka byla uložena.', 'alert-success');
-        $this->redirect('Azyl:news');
+            $news = new News();
+            $author = $this->usersRepository->getUserById($this->getPresenter()->getUser()->getIdentity()->getId());
+            $azyl = $this->azylRepository->findById($this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId());
+            $news->setAuthor($author);
+            $news->setTitle($values->title);
+            $news->setContent($values->content);
+            $news->setGlobal($values->global);
+            $news->setVisibleFrom($values->visibleFrom);
+            $news->setImportant($values->important);
+            $news->setCreatedAt(new DateTimeImmutable());
+            $news->setDeleted(false);
+            $news->setPined(false);
+            $news->setAzyl($azyl);
+            $this->newsRepository->save($news);
+            $this->flashMessage('Novinka byla uložena.', 'alert-success');
+            $this->redirect('this');
 
     }
 
     //todo: Tady je BUG z nějakého důvodu se zobrazují i smazané novinky !!!! URGENT!!!!
-    public function newsFormSucceededUpdate(Form $form, \stdClass $values): void
+    public function newsFormSucceededUpdate2(Form $form, \stdClass $values): void
     {
         $id = $this->getPresenter()->getParameter('id');
         if ($id !== null) {
@@ -1104,8 +1107,8 @@ class AzylPresenter extends BasePresenter
 
         $grid->removeColumn('pined');
         $azyl = $this->azylRepository->findOneBy(['id' => $this->getPresenter()->getUser()->getIdentity()->getData()['Azyl']->getId()]);
-
-        $grid->setDataSource($azyl->getNews());
+        $news = $this->newsRepository->findBy(['azyl' => $azyl, 'deleted' => false], ['id' => 'DESC']);
+        $grid->setDataSource($news);
         return $grid;
     }
 

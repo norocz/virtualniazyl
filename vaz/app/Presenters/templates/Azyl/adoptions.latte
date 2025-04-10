@@ -262,8 +262,9 @@
                     <div class="w-auto mt-2 m-1 rounded">
 
                         {foreach  $userPhotos as $userPhoto}
+                            {if $userPhoto->isDeleted() !== true}
                             <img width="80em" src="{$basePath}{$userPhoto->getPath()}{$userPhoto->getName()}" alt="{$userPhoto->getOriginalName()}" class="img-fluid image-thumbnail rounded" onclick="showImageModal(this.src)">
-
+                            {/if}
                         {/foreach}
                     </div>
                     {/ifset}
