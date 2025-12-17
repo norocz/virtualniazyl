@@ -59,6 +59,7 @@ class PaymentsDatagridFactory
 
         $datagrid->addColumnText('$variable_symbol','Var. S.');
 
+        //TODO: Tady doplnit potřebné položky
 
         return $datagrid;
 
