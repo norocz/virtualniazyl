@@ -327,6 +327,11 @@ class SuperAdminPresenter extends BasePresenter
      */
 
 
+    public function createComponentPaymentsDatagrid(): Datagrid
+    {
+
+    }
+
     public function azylSetFormSuccessed(Form $form, \stdClass $values): void
     {
 

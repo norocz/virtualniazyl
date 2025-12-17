@@ -19,8 +19,8 @@ class Payments
     #[ORM\Column(type: 'integer')]
     private int $id;
 
-    #[ORM\Column(type: 'integer', length: 255)]
-    private int $pay;
+    #[ORM\Column(type: 'float', length: 255)]
+    private float $pay;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $createdAt;
@@ -64,12 +64,12 @@ class Payments
         return $this;
     }
 
-    public function getPay(): int
+    public function getPay(): float
     {
         return $this->pay;
     }
 
-    public function setPay(int $pay): Payments
+    public function setPay(float $pay): Payments
     {
         $this->pay = $pay;
         return $this;
