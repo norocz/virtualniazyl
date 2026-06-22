@@ -13,7 +13,7 @@ use Nette;
 
 
 /**
- * Class method.
+ * Definition of a class method.
  */
 final class Method
 {
@@ -23,12 +23,14 @@ final class Method
 	use Traits\CommentAware;
 	use Traits\AttributeAware;
 
+	public const Constructor = '__construct';
+
 	private bool $static = false;
 	private bool $final = false;
 	private bool $abstract = false;
 
 
-	public static function from(string|array $method): static
+	public static function from(string|array|\Closure $method): static
 	{
 		return (new Factory)->fromMethodReflection(Nette\Utils\Callback::toReflection($method));
 	}
@@ -96,8 +98,14 @@ final class Method
 	/** @throws Nette\InvalidStateException */
 	public function validate(): void
 	{
-		if ($this->abstract && ($this->final || $this->visibility === ClassLike::VisibilityPrivate)) {
+		if ($this->abstract && ($this->final || $this->visibility === Visibility::Private)) {
 			throw new Nette\InvalidStateException("Method $this->name() cannot be abstract and final or private at the same time.");
 		}
+	}
+
+
+	public function __clone(): void
+	{
+		$this->parameters = array_map(fn($param) => clone $param, $this->parameters);
 	}
 }

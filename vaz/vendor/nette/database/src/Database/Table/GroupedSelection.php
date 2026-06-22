@@ -15,19 +15,19 @@ use Nette\Database\Explorer;
 
 
 /**
- * Representation of filtered table grouped by some column.
+ * Represents filtered table grouped by referencing table.
  * GroupedSelection is based on the great library NotORM http://www.notorm.com written by Jakub Vrana.
  */
 class GroupedSelection extends Selection
 {
 	/** referenced table */
-	protected Selection $refTable;
+	protected readonly Selection $refTable;
 
 	/** current assigned referencing array */
 	protected mixed $refCacheCurrent;
 
 	/** grouping column name */
-	protected string $column;
+	protected readonly string $column;
 
 	/** primary key */
 	protected int|string $active;
@@ -86,6 +86,9 @@ class GroupedSelection extends Selection
 	/********************* aggregations ****************d*g**/
 
 
+	/**
+	 * Calculates aggregation for this group.
+	 */
 	public function aggregation(string $function, ?string $groupFunction = null): mixed
 	{
 		$aggregation = &$this->getRefTable($refPath)->aggregation[$refPath . $function . $this->sqlBuilder->getSelectQueryHash($this->getPreviousAccessedColumns())];
@@ -212,7 +215,6 @@ class GroupedSelection extends Selection
 		$this->observeCache = &$referencing['observeCache'];
 		$this->refCacheCurrent = &$referencing[$hash];
 		$this->accessedColumns = &$referencing[$hash]['accessed'];
-		$this->specificCacheKey = &$referencing[$hash]['specificCacheKey'];
 		$this->rows = &$referencing[$hash]['rows'];
 
 		if (isset($referencing[$hash]['data'][$this->active])) {

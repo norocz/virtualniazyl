@@ -219,7 +219,7 @@ class ObjectHydrator extends AbstractHydrator
      * Gets an entity instance.
      *
      * @param string $dqlAlias The DQL alias of the entity's class.
-     * @psalm-param array<string, mixed> $data     The instance data.
+     * @phpstan-param array<string, mixed> $data     The instance data.
      *
      * @return object
      *
@@ -273,8 +273,8 @@ class ObjectHydrator extends AbstractHydrator
     }
 
     /**
-     * @psalm-param class-string $className
-     * @psalm-param array<string, mixed> $data
+     * @param class-string $className
+     * @phpstan-param array<string, mixed> $data
      *
      * @return mixed
      */
@@ -367,11 +367,15 @@ class ObjectHydrator extends AbstractHydrator
                     $parentObject = $this->resultPointers[$parentAlias];
                 } else {
                     // Parent object of relation not found, mark as not-fetched again
-                    $element = $this->getEntity($data, $dqlAlias);
+                    if (isset($nonemptyComponents[$dqlAlias])) {
+                        $element = $this->getEntity($data, $dqlAlias);
 
-                    // Update result pointer and provide initial fetch data for parent
-                    $this->resultPointers[$dqlAlias]               = $element;
-                    $rowData['data'][$parentAlias][$relationField] = $element;
+                        // Update result pointer and provide initial fetch data for parent
+                        $this->resultPointers[$dqlAlias]               = $element;
+                        $rowData['data'][$parentAlias][$relationField] = $element;
+                    } else {
+                        $element = null;
+                    }
 
                     // Mark as not-fetched again
                     unset($this->_hints['fetched'][$parentAlias][$relationField]);

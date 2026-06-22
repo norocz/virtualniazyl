@@ -5,9 +5,11 @@ namespace App\Presenters;
 
 
 use App\Components\Datagrids\CollectionsDatagridFactory;
+use App\Components\Datagrids\PaymentsDatagridFactory;
 use App\Components\Datagrids\UsersDatagridFactory;
 use App\Forms\collectionFormFactory;
 use App\Forms\systemSettingsFormFactory;
+use App\Model\Orm\Entity\PaymentsOut;
 use App\Model\Orm\Entity\SystemSettings;
 use App\Model\Orm\Enums\RoleTypeEnum;
 use App\Model\Orm\Repository\AnalyticsRepository;
@@ -26,11 +28,13 @@ use Nette\Application\UI\Form;
 use App\Forms\setAzylFormFactory;
 use Nette\Security\AuthenticationException;
 use Nette\Security\SimpleIdentity;
+use Nette\Utils\DateTime;
 use Nette\Utils\Paginator;
 use Ublaboo\DataGrid\Column\Action\Confirmation\StringConfirmation;
 use Ublaboo\DataGrid\DataGrid;
 use Ublaboo\DataGrid\Exception\DataGridColumnStatusException;
 use Ublaboo\DataGrid\Exception\DataGridException;
+use App\Service\FioSettings;
 
 class SuperAdminPresenter extends BasePresenter
 {
@@ -50,6 +54,9 @@ class SuperAdminPresenter extends BasePresenter
     private UsersDatagridFactory $usersDatagridFactory;
     private UsersRepository $usersRepository;
     private RoleTypeEnum $roleTypeEnum;
+    private PaymentsDatagridFactory $paymentsDatagridFactory;
+
+    private FioSettings $fioSettings;
 
     public function __construct(setAzylFormFactory         $setAzylFormFactory,
                                 azylRepository             $azylRepository,
@@ -64,7 +71,9 @@ class SuperAdminPresenter extends BasePresenter
                                 SystemSetingsRepository    $systemSetingsRepository,
                                 UsersDatagridFactory       $usersDatagridFactory,
                                 UsersRepository            $usersRepository,
-                                RoleTypeEnum               $roleTypeEnum)
+                                RoleTypeEnum               $roleTypeEnum,
+                                PaymentsDatagridFactory     $paymentsDatagridFactory,
+                                FioSettings               $fioSettings)
     {
         parent::__construct();
         $this->setAzylFormFactory = $setAzylFormFactory;
@@ -81,6 +90,8 @@ class SuperAdminPresenter extends BasePresenter
         $this->usersDatagridFactory = $usersDatagridFactory;
         $this->usersRepository = $usersRepository;
         $this->roleTypeEnum = $roleTypeEnum;
+        $this->paymentsDatagridFactory = $paymentsDatagridFactory;
+        $this->fioSettings = $fioSettings;
 
     }
 
@@ -329,6 +340,59 @@ class SuperAdminPresenter extends BasePresenter
 
     public function createComponentPaymentsDatagrid(): Datagrid
     {
+        $grid = $this->paymentsDatagridFactory->create();
+        return $grid;
+    }
+
+    public function handleGenerate(): void
+    {
+        $this->getTemplate()->paymentsState = 'Generuji platby';
+        $this->redrawControl('generate');
+        bdump('Generuji platby');
+        $paymentOut = new PaymentsOut();
+        $paymentOut->setAmount((float)'100');
+        $paymentOut->setCurrency('CZK');
+        $paymentOut->setComment('TEST');
+
+        bdump($paymentOut);
+        $this->getTemplate()->paymentsState = '*-------';
+        $this->redrawControl('generate');
+        $this->getTemplate()->paymentsState = '-*------';
+        $this->redrawControl('generate');
+        $this->getTemplate()->paymentsState = '--*-----';
+        $this->redrawControl('generate');
+        $this->getTemplate()->paymentsState = '---*----';
+        $this->redrawControl('generate');
+        $this->getTemplate()->paymentsState = '----*---';
+        $this->redrawControl('generate');
+        $this->getTemplate()->paymentsState = '-----*--';
+        $this->redrawControl('generate');
+        $this->getTemplate()->paymentsState = '------*-';
+        $this->redrawControl('generate');
+        $this->getTemplate()->paymentsState = '-------*';
+        $this->redrawControl('generate');
+        $this->getTemplate()->paymentsState = 'Platby vygenerovány';
+        $this->redrawControl('generate');
+
+    }
+
+    public function handlePairing()
+    {
+        $this->getTemplate()->paymentsState = 'Páruji platby';
+        bdump('Páruji platby');
+        $this->redrawControl('generate');
+        $this->getTemplate()->paymentsState = 'Platby zpárovány';
+        $this->redrawControl('generate');
+
+    }
+
+    public function actionPayments(): void
+    {
+        $this->getTemplate()->paymentsState = '--------';
+        $this->getTemplate()->lastPayments = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2020-01-01 00:00:00');
+        $this->getTemplate()->banka = $this->fioSettings;
+
+
 
     }
 

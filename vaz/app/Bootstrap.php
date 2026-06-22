@@ -41,6 +41,7 @@ class Bootstrap
 		$configurator->addConfig($appDir . '/config/services.neon');
 		$configurator->addConfig($appDir . '/config/local.neon');
         $configurator->addConfig($appDir . '/config/server.neon');
+        $configurator->addConfig($appDir . '/config/fio.neon');
         //new types
 
         Type::addType('roleTypeEnum', 'App\Model\Orm\Enums\RoleTypeEnum');

@@ -16,6 +16,8 @@ use function count;
  * @deprecated 2.7 This class is being removed from the ORM and won't have any replacement
  *
  * @link    www.doctrine-project.org
+ *
+ * @phpstan-ignore class.extendsDeprecatedClass
  */
 class YamlExporter extends AbstractExporter
 {
@@ -228,9 +230,9 @@ class YamlExporter extends AbstractExporter
     }
 
     /**
-     * @psalm-param array<string, mixed> $array
+     * @phpstan-param array<string, mixed> $array
      *
-     * @psalm-return array<string, mixed>&array{entityListeners: array<class-string, array<string, array{string}>>}
+     * @phpstan-return array<string, mixed>&array{entityListeners: array<class-string, array<string, array{string}>>}
      */
     private function processEntityListeners(ClassMetadataInfo $metadata, array $array): array
     {
@@ -248,10 +250,10 @@ class YamlExporter extends AbstractExporter
     }
 
     /**
-     * @psalm-param array{entityListeners: array<class-string, array<string, array{string}>>} $array
-     * @psalm-param list<array{class: class-string, method: string}> $entityListenerConfig
+     * @phpstan-param array{entityListeners: array<class-string, array<string, array{string}>>} $array
+     * @phpstan-param list<array{class: class-string, method: string}> $entityListenerConfig
      *
-     * @psalm-return array{entityListeners: array<class-string, array<string, array{string}>>}
+     * @phpstan-return array{entityListeners: array<class-string, array<string, array{string}>>}
      */
     private function processEntityListenerConfig(
         array $array,

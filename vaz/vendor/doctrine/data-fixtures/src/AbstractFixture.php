@@ -43,14 +43,13 @@ abstract class AbstractFixture implements SharedFixtureInterface
      * and referenced to managed $object. If $name
      * already is set, it overrides it
      *
-     * @see Doctrine\Common\DataFixtures\ReferenceRepository::setReference
+     * @see ReferenceRepository::setReference()
      *
-     * @param string $name
      * @param object $object - managed object
      *
      * @return void
      */
-    public function setReference($name, $object)
+    public function setReference(string $name, object $object)
     {
         $this->getReferenceRepository()->setReference($name, $object);
     }
@@ -61,16 +60,15 @@ abstract class AbstractFixture implements SharedFixtureInterface
      * already is set, it throws a
      * BadMethodCallException exception
      *
-     * @see Doctrine\Common\DataFixtures\ReferenceRepository::addReference
+     * @see ReferenceRepository::addReference()
      *
-     * @param string $name
      * @param object $object - managed object
      *
      * @return void
      *
      * @throws BadMethodCallException - if repository already has a reference by $name.
      */
-    public function addReference($name, $object)
+    public function addReference(string $name, object $object)
     {
         $this->getReferenceRepository()->addReference($name, $object);
     }
@@ -79,17 +77,16 @@ abstract class AbstractFixture implements SharedFixtureInterface
      * Loads an object using stored reference
      * named by $name
      *
-     * @see Doctrine\Common\DataFixtures\ReferenceRepository::getReference
+     * @see ReferenceRepository::getReference()
      *
-     * @param string $name
-     * @psalm-param class-string<T>|null $class
+     * @phpstan-param class-string<T>|null $class
      *
      * @return object
-     * @psalm-return ($class is null ? object : T)
+     * @phpstan-return ($class is null ? object : T)
      *
      * @template T of object
      */
-    public function getReference($name, ?string $class = null)
+    public function getReference(string $name, ?string $class = null)
     {
         if ($class === null) {
             Deprecation::trigger(
@@ -107,14 +104,13 @@ abstract class AbstractFixture implements SharedFixtureInterface
      * Check if an object is stored using reference
      * named by $name
      *
-     * @see Doctrine\Common\DataFixtures\ReferenceRepository::hasReference
+     * @see ReferenceRepository::hasReference()
      *
-     * @param string $name
-     * @psalm-param class-string $class
+     * @phpstan-param class-string|null $class
      *
      * @return bool
      */
-    public function hasReference($name, ?string $class = null)
+    public function hasReference(string $name, ?string $class = null)
     {
         if ($class === null) {
             Deprecation::trigger(

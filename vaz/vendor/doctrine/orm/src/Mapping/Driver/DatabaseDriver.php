@@ -69,7 +69,7 @@ class DatabaseDriver implements MappingDriver
     /** @var array<class-string, string> */
     private $classToTableNames = [];
 
-    /** @psalm-var array<string, Table> */
+    /** @phpstan-var array<string, Table> */
     private $manyToManyTables = [];
 
     /** @var mixed[] */
@@ -156,8 +156,8 @@ class DatabaseDriver implements MappingDriver
      *
      * @param Table[] $entityTables
      * @param Table[] $manyToManyTables
-     * @psalm-param list<Table> $entityTables
-     * @psalm-param list<Table> $manyToManyTables
+     * @phpstan-param list<Table> $entityTables
+     * @phpstan-param list<Table> $manyToManyTables
      *
      * @return void
      */
@@ -185,8 +185,8 @@ class DatabaseDriver implements MappingDriver
     /**
      * {@inheritDoc}
      *
-     * @psalm-param class-string<T> $className
-     * @psalm-param ClassMetadata<T> $metadata
+     * @param class-string<T>  $className
+     * @param ClassMetadata<T> $metadata
      *
      * @template T of object
      */
@@ -400,7 +400,7 @@ class DatabaseDriver implements MappingDriver
      * Build field mapping from a schema column definition
      *
      * @return mixed[]
-     * @psalm-return array{
+     * @phpstan-return array{
      *     fieldName: string,
      *     columnName: string,
      *     type: string,
@@ -533,7 +533,7 @@ class DatabaseDriver implements MappingDriver
     /**
      * Returns the mapped class name for a table if it exists. Otherwise return "classified" version.
      *
-     * @psalm-return class-string
+     * @return class-string
      */
     private function getClassNameForTable(string $tableName): string
     {

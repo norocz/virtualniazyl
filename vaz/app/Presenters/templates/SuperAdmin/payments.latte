@@ -1,0 +1,32 @@
+{block superAdminContent}
+    <div class="payments">
+        <div class="container">
+            <div class="row p-2">
+                <div class="payments-buttons col-3">
+                    <a class="btn btn-primary btn-sm btn-block" href="{link generate!}">Generovat platby</a>
+                    <a class="btn btn-warning btn-sm btn-block" href="{link pairing!}">Párovat platby</a>
+
+                </div>
+                <div class="payments-info col-3">
+
+                    {snippet generate}
+                        <div class="payments-payments">
+                            Stav: {$paymentsState}<br>
+                            Naposledy generované platby: {$lastPayments->format('H:s:m')}<br>
+                            Poslední párování: {$lastPayments->format('H:s:m')}<br>
+                        </div>
+                    {/snippet}
+                </div>
+
+                <div class="bank-info col-6">
+                   Účet: {$banka->account}/{$banka->bankId} <br>
+                   IBAN: {$banka->iban} <br>
+                </div>
+            </div>
+        </div>
+    {control paymentsDatagrid}
+    </div>
+{/block}
+
+{block scripts}
+{/block}

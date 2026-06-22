@@ -26,8 +26,7 @@ class CollectionCacheKey extends CacheKey
      * The owner entity class
      *
      * @readonly Public only for performance reasons, it should be considered immutable.
-     * @var string
-     * @psalm-var class-string
+     * @var class-string
      */
     public $entityClass;
 
@@ -40,12 +39,11 @@ class CollectionCacheKey extends CacheKey
     public $association;
 
     /**
-     * @param string               $entityClass     The entity class.
+     * @param class-string         $entityClass     The entity class.
      * @param string               $association     The field name that represents the association.
      * @param array<string, mixed> $ownerIdentifier The identifier of the owning entity.
-     * @psalm-param class-string $entityClass
      */
-    public function __construct($entityClass, $association, array $ownerIdentifier)
+    public function __construct($entityClass, $association, array $ownerIdentifier, string $filterHash = '')
     {
         ksort($ownerIdentifier);
 
@@ -53,6 +51,8 @@ class CollectionCacheKey extends CacheKey
         $this->entityClass     = (string) $entityClass;
         $this->association     = (string) $association;
 
-        parent::__construct(str_replace('\\', '.', strtolower($entityClass)) . '_' . implode(' ', $ownerIdentifier) . '__' . $association);
+        $filterHash = $filterHash === '' ? '' : '_' . $filterHash;
+
+        parent::__construct(str_replace('\\', '.', strtolower($entityClass)) . '_' . implode(' ', $ownerIdentifier) . '__' . $association . $filterHash);
     }
 }

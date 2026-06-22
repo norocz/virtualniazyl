@@ -15,7 +15,7 @@ use function get_class;
  *
  * A Type object is obtained by calling the static {@see getType()} method.
  */
-#[\Attribute] abstract class Type
+abstract class Type
 {
     /**
      * The map of supported doctrine mapping types.

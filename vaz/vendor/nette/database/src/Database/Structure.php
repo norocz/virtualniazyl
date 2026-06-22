@@ -13,12 +13,14 @@ use Nette;
 
 
 /**
- * Cached reflection of database structure.
+ * Provides database structure metadata with caching.
  */
 class Structure implements IStructure
 {
-	protected Connection $connection;
-	protected Nette\Caching\Cache $cache;
+	protected readonly Connection $connection;
+	protected readonly Nette\Caching\Cache $cache;
+
+	/** @var array{tables: array, columns: array, primary: array, aliases: array, hasMany: array, belongsTo: array} */
 	protected array $structure;
 	protected bool $isRebuilt = false;
 
@@ -26,7 +28,7 @@ class Structure implements IStructure
 	public function __construct(Connection $connection, Nette\Caching\Storage $cacheStorage)
 	{
 		$this->connection = $connection;
-		$this->cache = new Nette\Caching\Cache($cacheStorage, 'Nette.Database.Structure.' . md5($this->connection->getDsn()));
+		$this->cache = new Nette\Caching\Cache($cacheStorage, 'Nette.Database.Structure.' . hash('xxh128', $connection->getDsn()));
 	}
 
 
@@ -92,7 +94,7 @@ class Structure implements IStructure
 		$this->needStructure();
 		$table = $this->resolveFQTableName($table);
 
-		if (!$this->connection->getDriver()->isSupported(Driver::SUPPORT_SEQUENCE)) {
+		if (!$this->connection->getDriver()->isSupported(Driver::SupportSequence)) {
 			return null;
 		}
 
@@ -150,6 +152,9 @@ class Structure implements IStructure
 	}
 
 
+	/**
+	 * Rebuilds structure cache.
+	 */
 	public function rebuild(): void
 	{
 		$this->structure = $this->loadStructure();
@@ -173,6 +178,9 @@ class Structure implements IStructure
 	}
 
 
+	/**
+	 * Loads complete structure from database.
+	 */
 	protected function loadStructure(): array
 	{
 		$driver = $this->connection->getDriver();
@@ -252,6 +260,9 @@ class Structure implements IStructure
 	}
 
 
+	/**
+	 * Returns normalized table name.
+	 */
 	protected function resolveFQTableName(string $table): string
 	{
 		$name = strtolower($table);

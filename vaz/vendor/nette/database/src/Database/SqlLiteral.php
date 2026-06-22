@@ -11,7 +11,7 @@ namespace Nette\Database;
 
 
 /**
- * SQL literal value.
+ * SQL literal that will not be escaped.
  */
 class SqlLiteral
 {
@@ -19,6 +19,12 @@ class SqlLiteral
 		private readonly string $value,
 		private readonly array $parameters = [],
 	) {
+	}
+
+
+	public function getSql(): string
+	{
+		return $this->value;
 	}
 
 

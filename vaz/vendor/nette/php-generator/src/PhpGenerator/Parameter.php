@@ -13,7 +13,7 @@ use Nette\Utils\Type;
 
 
 /**
- * Function/Method parameter description.
+ * Definition of a function/method parameter.
  */
 class Parameter
 {
@@ -66,7 +66,7 @@ class Parameter
 
 	public function isNullable(): bool
 	{
-		return $this->nullable;
+		return $this->nullable || ($this->hasDefaultValue && $this->defaultValue === null);
 	}
 
 

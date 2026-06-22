@@ -16,20 +16,24 @@ use Doctrine\ORM\Cache\Region;
 use Doctrine\ORM\Cache\TimestampCacheKey;
 use Doctrine\ORM\Cache\TimestampRegion;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Internal\CriteriaOrderings;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
 use Doctrine\ORM\PersistentCollection;
 use Doctrine\ORM\Persisters\Entity\EntityPersister;
 use Doctrine\ORM\Proxy\DefaultProxyClassNameResolver;
+use Doctrine\ORM\Query\FilterCollection;
 use Doctrine\ORM\UnitOfWork;
 
 use function array_merge;
-use function assert;
+use function func_get_args;
 use function serialize;
 use function sha1;
 
 abstract class AbstractEntityPersister implements CachedEntityPersister
 {
+    use CriteriaOrderings;
+
      /** @var UnitOfWork */
     protected $uow;
 
@@ -60,6 +64,9 @@ abstract class AbstractEntityPersister implements CachedEntityPersister
     /** @var Cache */
     protected $cache;
 
+    /** @var FilterCollection */
+    protected $filters;
+
     /** @var CacheLogger|null */
     protected $cacheLogger;
 
@@ -89,6 +96,7 @@ abstract class AbstractEntityPersister implements CachedEntityPersister
         $this->region          = $region;
         $this->persister       = $persister;
         $this->cache           = $em->getCache();
+        $this->filters         = $em->getFilters();
         $this->regionName      = $region->getName();
         $this->uow             = $em->getUnitOfWork();
         $this->metadataFactory = $em->getMetadataFactory();
@@ -259,7 +267,7 @@ abstract class AbstractEntityPersister implements CachedEntityPersister
             ? $this->persister->expandCriteriaParameters($criteria)
             : $this->persister->expandParameters($criteria);
 
-        return sha1($query . serialize($params) . serialize($orderBy) . $limit . $offset);
+        return sha1($query . serialize($params) . serialize($orderBy) . $limit . $offset . $this->filters->getHash());
     }
 
     /**
@@ -475,7 +483,7 @@ abstract class AbstractEntityPersister implements CachedEntityPersister
      */
     public function loadCriteria(Criteria $criteria)
     {
-        $orderBy     = $criteria->getOrderings();
+        $orderBy     = self::getCriteriaOrderings($criteria);
         $limit       = $criteria->getMaxResults();
         $offset      = $criteria->getFirstResult();
         $query       = $this->persister->getSelectSQL($criteria);
@@ -522,7 +530,7 @@ abstract class AbstractEntityPersister implements CachedEntityPersister
         }
 
         $ownerId = $this->uow->getEntityIdentifier($collection->getOwner());
-        $key     = $this->buildCollectionCacheKey($assoc, $ownerId);
+        $key     = $this->buildCollectionCacheKey($assoc, $ownerId, $this->filters->getHash());
         $list    = $persister->loadCollectionCache($collection, $key);
 
         if ($list !== null) {
@@ -557,7 +565,7 @@ abstract class AbstractEntityPersister implements CachedEntityPersister
         }
 
         $ownerId = $this->uow->getEntityIdentifier($collection->getOwner());
-        $key     = $this->buildCollectionCacheKey($assoc, $ownerId);
+        $key     = $this->buildCollectionCacheKey($assoc, $ownerId, $this->filters->getHash());
         $list    = $persister->loadCollectionCache($collection, $key);
 
         if ($list !== null) {
@@ -609,11 +617,15 @@ abstract class AbstractEntityPersister implements CachedEntityPersister
      *
      * @return CollectionCacheKey
      */
-    protected function buildCollectionCacheKey(array $association, $ownerId)
+    protected function buildCollectionCacheKey(array $association, $ownerId/*, string $filterHash */)
     {
-        $metadata = $this->metadataFactory->getMetadataFor($association['sourceEntity']);
-        assert($metadata instanceof ClassMetadata);
+        $filterHash = (string) (func_get_args()[2] ?? ''); // todo: move to argument in next major release
 
-        return new CollectionCacheKey($metadata->rootEntityName, $association['fieldName'], $ownerId);
+        return new CollectionCacheKey(
+            $this->metadataFactory->getMetadataFor($association['sourceEntity'])->rootEntityName,
+            $association['fieldName'],
+            $ownerId,
+            $filterHash
+        );
     }
 }

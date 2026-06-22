@@ -31,6 +31,8 @@ use function substr;
  * The YamlDriver reads the mapping metadata from yaml schema files.
  *
  * @deprecated 2.7 This class is being removed from the ORM and won't have any replacement
+ *
+ * @template-extends FileDriver<array<string, mixed>>
  */
 class YamlDriver extends FileDriver
 {
@@ -61,8 +63,8 @@ class YamlDriver extends FileDriver
     /**
      * {@inheritDoc}
      *
-     * @psalm-param class-string<T> $className
-     * @psalm-param ClassMetadata<T> $metadata
+     * @param class-string<T>  $className
+     * @param ClassMetadata<T> $metadata
      *
      * @template T of object
      */
@@ -736,7 +738,7 @@ class YamlDriver extends FileDriver
      * Constructs a joinColumn mapping array based on the information
      * found in the given join column element.
      *
-     * @psalm-param array{
+     * @phpstan-param array{
      *                   referencedColumnName?: mixed,
      *                   name?: mixed,
      *                   fieldName?: mixed,
@@ -747,7 +749,7 @@ class YamlDriver extends FileDriver
      *              } $joinColumnElement The array join column element.
      *
      * @return mixed[] The mapping array.
-     * @psalm-return array{
+     * @phpstan-return array{
      *                   referencedColumnName?: string,
      *                   name?: string,
      *                   fieldName?: string,
@@ -794,7 +796,7 @@ class YamlDriver extends FileDriver
     /**
      * Parses the given column as array.
      *
-     * @psalm-param array{
+     * @phpstan-param array{
      *                   type?: string,
      *                   column?: string,
      *                   precision?: mixed,
@@ -811,7 +813,7 @@ class YamlDriver extends FileDriver
      *              }|null $column
      *
      * @return mixed[]
-     * @psalm-return array{
+     * @phpstan-return array{
      *                   fieldName: string,
      *                   type?: string,
      *                   columnName?: string,
@@ -903,10 +905,10 @@ class YamlDriver extends FileDriver
      * Parse / Normalize the cache configuration
      *
      * @param mixed[] $cacheMapping
-     * @psalm-param array{usage: string|null, region?: mixed} $cacheMapping
+     * @phpstan-param array{usage: string|null, region?: mixed} $cacheMapping
      *
      * @return mixed[]
-     * @psalm-return array{usage: int|null, region: string|null}
+     * @phpstan-return array{usage: int|null, region: string|null}
      */
     private function cacheToArray(array $cacheMapping): array
     {

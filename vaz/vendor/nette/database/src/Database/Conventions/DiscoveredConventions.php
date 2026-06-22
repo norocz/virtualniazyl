@@ -14,16 +14,13 @@ use Nette\Database\IStructure;
 
 
 /**
- * Conventions based on database structure.
+ * Discovers database conventions based on table structure metadata.
  */
 class DiscoveredConventions implements Conventions
 {
-	protected IStructure $structure;
-
-
-	public function __construct(IStructure $structure)
-	{
-		$this->structure = $structure;
+	public function __construct(
+		protected readonly IStructure $structure,
+	) {
 	}
 
 

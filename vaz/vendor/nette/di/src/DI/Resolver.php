@@ -241,6 +241,10 @@ class Resolver
 				break;
 
 			case $entity instanceof Reference:
+				if ($arguments) {
+					$e = $this->completeException(new ServiceCreationException(sprintf('Parameters were passed to reference @%s, although references cannot have any parameters.', $entity->getValue())), $this->currentService);
+					trigger_error($e->getMessage(), E_USER_DEPRECATED);
+				}
 				$entity = [new Reference(ContainerBuilder::ThisContainer), Container::getMethodName($entity->getValue())];
 				break;
 
@@ -254,12 +258,7 @@ class Resolver
 
 				switch (true) {
 					case $entity[0] === '': // function call
-						if (!Arrays::isList($arguments)) {
-							throw new ServiceCreationException(sprintf(
-								'Unable to pass specified arguments to %s.',
-								$entity[0],
-							));
-						} elseif (!function_exists($entity[1])) {
+						if (!function_exists($entity[1])) {
 							throw new ServiceCreationException(sprintf("Function %s doesn't exist.", $entity[1]));
 						}
 
@@ -293,9 +292,6 @@ class Resolver
 
 								$arguments = self::autowireArguments($rm, $arguments, $getter);
 								$this->addDependency($rm);
-
-							} elseif (!Arrays::isList($arguments)) {
-								throw new ServiceCreationException(sprintf('Unable to pass specified arguments to %s::%s().', $type, $entity[1]));
 							}
 						}
 				}
@@ -354,12 +350,11 @@ class Resolver
 		}
 
 		if ($item instanceof Definition) {
-			$name = current(array_keys($this->builder->getDefinitions(), $item, strict: true));
-			if ($name === false) {
-				throw new ServiceCreationException(sprintf("Service '%s' not found in definitions.", $item->getName()));
-			}
+			if ($this->builder->getDefinition($item->getName()) !== $item) {
+				throw new ServiceCreationException(sprintf("Service '%s' does not match the expected service.", $item->getName()));
 
-			$item = new Reference($name);
+			}
+			$item = new Reference($item->getName());
 		}
 
 		if ($item instanceof Reference) {
@@ -518,7 +513,7 @@ class Resolver
 
 	/**
 	 * Add missing arguments using autowiring.
-	 * @param  (callable(string $type, bool $single): (object|object[]|null))  $getter
+	 * @param  (callable(string, bool): (object|object[]|null))  $getter
 	 * @throws ServiceCreationException
 	 */
 	public static function autowireArguments(
@@ -592,7 +587,7 @@ class Resolver
 
 	/**
 	 * Resolves missing argument using autowiring.
-	 * @param  (callable(string $type, bool $single): (object|object[]|null))  $getter
+	 * @param  (callable(string, bool): (object|object[]|null))  $getter
 	 * @throws ServiceCreationException
 	 */
 	private static function autowireArgument(\ReflectionParameter $parameter, callable $getter): mixed

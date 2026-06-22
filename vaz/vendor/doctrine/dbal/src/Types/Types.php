@@ -7,10 +7,11 @@ namespace Doctrine\DBAL\Types;
 /**
  * Default built-in types provided by Doctrine DBAL.
  */
-class Types
+final class Types
 {
     /** @deprecated Use {@link Types::JSON} instead. */
     public const ARRAY = 'array';
+
     public const ASCII_STRING         = 'ascii_string';
     public const BIGINT               = 'bigint';
     public const BINARY               = 'binary';

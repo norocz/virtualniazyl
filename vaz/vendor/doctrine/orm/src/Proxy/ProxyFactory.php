@@ -173,6 +173,7 @@ EOPHP;
             $this->isLazyGhostObjectEnabled = false;
 
             $proxyGenerator = new ProxyGenerator($proxyDir, $proxyNs);
+            // @phpstan-ignore classConstant.deprecatedInterface
             $proxyGenerator->setPlaceholder('baseProxyInterface', LegacyProxy::class);
 
             parent::__construct($proxyGenerator, $em->getMetadataFactory(), $autoGenerate);
@@ -293,7 +294,7 @@ EOPHP;
      *
      * @deprecated ProxyFactory::createInitializer() is deprecated and will be removed in version 3.0 of doctrine/orm.
      *
-     * @psalm-return Closure(CommonProxy):void
+     * @phpstan-return Closure(CommonProxy):void
      *
      * @throws EntityNotFoundException
      */
@@ -354,17 +355,16 @@ EOPHP;
     /**
      * Creates a closure capable of initializing a proxy
      *
-     * @return Closure(InternalProxy, InternalProxy):void
+     * @return Closure(InternalProxy, array):void
      *
      * @throws EntityNotFoundException
      */
     private function createLazyInitializer(ClassMetadata $classMetadata, EntityPersister $entityPersister, IdentifierFlattener $identifierFlattener): Closure
     {
-        return static function (InternalProxy $proxy, InternalProxy $original) use ($entityPersister, $classMetadata, $identifierFlattener): void {
-            $identifier = $classMetadata->getIdentifierValues($original);
-            $entity     = $entityPersister->loadById($identifier, $original);
+        return static function (InternalProxy $proxy, array $identifier) use ($entityPersister, $classMetadata, $identifierFlattener): void {
+            $original = $entityPersister->loadById($identifier);
 
-            if ($entity === null) {
+            if ($original === null) {
                 throw EntityNotFoundException::fromClassNameAndIdentifier(
                     $classMetadata->getName(),
                     $identifierFlattener->flattenIdentifier($classMetadata, $identifier)
@@ -378,11 +378,11 @@ EOPHP;
             $class = $entityPersister->getClassMetadata();
 
             foreach ($class->getReflectionProperties() as $property) {
-                if (! $class->hasField($property->name) && ! $class->hasAssociation($property->name)) {
+                if (isset($identifier[$property->name]) || ! $class->hasField($property->name) && ! $class->hasAssociation($property->name)) {
                     continue;
                 }
 
-                $property->setValue($proxy, $property->getValue($entity));
+                $property->setValue($proxy, $property->getValue($original));
             }
         };
     }
@@ -392,7 +392,7 @@ EOPHP;
      *
      * @deprecated ProxyFactory::createCloner() is deprecated and will be removed in version 3.0 of doctrine/orm.
      *
-     * @psalm-return Closure(CommonProxy):void
+     * @phpstan-return Closure(CommonProxy):void
      *
      * @throws EntityNotFoundException
      */
@@ -468,8 +468,8 @@ EOPHP;
         $identifierFields = array_intersect_key($class->getReflectionProperties(), $identifiers);
 
         $proxyFactory = Closure::bind(static function (array $identifier) use ($initializer, $skippedProperties, $identifierFields, $className): InternalProxy {
-            $proxy = self::createLazyGhost(static function (InternalProxy $object) use ($initializer, &$proxy): void {
-                $initializer($object, $proxy);
+            $proxy = self::createLazyGhost(static function (InternalProxy $object) use ($initializer, $identifier): void {
+                $initializer($object, $identifier);
             }, $skippedProperties);
 
             foreach ($identifierFields as $idField => $reflector) {

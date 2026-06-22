@@ -57,7 +57,13 @@ class PaymentsDatagridFactory
             ->setSortable()
             ->setFilterDate();
 
-        $datagrid->addColumnText('$variable_symbol','Var. S.');
+        $datagrid->addColumnText('variable_symbol','Var. S.');
+
+        $datagrid->addColumnText('payment_status','Stav P.');
+
+        $datagrid->addColumnText('azyl', 'Azyl');
+        $datagrid->addColumnText('collection','Sbírka');
+        $datagrid->addColumnText('pay','Částka');
 
         //TODO: Tady doplnit potřebné položky
 

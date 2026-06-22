@@ -16,7 +16,6 @@ use Doctrine\ORM\Mapping\QuoteStrategy;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Utility\HierarchyDiscriminatorResolver;
-use Doctrine\ORM\Utility\LockSqlHelper;
 use Doctrine\ORM\Utility\PersisterHelper;
 use InvalidArgumentException;
 use LogicException;
@@ -44,13 +43,11 @@ use function trim;
 /**
  * The SqlWalker walks over a DQL AST and constructs the corresponding SQL.
  *
- * @psalm-import-type QueryComponent from Parser
- * @psalm-consistent-constructor
+ * @phpstan-import-type QueryComponent from Parser
+ * @phpstan-consistent-constructor
  */
 class SqlWalker implements TreeWalker
 {
-    use LockSqlHelper;
-
     public const HINT_DISTINCT = 'doctrine.distinct';
 
     /**
@@ -114,7 +111,7 @@ class SqlWalker implements TreeWalker
     /**
      * Map from result variable names to their SQL column alias names.
      *
-     * @psalm-var array<string|int, string|list<string>>
+     * @phpstan-var array<string|int, string|list<string>>
      */
     private $scalarResultAliasMap = [];
 
@@ -135,21 +132,21 @@ class SqlWalker implements TreeWalker
     /**
      * Map of all components/classes that appear in the DQL query.
      *
-     * @psalm-var array<string, QueryComponent>
+     * @phpstan-var array<string, QueryComponent>
      */
     private $queryComponents;
 
     /**
      * A list of classes that appear in non-scalar SelectExpressions.
      *
-     * @psalm-var array<string, array{class: ClassMetadata, dqlAlias: string, resultAlias: string|null}>
+     * @phpstan-var array<string, array{class: ClassMetadata, dqlAlias: string, resultAlias: string|null}>
      */
     private $selectedClasses = [];
 
     /**
      * The DQL alias of the root class of the currently traversed query.
      *
-     * @psalm-var list<string>
+     * @phpstan-var list<string>
      */
     private $rootAliases = [];
 
@@ -178,7 +175,7 @@ class SqlWalker implements TreeWalker
     /**
      * @param Query        $query        The parsed Query.
      * @param ParserResult $parserResult The result of the parsing process.
-     * @psalm-param array<string, QueryComponent> $queryComponents The query components (symbol table).
+     * @phpstan-param array<string, QueryComponent> $queryComponents The query components (symbol table).
      */
     public function __construct($query, $parserResult, array $queryComponents)
     {
@@ -228,7 +225,7 @@ class SqlWalker implements TreeWalker
      * @param string $dqlAlias The DQL alias.
      *
      * @return mixed[]
-     * @psalm-return QueryComponent
+     * @phpstan-return QueryComponent
      */
     public function getQueryComponent($dqlAlias)
     {
@@ -258,7 +255,7 @@ class SqlWalker implements TreeWalker
      * Sets or overrides a query component for a given dql alias.
      *
      * @param string $dqlAlias The DQL alias.
-     * @psalm-param QueryComponent $queryComponent
+     * @phpstan-param QueryComponent $queryComponent
      *
      * @return void
      *
@@ -278,32 +275,44 @@ class SqlWalker implements TreeWalker
     /**
      * Gets an executor that can be used to execute the result of this walker.
      *
+     * @deprecated Output walkers should no longer create the executor directly, but instead provide
+     *             a SqlFinalizer by implementing the `OutputWalker` interface. Thus, this method is
+     *             no longer needed and will be removed in 4.0.
+     *
      * @param AST\DeleteStatement|AST\UpdateStatement|AST\SelectStatement $AST
      *
      * @return Exec\AbstractSqlExecutor
-     *
-     * @not-deprecated
      */
     public function getExecutor($AST)
     {
         switch (true) {
             case $AST instanceof AST\DeleteStatement:
-                $primaryClass = $this->em->getClassMetadata($AST->deleteClause->abstractSchemaName);
-
-                return $primaryClass->isInheritanceTypeJoined()
-                    ? new Exec\MultiTableDeleteExecutor($AST, $this)
-                    : new Exec\SingleTableDeleteUpdateExecutor($AST, $this);
+                return $this->createDeleteStatementExecutor($AST);
 
             case $AST instanceof AST\UpdateStatement:
-                $primaryClass = $this->em->getClassMetadata($AST->updateClause->abstractSchemaName);
-
-                return $primaryClass->isInheritanceTypeJoined()
-                    ? new Exec\MultiTableUpdateExecutor($AST, $this)
-                    : new Exec\SingleTableDeleteUpdateExecutor($AST, $this);
+                return $this->createUpdateStatementExecutor($AST);
 
             default:
                 return new Exec\SingleSelectExecutor($AST, $this);
         }
+    }
+
+    protected function createUpdateStatementExecutor(AST\UpdateStatement $AST): Exec\AbstractSqlExecutor
+    {
+        $primaryClass = $this->em->getClassMetadata($AST->updateClause->abstractSchemaName);
+
+        return $primaryClass->isInheritanceTypeJoined()
+            ? new Exec\MultiTableUpdateExecutor($AST, $this)
+            : new Exec\SingleTableDeleteUpdateExecutor($AST, $this);
+    }
+
+    protected function createDeleteStatementExecutor(AST\DeleteStatement $AST): Exec\AbstractSqlExecutor
+    {
+        $primaryClass = $this->em->getClassMetadata($AST->deleteClause->abstractSchemaName);
+
+        return $primaryClass->isInheritanceTypeJoined()
+            ? new Exec\MultiTableDeleteExecutor($AST, $this)
+            : new Exec\SingleTableDeleteUpdateExecutor($AST, $this);
     }
 
     /**
@@ -458,7 +467,7 @@ class SqlWalker implements TreeWalker
     /**
      * Generates a discriminator column SQL condition for the class with the given DQL alias.
      *
-     * @psalm-param list<string> $dqlAliases List of root DQL aliases to inspect for discriminator restrictions.
+     * @phpstan-param list<string> $dqlAliases List of root DQL aliases to inspect for discriminator restrictions.
      */
     private function generateDiscriminatorColumnConditionSQL(array $dqlAliases): string
     {
@@ -561,10 +570,15 @@ class SqlWalker implements TreeWalker
      */
     public function walkSelectStatement(AST\SelectStatement $AST)
     {
-        $limit    = $this->query->getMaxResults();
-        $offset   = $this->query->getFirstResult();
-        $lockMode = $this->query->getHint(Query::HINT_LOCK_MODE) ?: LockMode::NONE;
-        $sql      = $this->walkSelectClause($AST->selectClause)
+        $sql       = $this->createSqlForFinalizer($AST);
+        $finalizer = new Exec\SingleSelectSqlFinalizer($sql);
+
+        return $finalizer->finalizeSql($this->query);
+    }
+
+    protected function createSqlForFinalizer(AST\SelectStatement $AST): string
+    {
+        $sql = $this->walkSelectClause($AST->selectClause)
             . $this->walkFromClause($AST->fromClause)
             . $this->walkWhereClause($AST->whereClause);
 
@@ -585,31 +599,22 @@ class SqlWalker implements TreeWalker
             $sql .= ' ORDER BY ' . $orderBySql;
         }
 
-        $sql = $this->platform->modifyLimitQuery($sql, $limit, $offset);
-
-        if ($lockMode === LockMode::NONE) {
-            return $sql;
-        }
-
-        if ($lockMode === LockMode::PESSIMISTIC_READ) {
-            return $sql . ' ' . $this->getReadLockSQL($this->platform);
-        }
-
-        if ($lockMode === LockMode::PESSIMISTIC_WRITE) {
-            return $sql . ' ' . $this->getWriteLockSQL($this->platform);
-        }
-
-        if ($lockMode !== LockMode::OPTIMISTIC) {
-            throw QueryException::invalidLockMode();
-        }
-
-        foreach ($this->selectedClasses as $selectedClass) {
-            if (! $selectedClass['class']->isVersioned) {
-                throw OptimisticLockException::lockFailed($selectedClass['class']->name);
-            }
-        }
+        $this->assertOptimisticLockingHasAllClassesVersioned();
 
         return $sql;
+    }
+
+    private function assertOptimisticLockingHasAllClassesVersioned(): void
+    {
+        $lockMode = $this->query->getHint(Query::HINT_LOCK_MODE) ?: LockMode::NONE;
+
+        if ($lockMode === LockMode::OPTIMISTIC) {
+            foreach ($this->selectedClasses as $selectedClass) {
+                if (! $selectedClass['class']->isVersioned) {
+                    throw OptimisticLockException::lockFailed($selectedClass['class']->name);
+                }
+            }
+        }
     }
 
     /**
@@ -1028,7 +1033,7 @@ class SqlWalker implements TreeWalker
      * @param AST\JoinAssociationDeclaration                             $joinAssociationDeclaration
      * @param int                                                        $joinType
      * @param AST\ConditionalExpression|AST\Phase2OptimizableConditional $condExpr
-     * @psalm-param AST\Join::JOIN_TYPE_* $joinType
+     * @phpstan-param AST\Join::JOIN_TYPE_* $joinType
      *
      * @return string
      *
@@ -1062,7 +1067,9 @@ class SqlWalker implements TreeWalker
             }
         }
 
-        if ($relation['fetch'] === ClassMetadata::FETCH_EAGER && $condExpr !== null) {
+        $fetchMode = $this->query->getHint('fetchMode')[$assoc['sourceEntity']][$assoc['fieldName']] ?? $relation['fetch'];
+
+        if ($fetchMode === ClassMetadata::FETCH_EAGER && $condExpr !== null) {
             throw QueryException::eagerFetchJoinWithNotAllowed($assoc['sourceEntity'], $assoc['fieldName']);
         }
 
@@ -2588,7 +2595,7 @@ class SqlWalker implements TreeWalker
     /**
      * Walks down an SimpleArithmeticExpression AST node, thereby generating the appropriate SQL.
      *
-     * @param AST\SimpleArithmeticExpression $simpleArithmeticExpr
+     * @param AST\Node|string $simpleArithmeticExpr
      *
      * @return string
      *

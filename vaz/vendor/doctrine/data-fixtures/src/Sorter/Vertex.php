@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 /**
  * @internal this class is to be used only by data-fixtures internals: do not
  *           rely on it in your own libraries/applications. This class is
- *           designed to work with {@see \Doctrine\Common\DataFixtures\Sorter\TopologicalSorter}
+ *           designed to work with {@see TopologicalSorter}
  *           only.
  */
 class Vertex
@@ -18,7 +18,7 @@ class Vertex
     public const IN_PROGRESS = 1;
     public const VISITED     = 2;
 
-    /** @psalm-var self::* */
+    /** @phpstan-var self::* */
     public int $state = self::NOT_VISITED;
 
     /** Actual node value. */

@@ -1,0 +1,12 @@
+parameters:
+    fio:
+        token:
+            5QXuPE4eC0Dpp6hPrQMQNLj2IsZZSGjGGcmgeRKVbf3AwnSB0iYaitJyPBNBGf7L
+        token2:
+            rNlsFA2ZShYhdgBZy5RkOv46em5A0PnyXn0oQt28AdTHNE4jFY9PuPs4JJ3OUN3H
+        account:
+            '2503278070'
+        bankId:
+            '2010'
+        iban:
+            CZ6220100000002503278070

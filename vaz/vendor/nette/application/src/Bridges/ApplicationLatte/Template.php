@@ -18,13 +18,13 @@ use Nette;
  */
 class Template implements Nette\Application\UI\Template
 {
-	private Latte\Engine $latte;
 	private ?string $file = null;
+	private ?string $blueprint;
 
 
-	public function __construct(Latte\Engine $latte)
-	{
-		$this->latte = $latte;
+	public function __construct(
+		private readonly Latte\Engine $latte,
+	) {
 	}
 
 
@@ -40,6 +40,9 @@ class Template implements Nette\Application\UI\Template
 	public function render(?string $file = null, array $params = []): void
 	{
 		Nette\Utils\Arrays::toObject($params, $this);
+		if (isset($this->blueprint)) {
+			Nodes\TemplatePrintNode::printClass($this->getParameters(), $this->blueprint);
+		}
 		$this->latte->render($file ?: $this->file, $this);
 	}
 
@@ -137,6 +140,12 @@ class Template implements Nette\Application\UI\Template
 		}
 
 		return $res;
+	}
+
+
+	public function blueprint(?string $parentClass = null): void
+	{
+		$this->blueprint = $parentClass ?? self::class;
 	}
 
 

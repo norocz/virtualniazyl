@@ -35,12 +35,8 @@ abstract class ChoiceControl extends BaseControl
 
 	public function loadHttpData(): void
 	{
-		$this->value = $this->getHttpData(Nette\Forms\Form::DataText);
-		if ($this->value !== null) {
-			$this->value = is_array($this->disabled) && isset($this->disabled[$this->value])
-				? null
-				: key([$this->value => null]);
-		}
+		$value = $this->getHttpData(Nette\Forms\Form::DataText);
+		$this->value = $value === null ? null : key([$value => null]);
 	}
 
 
@@ -57,12 +53,8 @@ abstract class ChoiceControl extends BaseControl
 		}
 
 		if ($this->checkDefaultValue && $value !== null && !array_key_exists((string) $value, $this->items)) {
-			$set = Nette\Utils\Strings::truncate(
-				implode(', ', array_map(fn($s) => var_export($s, return: true), array_keys($this->items))),
-				70,
-				'...',
-			);
-			throw new Nette\InvalidArgumentException("Value '$value' is out of allowed set [$set] in field '{$this->name}'.");
+			$set = Nette\Utils\Strings::truncate(implode(', ', array_map(fn($s) => var_export($s, return: true), array_keys($this->items))), 70, '...');
+			throw new Nette\InvalidArgumentException("Value '$value' is out of allowed set [$set] in field '{$this->getName()}'.");
 		}
 
 		$this->value = $value === null ? null : key([(string) $value => null]);
@@ -77,6 +69,7 @@ abstract class ChoiceControl extends BaseControl
 	public function getValue(): mixed
 	{
 		return array_key_exists($this->value, $this->items)
+			&& !isset($this->disabled[$this->value])
 			? $this->value
 			: null;
 	}
@@ -85,7 +78,7 @@ abstract class ChoiceControl extends BaseControl
 	/**
 	 * Returns selected key (not checked).
 	 */
-	public function getRawValue(): string|int
+	public function getRawValue(): string|int|null
 	{
 		return $this->value;
 	}
@@ -141,10 +134,6 @@ abstract class ChoiceControl extends BaseControl
 
 		parent::setDisabled(false);
 		$this->disabled = array_fill_keys($value, value: true);
-		if (isset($this->disabled[$this->value])) {
-			$this->value = null;
-		}
-
 		return $this;
 	}
 

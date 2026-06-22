@@ -39,7 +39,7 @@ final class LocatorDefinition extends Definition
 				|| (preg_match('#^(get|create)[A-Z]#', $method->name) && $method->getNumberOfParameters() === 0)
 			)) {
 				throw new Nette\InvalidArgumentException(sprintf(
-					"Service '%s': Method %s::%s() does not meet the requirements: is create*(), get*() or get(\$name) and is non-static.",
+					"Service '%s': Method %s::%s() does not meet the requirements: is create(\$name), get(\$name), create*() or get*() and is non-static.",
 					$this->getName(),
 					$interface,
 					$method->name,
@@ -52,8 +52,6 @@ final class LocatorDefinition extends Definition
 					"return type of $interface::$method->name()",
 					allowNullable: true,
 				);
-			} elseif (str_starts_with($method->name, 'create')) {
-				trigger_error(sprintf("Service '%s': Method %s::create(\$name) is deprecated, use createFoo().", $this->getName(), $interface), E_USER_DEPRECATED);
 			}
 		}
 
@@ -151,10 +149,14 @@ final class LocatorDefinition extends Definition
 				$class->addProperty('mapping', array_map(fn($item) => $item->getValue(), $this->references))
 					->setPrivate();
 
-				$methodInner->setBody('if (!isset($this->mapping[$name])) {
-	' . ($nullable ? 'return null;' : 'throw new Nette\DI\MissingServiceException("Service \'$name\' is not defined.");') . '
-}
-return $this->container->' . $m[1] . 'Service($this->mapping[$name]);')
+				$methodInner->setBody(<<<'XX'
+					if (!isset($this->mapping[$name])) {
+
+					XX . "\t" . ($nullable ? 'return null;' : 'throw new Nette\DI\MissingServiceException("Service \'$name\' is not defined.");') . <<<'XX'
+
+					}
+					return $this->container->
+					XX . $m[1] . 'Service($this->mapping[$name]);')
 					->addParameter('name');
 
 			} elseif (isset($this->references[$name])) {

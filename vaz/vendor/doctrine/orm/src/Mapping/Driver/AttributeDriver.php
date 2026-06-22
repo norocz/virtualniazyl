@@ -16,9 +16,7 @@ use Doctrine\Persistence\Mapping\Driver\ColocatedMappingDriver;
 use LogicException;
 use ReflectionClass;
 use ReflectionMethod;
-use ReflectionProperty;
 
-use function assert;
 use function class_exists;
 use function constant;
 use function defined;
@@ -65,6 +63,7 @@ class AttributeDriver extends CompatibilityAnnotationDriver
         $this->reader = new AttributeReader();
         $this->addPaths($paths);
 
+        // @phpstan-ignore property.deprecated
         if ($this->entityAnnotationClasses !== self::ENTITY_ATTRIBUTE_CLASSES) {
             Deprecation::trigger(
                 'doctrine/orm',
@@ -114,6 +113,7 @@ class AttributeDriver extends CompatibilityAnnotationDriver
 
         foreach ($classAttributes as $a) {
             $attr = $a instanceof RepeatableAttributeCollection ? $a[0] : $a;
+            // @phpstan-ignore property.deprecated
             if (isset($this->entityAnnotationClasses[get_class($attr)])) {
                 return false;
             }
@@ -125,8 +125,8 @@ class AttributeDriver extends CompatibilityAnnotationDriver
     /**
      * {@inheritDoc}
      *
-     * @psalm-param class-string<T> $className
-     * @psalm-param ClassMetadata<T> $metadata
+     * @param class-string<T>  $className
+     * @param ClassMetadata<T> $metadata
      *
      * @template T of object
      */
@@ -308,8 +308,6 @@ class AttributeDriver extends CompatibilityAnnotationDriver
         }
 
         foreach ($reflectionClass->getProperties() as $property) {
-            assert($property instanceof ReflectionProperty);
-
             if ($this->isRepeatedPropertyDeclaration($property, $metadata)) {
                 continue;
             }
@@ -320,8 +318,6 @@ class AttributeDriver extends CompatibilityAnnotationDriver
             // Evaluate #[Cache] attribute
             $cacheAttribute = $this->reader->getPropertyAttribute($property, Mapping\Cache::class);
             if ($cacheAttribute !== null) {
-                assert($cacheAttribute instanceof Mapping\Cache);
-
                 $mapping['cache'] = $metadata->getAssociationCacheDefaults(
                     $mapping['fieldName'],
                     [
@@ -567,7 +563,6 @@ class AttributeDriver extends CompatibilityAnnotationDriver
                 $listenerClass = new ReflectionClass($listenerClassName);
 
                 foreach ($listenerClass->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
-                    assert($method instanceof ReflectionMethod);
                     // find method callbacks.
                     $callbacks  = $this->getMethodCallbacks($method);
                     $hasMapping = $hasMapping ?: ! empty($callbacks);
@@ -587,7 +582,6 @@ class AttributeDriver extends CompatibilityAnnotationDriver
         // Evaluate #[HasLifecycleCallbacks] attribute
         if (isset($classAttributes[Mapping\HasLifecycleCallbacks::class])) {
             foreach ($reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
-                assert($method instanceof ReflectionMethod);
                 foreach ($this->getMethodCallbacks($method) as $value) {
                     $metadata->addLifecycleCallback($value[0], $value[1]);
                 }
@@ -632,7 +626,7 @@ class AttributeDriver extends CompatibilityAnnotationDriver
      * Parses the given method.
      *
      * @return list<array{string, string}>
-     * @psalm-return list<array{string, (Events::*)}>
+     * @phpstan-return list<array{string, (Events::*)}>
      */
     private function getMethodCallbacks(ReflectionMethod $method): array
     {
@@ -682,7 +676,7 @@ class AttributeDriver extends CompatibilityAnnotationDriver
      * @param Mapping\JoinColumn|Mapping\InverseJoinColumn $joinColumn
      *
      * @return mixed[]
-     * @psalm-return array{
+     * @phpstan-return array{
      *                   name: string|null,
      *                   unique: bool,
      *                   nullable: bool,
@@ -714,7 +708,7 @@ class AttributeDriver extends CompatibilityAnnotationDriver
      * Parse the given Column as array
      *
      * @return mixed[]
-     * @psalm-return array{
+     * @phpstan-return array{
      *                   fieldName: string,
      *                   type: mixed,
      *                   scale: int,

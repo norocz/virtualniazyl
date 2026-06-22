@@ -11,6 +11,8 @@ use function method_exists;
 
 /**
  * Class responsible for executing data fixtures.
+ *
+ * @final since 1.8.0
  */
 class PHPCRExecutor extends AbstractExecutor
 {
@@ -40,7 +42,7 @@ class PHPCRExecutor extends AbstractExecutor
     }
 
     /** @inheritDoc */
-    public function execute(array $fixtures, $append = false)
+    public function execute(array $fixtures, bool $append = false)
     {
         $that = $this;
 

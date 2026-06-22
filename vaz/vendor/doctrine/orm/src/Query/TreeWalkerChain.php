@@ -16,15 +16,14 @@ use function array_keys;
  * Only the last walker in the chain can emit output. Any previous walkers can modify
  * the AST to influence the final output produced by the last walker.
  *
- * @psalm-import-type QueryComponent from Parser
+ * @phpstan-import-type QueryComponent from Parser
  */
 class TreeWalkerChain implements TreeWalker
 {
     /**
      * The tree walkers.
      *
-     * @var string[]
-     * @psalm-var list<class-string<TreeWalker>>
+     * @var list<class-string<TreeWalker>>
      */
     private $walkers = [];
 
@@ -38,7 +37,7 @@ class TreeWalkerChain implements TreeWalker
      * The query components of the original query (the "symbol table") that was produced by the Parser.
      *
      * @var array<string, array<string, mixed>>
-     * @psalm-var array<string, QueryComponent>
+     * @phpstan-var array<string, QueryComponent>
      */
     private $queryComponents;
 
@@ -81,8 +80,7 @@ class TreeWalkerChain implements TreeWalker
     /**
      * Adds a tree walker to the chain.
      *
-     * @param string $walkerClass The class of the walker to instantiate.
-     * @psalm-param class-string<TreeWalker> $walkerClass
+     * @param class-string<TreeWalker> $walkerClass The class of the walker to instantiate.
      *
      * @return void
      */
@@ -948,7 +946,7 @@ class TreeWalkerChain implements TreeWalker
         return null;
     }
 
-    /** @psalm-return Generator<int, TreeWalker> */
+    /** @phpstan-return Generator<int, TreeWalker> */
     private function getWalkers(): Generator
     {
         foreach ($this->walkers as $walkerClass) {

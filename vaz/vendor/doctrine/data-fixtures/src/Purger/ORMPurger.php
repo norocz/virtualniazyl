@@ -19,6 +19,8 @@ use function in_array;
 
 /**
  * Class responsible for purging databases of data before reloading data fixtures.
+ *
+ * @final since 1.8.0
  */
 class ORMPurger implements PurgerInterface, ORMPurgerInterface
 {
@@ -59,11 +61,9 @@ class ORMPurger implements PurgerInterface, ORMPurgerInterface
     /**
      * Set the purge mode
      *
-     * @param int $mode
-     *
      * @return void
      */
-    public function setPurgeMode($mode)
+    public function setPurgeMode(int $mode)
     {
         $this->purgeMode           = $mode;
         $this->cachedSqlStatements = null;

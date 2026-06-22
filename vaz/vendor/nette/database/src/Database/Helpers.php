@@ -15,7 +15,7 @@ use Tracy;
 
 
 /**
- * Database helpers.
+ * Database utility functions.
  */
 class Helpers
 {
@@ -26,7 +26,7 @@ class Helpers
 
 	public static array $typePatterns = [
 		'^_' => IStructure::FIELD_TEXT, // PostgreSQL arrays
-		'(TINY|SMALL|SHORT|MEDIUM|BIG|LONG)(INT)?|INT(EGER|\d+| IDENTITY)?|(SMALL|BIG|)SERIAL\d*|COUNTER|YEAR|BYTE|LONGLONG|UNSIGNED BIG INT' => IStructure::FIELD_INTEGER,
+		'(TINY|SMALL|SHORT|MEDIUM|BIG|LONG)(INT)?|INT(EGER|\d+| IDENTITY| UNSIGNED)?|(SMALL|BIG|)SERIAL\d*|COUNTER|YEAR|BYTE|LONGLONG|UNSIGNED BIG INT' => IStructure::FIELD_INTEGER,
 		'(NEW)?DEC(IMAL)?(\(.*)?|NUMERIC|(SMALL)?MONEY|CURRENCY|NUMBER' => IStructure::FIELD_DECIMAL,
 		'REAL|DOUBLE( PRECISION)?|FLOAT\d*' => IStructure::FIELD_FLOAT,
 		'BOOL(EAN)?' => IStructure::FIELD_BOOL,
@@ -38,7 +38,7 @@ class Helpers
 
 
 	/**
-	 * Displays complete result set as HTML table for debug purposes.
+	 * Displays result set as HTML table.
 	 */
 	public static function dumpResult(ResultSet $result): void
 	{
@@ -164,7 +164,7 @@ class Helpers
 
 
 	/**
-	 * Common column type detection.
+	 * Returns column types from result set.
 	 */
 	public static function detectTypes(\PDOStatement $statement): array
 	{
@@ -182,7 +182,7 @@ class Helpers
 
 
 	/**
-	 * Heuristic column type detection.
+	 * Detects column type from native type.
 	 * @internal
 	 */
 	public static function detectType(string $type): string
@@ -202,7 +202,11 @@ class Helpers
 
 
 	/** @internal */
-	public static function normalizeRow(array $row, ResultSet $resultSet): array
+	public static function normalizeRow(
+		array $row,
+		ResultSet $resultSet,
+		$dateTimeClass = Nette\Utils\DateTime::class,
+	): array
 	{
 		foreach ($resultSet->getColumnTypes() as $key => $type) {
 			$value = $row[$key];
@@ -212,10 +216,6 @@ class Helpers
 				$row[$key] = is_float($tmp = $value * 1) ? $value : $tmp;
 
 			} elseif ($type === IStructure::FIELD_FLOAT || $type === IStructure::FIELD_DECIMAL) {
-				if (is_string($value) && ($pos = strpos($value, '.')) !== false) {
-					$value = rtrim(rtrim($pos === 0 ? "0$value" : $value, '0'), '.');
-				}
-
 				$row[$key] = (float) $value;
 
 			} elseif ($type === IStructure::FIELD_BOOL) {
@@ -224,10 +224,10 @@ class Helpers
 			} elseif ($type === IStructure::FIELD_DATETIME || $type === IStructure::FIELD_DATE) {
 				$row[$key] = str_starts_with($value, '0000-00')
 					? null
-					: new Nette\Utils\DateTime($value);
+					: new $dateTimeClass($value);
 
 			} elseif ($type === IStructure::FIELD_TIME) {
-				$row[$key] = (new Nette\Utils\DateTime($value))->setDate(1, 1, 1);
+				$row[$key] = (new $dateTimeClass($value))->setDate(1, 1, 1);
 
 			} elseif ($type === IStructure::FIELD_TIME_INTERVAL) {
 				preg_match('#^(-?)(\d+)\D(\d+)\D(\d+)(\.\d+)?$#D', $value, $m);
@@ -236,7 +236,7 @@ class Helpers
 				$row[$key]->invert = (int) (bool) $m[1];
 
 			} elseif ($type === IStructure::FIELD_UNIX_TIMESTAMP) {
-				$row[$key] = Nette\Utils\DateTime::from($value);
+				$row[$key] = (new $dateTimeClass)->setTimestamp($value);
 			}
 		}
 
@@ -245,9 +245,10 @@ class Helpers
 
 
 	/**
-	 * Import SQL dump from file - extremely fast.
-	 * @param  ?array<callable(int, ?float): void>  $onProgress
-	 * @return int  count of commands
+	 * Imports SQL dump from file.
+	 * @param  ?array<callable(int, ?float): void>  $onProgress  Called after each query
+	 * @return int  Number of executed commands
+	 * @throws Nette\FileNotFoundException
 	 */
 	public static function loadFromFile(Connection $connection, string $file, ?callable $onProgress = null): int
 	{
@@ -322,19 +323,18 @@ class Helpers
 
 
 	/**
-	 * Reformat source to key -> value pairs.
+	 * Converts rows to key-value pairs.
 	 */
-	public static function toPairs(array $rows, string|int|null $key = null, string|int|null $value = null): array
+	public static function toPairs(array $rows, string|int|\Closure|null $key, string|int|null $value): array
 	{
-		if (!$rows) {
-			return [];
-		}
-
-		$keys = array_keys((array) reset($rows));
-		if (!count($keys)) {
-			throw new \LogicException('Result set does not contain any column.');
-
-		} elseif ($key === null && $value === null) {
+		if ($key === null && $value === null) {
+			if (!$rows) {
+				return [];
+			}
+			$keys = array_keys((array) reset($rows));
+			if (!count($keys)) {
+				throw new \LogicException('Result set does not contain any column.');
+			}
 			if (count($keys) === 1) {
 				[$value] = $keys;
 			} else {
@@ -347,6 +347,15 @@ class Helpers
 			foreach ($rows as $row) {
 				$return[] = ($value === null ? $row : $row[$value]);
 			}
+		} elseif ($key instanceof \Closure) {
+			foreach ($rows as $row) {
+				$tuple = $key($row);
+				if (count($tuple) === 1) {
+					$return[] = $tuple[0];
+				} else {
+					$return[$tuple[0]] = $tuple[1];
+				}
+			}
 		} else {
 			foreach ($rows as $row) {
 				$return[(string) $row[$key]] = ($value === null ? $row : $row[$value]);
@@ -358,7 +367,7 @@ class Helpers
 
 
 	/**
-	 * Finds duplicate columns in select statement
+	 * Returns duplicate columns from result set.
 	 */
 	public static function findDuplicates(\PDOStatement $statement): string
 	{
@@ -377,5 +386,18 @@ class Helpers
 		}
 
 		return implode(', ', $duplicates);
+	}
+
+
+	/** @return array{type: ?string, length: ?null, scale: ?null, parameters: ?string} */
+	public static function parseColumnType(string $type): array
+	{
+		preg_match('/^([^(]+)(?:\((?:(\d+)(?:,(\d+))?|([^)]+))\))?/', $type, $m, PREG_UNMATCHED_AS_NULL);
+		return [
+			'type' => $m[1] ?? null,
+			'length' => isset($m[2]) ? (int) $m[2] : null,
+			'scale' => isset($m[3]) ? (int) $m[3] : null,
+			'parameters' => $m[4] ?? null,
+		];
 	}
 }

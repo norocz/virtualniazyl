@@ -28,6 +28,12 @@ class OciDriver implements Nette\Database\Driver
 	}
 
 
+	public function isSupported(string $feature): bool
+	{
+		return $feature === self::SupportSequence;
+	}
+
+
 	public function convertException(\PDOException $e): Nette\Database\DriverException
 	{
 		$code = $e->errorInfo[1] ?? null;
@@ -97,7 +103,8 @@ class OciDriver implements Nette\Database\Driver
 	public function getTables(): array
 	{
 		$tables = [];
-		foreach ($this->connection->query('SELECT * FROM cat') as $row) {
+		$rows = $this->connection->query('SELECT * FROM cat');
+		while ($row = $rows->fetch()) {
 			if ($row[1] === 'TABLE' || $row[1] === 'VIEW') {
 				$tables[] = [
 					'name' => $row[0],
@@ -131,11 +138,5 @@ class OciDriver implements Nette\Database\Driver
 	public function getColumnTypes(\PDOStatement $statement): array
 	{
 		return [];
-	}
-
-
-	public function isSupported(string $item): bool
-	{
-		return $item === self::SUPPORT_SEQUENCE || $item === self::SUPPORT_SUBSELECT;
 	}
 }

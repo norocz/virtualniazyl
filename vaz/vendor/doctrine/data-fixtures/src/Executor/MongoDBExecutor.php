@@ -11,6 +11,8 @@ use Doctrine\ODM\MongoDB\DocumentManager;
 
 /**
  * Class responsible for executing data fixtures.
+ *
+ * @final since 1.8.0
  */
 class MongoDBExecutor extends AbstractExecutor
 {
@@ -60,7 +62,7 @@ class MongoDBExecutor extends AbstractExecutor
     }
 
     /** @inheritDoc */
-    public function execute(array $fixtures, $append = false)
+    public function execute(array $fixtures, bool $append = false)
     {
         if ($append === false) {
             $this->purge();

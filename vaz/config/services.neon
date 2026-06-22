@@ -38,6 +38,7 @@ services:
 	- App\Forms\newsFormFactory
 	- App\Forms\AzylSetingsFormFactory
 	- App\Forms\speciesFormFactory
+	- App\Forms\setAzylFormFactory
 
 
 
@@ -52,6 +53,7 @@ services:
 	- App\Model\VersionService('%appDir%/xml/versions.xml')
 
 	##Core Services##
+	- App\Service\FioSettings(%fio.token%, %fio.token2%, %fio.account%, %fio.bankId%, %fio.iban%)
 	- App\Components\CityDataSource
 	- App\Model\Services\MyAuthenticator
 	- App\Services\UserAddressService

@@ -66,7 +66,7 @@ final class TagLexer
 
 
 	/** @return Token[] */
-	public function tokenizePartially(string $input, Position &$position, int $ofs = null): array
+	public function tokenizePartially(string $input, Position &$position, ?int $ofs = null): array
 	{
 		$this->input = $input;
 		$this->offset = $ofs ?? $position->offset;
@@ -82,8 +82,8 @@ final class TagLexer
 	{
 		preg_match(
 			$colon
-				? '~ ( [./@_a-z0-9#!-] | :(?!:) | \{\$ [_a-z0-9\[\]()>-]+ })++  (?=\s+[!"\'$(\[{,\\|\~\w-] | [,|]  | \s*$) ~xAi'
-				: '~ ( [./@_a-z0-9#!-]          | \{\$ [_a-z0-9\[\]()>-]+ })++  (?=\s+[!"\'$(\[{,\\|\~\w-] | [,:|] | \s*$) ~xAi',
+				? '~ ( [./@_a-z0-9#!-] | :(?!:) | \{\$ [_a-z0-9\[\]()>-]+ })++  (?=\s+[!"\'$(\[{,\\\\|\~\w-] | [,|]  | \s*$) ~xAi'
+				: '~ ( [./@_a-z0-9#!-]          | \{\$ [_a-z0-9\[\]()>-]+ })++  (?=\s+[!"\'$(\[{,\\\\|\~\w-] | [,:|] | \s*$) ~xAi',
 			$input,
 			$match,
 			offset: $position->offset - $offsetDelta,

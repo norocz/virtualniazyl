@@ -49,10 +49,7 @@ class TreeWalkerChainIterator implements Iterator, ArrayAccess
         $this->parserResult    = $parserResult;
     }
 
-    /**
-     * @return string|false
-     * @psalm-return class-string<TreeWalker>|false
-     */
+    /** @return class-string<TreeWalker>|false */
     #[ReturnTypeWillChange]
     public function rewind()
     {
@@ -95,7 +92,7 @@ class TreeWalkerChainIterator implements Iterator, ArrayAccess
 
     /**
      * @param mixed $offset
-     * @psalm-param array-key|null $offset
+     * @phpstan-param array-key|null $offset
      *
      * @return bool
      */
@@ -107,7 +104,7 @@ class TreeWalkerChainIterator implements Iterator, ArrayAccess
 
     /**
      * @param mixed $offset
-     * @psalm-param array-key|null $offset
+     * @phpstan-param array-key|null $offset
      *
      * @return TreeWalker|null
      */
@@ -129,7 +126,7 @@ class TreeWalkerChainIterator implements Iterator, ArrayAccess
      * {@inheritDoc}
      *
      * @param string $value
-     * @psalm-param array-key|null $offset
+     * @phpstan-param array-key|null $offset
      *
      * @return void
      */
@@ -145,7 +142,7 @@ class TreeWalkerChainIterator implements Iterator, ArrayAccess
 
     /**
      * @param mixed $offset
-     * @psalm-param array-key|null $offset
+     * @phpstan-param array-key|null $offset
      *
      * @return void
      */

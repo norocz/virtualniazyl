@@ -117,12 +117,12 @@ class DefaultFormRenderer implements Nette\Forms\FormRenderer
 	];
 
 	protected Nette\Forms\Form $form;
-	protected int $counter;
+	protected int $counter = 0;
 
 
 	/**
 	 * Provides complete form rendering.
-	 * @param  string  $mode  'begin', 'errors', 'ownerrors', 'body', 'end' or empty to render all
+	 * @param  ?string  $mode  'begin', 'errors', 'ownerrors', 'body', 'end' or empty to render all
 	 */
 	public function render(Nette\Forms\Form $form, ?string $mode = null): string
 	{
@@ -225,10 +225,10 @@ class DefaultFormRenderer implements Nette\Forms\FormRenderer
 		}
 
 		$container = $this->getWrapper($control ? 'control errorcontainer' : 'error container');
-		$item = $this->getWrapper($control ? 'control erroritem' : 'error item');
+		$itemPrototype = $this->getWrapper($control ? 'control erroritem' : 'error item');
 
 		foreach ($errors as $error) {
-			$item = clone $item;
+			$item = clone $itemPrototype;
 			if ($error instanceof HtmlStringable) {
 				$item->addHtml($error);
 			} else {
@@ -522,7 +522,6 @@ class DefaultFormRenderer implements Nette\Forms\FormRenderer
 	protected function getValue(string $name): mixed
 	{
 		$name = explode(' ', $name);
-		$data = &$this->wrappers[$name[0]][$name[1]];
-		return $data;
+		return $this->wrappers[$name[0]][$name[1]] ?? null;
 	}
 }

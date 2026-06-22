@@ -12,6 +12,7 @@ namespace Nette\Bridges\ApplicationDI;
 use Latte;
 use Nette;
 use Nette\Bridges\ApplicationLatte;
+use Nette\DI\Definitions\Statement;
 use Nette\Schema\Expect;
 use Tracy;
 
@@ -38,6 +39,7 @@ final class LatteExtension extends Nette\DI\CompilerExtension
 			'strictTypes' => Expect::bool(false),
 			'strictParsing' => Expect::bool(false),
 			'phpLinter' => Expect::string(),
+			'locale' => Expect::string(),
 		]);
 	}
 
@@ -65,9 +67,24 @@ final class LatteExtension extends Nette\DI\CompilerExtension
 			}
 		} else {
 			$latteFactory->addSetup('setStrictParsing', [$config->strictParsing])
-				->addSetup('enablePhpLinter', [$config->phpLinter]);
+				->addSetup('enablePhpLinter', [$config->phpLinter])
+				->addSetup('setLocale', [$config->locale]);
+
+			$builder->getDefinition($this->prefix('latteFactory'))
+				->getResultDefinition()
+				->addSetup('?', [$builder::literal('func_num_args() && $service->addExtension(new Nette\Bridges\ApplicationLatte\UIExtension(func_get_arg(0)))')]);
+
+			if ($builder->getByType(Nette\Caching\Storage::class)) {
+				$this->addExtension(new Statement(Nette\Bridges\CacheLatte\CacheExtension::class));
+			}
+			if (class_exists(Nette\Bridges\FormsLatte\FormsExtension::class)) {
+				$this->addExtension(new Statement(Nette\Bridges\FormsLatte\FormsExtension::class));
+			}
 
 			foreach ($config->extensions as $extension) {
+				if ($extension === Latte\Essential\TranslatorExtension::class) {
+					$extension = new Statement($extension, [new Nette\DI\Definitions\Reference(Nette\Localization\Translator::class)]);
+				}
 				$this->addExtension($extension);
 			}
 		}
@@ -146,10 +163,10 @@ final class LatteExtension extends Nette\DI\CompilerExtension
 	}
 
 
-	public function addExtension(Nette\DI\Definitions\Statement|string $extension): void
+	public function addExtension(Statement|string $extension): void
 	{
 		$extension = is_string($extension)
-			? new Nette\DI\Definitions\Statement($extension)
+			? new Statement($extension)
 			: $extension;
 
 		$builder = $this->getContainerBuilder();

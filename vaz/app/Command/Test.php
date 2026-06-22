@@ -40,7 +40,7 @@ class Test extends Command
             $section3->writeln($user->getEmail());
             $section3->writeln($user->getPhone());
             $section3->writeln('+-----------------------------------------------+');
-            $messages = $user->getSentMessages();
+            $messages = $user->getMessages();
             if (!empty($messages)) {
             foreach ($messages as $message) {
                 $section3->writeln($message->getCreatedAt()->format('d.m.Y H:i:s'));
@@ -54,22 +54,6 @@ class Test extends Command
 
 
         }
-        $section3->writeln('Tahám data');
-
-        /*
-        $section3->overwrite('DEDNA');
-        sleep(1);
-        $section3->overwrite('EDNA');
-        sleep(1);
-        $section3->overwrite('TYČKA');
-        sleep(1);
-        $section3->overwrite('PIČKA');
-        sleep(1);
-        $section3->overwrite('Lůj');
-        $section3->clear();
-        */
-
-
 
         return Command::SUCCESS;
     }

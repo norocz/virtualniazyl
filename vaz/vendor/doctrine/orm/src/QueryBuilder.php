@@ -7,6 +7,7 @@ namespace Doctrine\ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Deprecations\Deprecation;
+use Doctrine\ORM\Internal\CriteriaOrderings;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\Query\QueryExpressionVisitor;
@@ -39,6 +40,8 @@ use function substr;
  */
 class QueryBuilder
 {
+    use CriteriaOrderings;
+
     /** @deprecated */
     public const SELECT = 0;
 
@@ -64,7 +67,7 @@ class QueryBuilder
     /**
      * The array of DQL parts collected.
      *
-     * @psalm-var array<string, mixed>
+     * @phpstan-var array<string, mixed>
      */
     private $dqlParts = [
         'distinct' => false,
@@ -82,7 +85,8 @@ class QueryBuilder
      * The type of query this is. Can be select, update or delete.
      *
      * @var int
-     * @psalm-var self::SELECT|self::DELETE|self::UPDATE
+     * @phpstan-var self::SELECT|self::DELETE|self::UPDATE
+     * @phpstan-ignore classConstant.deprecated
      */
     private $type = self::SELECT;
 
@@ -90,7 +94,8 @@ class QueryBuilder
      * The state of the query object. Can be dirty or clean.
      *
      * @var int
-     * @psalm-var self::STATE_*
+     * @phpstan-var self::STATE_*
+     * @phpstan-ignore classConstant.deprecated
      */
     private $state = self::STATE_CLEAN;
 
@@ -105,7 +110,7 @@ class QueryBuilder
      * The query parameters.
      *
      * @var ArrayCollection
-     * @psalm-var ArrayCollection<int, Parameter>
+     * @phpstan-var ArrayCollection<int, Parameter>
      */
     private $parameters;
 
@@ -126,7 +131,7 @@ class QueryBuilder
     /**
      * Keeps root entity alias names for join entities.
      *
-     * @psalm-var array<string, string>
+     * @phpstan-var array<string, string>
      */
     private $joinRootAliases = [];
 
@@ -148,7 +153,7 @@ class QueryBuilder
      * Second level query cache mode.
      *
      * @var int|null
-     * @psalm-var Cache::MODE_*|null
+     * @phpstan-var Cache::MODE_*|null
      */
     protected $cacheMode;
 
@@ -256,7 +261,7 @@ class QueryBuilder
 
     /**
      * @return int|null
-     * @psalm-return Cache::MODE_*|null
+     * @phpstan-return Cache::MODE_*|null
      */
     public function getCacheMode()
     {
@@ -265,7 +270,7 @@ class QueryBuilder
 
     /**
      * @param int $cacheMode
-     * @psalm-param Cache::MODE_* $cacheMode
+     * @phpstan-param Cache::MODE_* $cacheMode
      *
      * @return $this
      */
@@ -282,7 +287,7 @@ class QueryBuilder
      * @deprecated If necessary, track the type of the query being built outside of the builder.
      *
      * @return int
-     * @psalm-return self::SELECT|self::DELETE|self::UPDATE
+     * @phpstan-return self::SELECT|self::DELETE|self::UPDATE
      */
     public function getType()
     {
@@ -312,7 +317,7 @@ class QueryBuilder
      * @deprecated The builder state is an internal concern.
      *
      * @return int Either QueryBuilder::STATE_DIRTY or QueryBuilder::STATE_CLEAN.
-     * @psalm-return self::STATE_*
+     * @phpstan-return self::STATE_*
      */
     public function getState()
     {
@@ -339,25 +344,30 @@ class QueryBuilder
      */
     public function getDQL()
     {
+        // @phpstan-ignore classConstant.deprecated
         if ($this->dql !== null && $this->state === self::STATE_CLEAN) {
             return $this->dql;
         }
 
         switch ($this->type) {
+            // @phpstan-ignore classConstant.deprecated
             case self::DELETE:
                 $dql = $this->getDQLForDelete();
                 break;
 
+            // @phpstan-ignore classConstant.deprecated
             case self::UPDATE:
                 $dql = $this->getDQLForUpdate();
                 break;
 
+            // @phpstan-ignore classConstant.deprecated
             case self::SELECT:
             default:
                 $dql = $this->getDQLForSelect();
                 break;
         }
 
+        // @phpstan-ignore classConstant.deprecated
         $this->state = self::STATE_CLEAN;
         $this->dql   = $dql;
 
@@ -419,6 +429,7 @@ class QueryBuilder
         } else {
             // Should never happen with correct joining order. Might be
             // thoughtful to throw exception instead.
+            // @phpstan-ignore method.deprecated
             $rootAlias = $this->getRootAlias();
         }
 
@@ -469,7 +480,7 @@ class QueryBuilder
      * </code>
      *
      * @return string[]
-     * @psalm-return list<string>
+     * @phpstan-return list<string>
      */
     public function getRootAliases()
     {
@@ -504,7 +515,7 @@ class QueryBuilder
      * </code>
      *
      * @return string[]
-     * @psalm-return list<string>
+     * @phpstan-return list<string>
      */
     public function getAllAliases()
     {
@@ -524,7 +535,7 @@ class QueryBuilder
      * </code>
      *
      * @return string[]
-     * @psalm-return list<string>
+     * @phpstan-return list<string>
      */
     public function getRootEntities()
     {
@@ -592,7 +603,7 @@ class QueryBuilder
      * </code>
      *
      * @param ArrayCollection|mixed[] $parameters The query parameters to set.
-     * @psalm-param ArrayCollection<int, Parameter>|mixed[] $parameters
+     * @phpstan-param ArrayCollection<int, Parameter>|mixed[] $parameters
      *
      * @return $this
      */
@@ -600,7 +611,7 @@ class QueryBuilder
     {
         // BC compatibility with 2.3-
         if (is_array($parameters)) {
-            /** @psalm-var ArrayCollection<int, Parameter> $parameterCollection */
+            /** @phpstan-var ArrayCollection<int, Parameter> $parameterCollection */
             $parameterCollection = new ArrayCollection();
 
             foreach ($parameters as $key => $value) {
@@ -621,7 +632,7 @@ class QueryBuilder
      * Gets all defined query parameters for the query being constructed.
      *
      * @return ArrayCollection The currently defined query parameters.
-     * @psalm-return ArrayCollection<int, Parameter>
+     * @phpstan-return ArrayCollection<int, Parameter>
      */
     public function getParameters()
     {
@@ -713,7 +724,7 @@ class QueryBuilder
      * @param string              $dqlPartName The DQL part name.
      * @param string|object|array $dqlPart     An Expr object.
      * @param bool                $append      Whether to append (true) or replace (false).
-     * @psalm-param string|object|list<string>|array{join: array<int|string, object>} $dqlPart
+     * @phpstan-param string|object|list<string>|array{join: array<int|string, object>} $dqlPart
      *
      * @return $this
      */
@@ -740,6 +751,7 @@ class QueryBuilder
             $newDqlPart = [];
 
             foreach ($dqlPart as $k => $v) {
+                // @phpstan-ignore method.deprecated
                 $k = is_numeric($k) ? $this->getRootAlias() : $k;
 
                 $newDqlPart[$k] = $v;
@@ -760,6 +772,7 @@ class QueryBuilder
             $this->dqlParts[$dqlPartName] = $isMultiple ? [$dqlPart] : $dqlPart;
         }
 
+        // @phpstan-ignore classConstant.deprecated
         $this->state = self::STATE_DIRTY;
 
         return $this;
@@ -782,6 +795,7 @@ class QueryBuilder
      */
     public function select($select = null)
     {
+        // @phpstan-ignore classConstant.deprecated
         $this->type = self::SELECT;
 
         if (empty($select)) {
@@ -813,7 +827,8 @@ class QueryBuilder
 
         if ($this->dqlParts['distinct'] !== $flag) {
             $this->dqlParts['distinct'] = $flag;
-            $this->state                = self::STATE_DIRTY;
+            // @phpstan-ignore classConstant.deprecated
+            $this->state = self::STATE_DIRTY;
         }
 
         return $this;
@@ -836,6 +851,7 @@ class QueryBuilder
      */
     public function addSelect($select = null)
     {
+        // @phpstan-ignore classConstant.deprecated
         $this->type = self::SELECT;
 
         if (empty($select)) {
@@ -865,6 +881,7 @@ class QueryBuilder
      */
     public function delete($delete = null, $alias = null)
     {
+        // @phpstan-ignore classConstant.deprecated
         $this->type = self::DELETE;
 
         if (! $delete) {
@@ -900,6 +917,7 @@ class QueryBuilder
      */
     public function update($update = null, $alias = null)
     {
+        // @phpstan-ignore classConstant.deprecated
         $this->type = self::UPDATE;
 
         if (! $update) {
@@ -1002,7 +1020,7 @@ class QueryBuilder
      * @param string|null                                          $conditionType The condition type constant. Either ON or WITH.
      * @param string|Expr\Comparison|Expr\Composite|Expr\Func|null $condition     The condition for the join.
      * @param string|null                                          $indexBy       The index for the join.
-     * @psalm-param Expr\Join::ON|Expr\Join::WITH|null $conditionType
+     * @phpstan-param Expr\Join::ON|Expr\Join::WITH|null $conditionType
      *
      * @return $this
      */
@@ -1029,7 +1047,7 @@ class QueryBuilder
      * @param string|null                                          $conditionType The condition type constant. Either ON or WITH.
      * @param string|Expr\Comparison|Expr\Composite|Expr\Func|null $condition     The condition for the join.
      * @param string|null                                          $indexBy       The index for the join.
-     * @psalm-param Expr\Join::ON|Expr\Join::WITH|null $conditionType
+     * @phpstan-param Expr\Join::ON|Expr\Join::WITH|null $conditionType
      *
      * @return $this
      */
@@ -1070,7 +1088,7 @@ class QueryBuilder
      * @param string|null                                          $conditionType The condition type constant. Either ON or WITH.
      * @param string|Expr\Comparison|Expr\Composite|Expr\Func|null $condition     The condition for the join.
      * @param string|null                                          $indexBy       The index for the join.
-     * @psalm-param Expr\Join::ON|Expr\Join::WITH|null $conditionType
+     * @phpstan-param Expr\Join::ON|Expr\Join::WITH|null $conditionType
      *
      * @return $this
      */
@@ -1375,22 +1393,20 @@ class QueryBuilder
             }
         }
 
-        if ($criteria->getOrderings()) {
-            foreach ($criteria->getOrderings() as $sort => $order) {
-                $hasValidAlias = false;
-                foreach ($allAliases as $alias) {
-                    if (str_starts_with($sort . '.', $alias . '.')) {
-                        $hasValidAlias = true;
-                        break;
-                    }
+        foreach (self::getCriteriaOrderings($criteria) as $sort => $order) {
+            $hasValidAlias = false;
+            foreach ($allAliases as $alias) {
+                if (str_starts_with($sort . '.', $alias . '.')) {
+                    $hasValidAlias = true;
+                    break;
                 }
-
-                if (! $hasValidAlias) {
-                    $sort = $allAliases[0] . '.' . $sort;
-                }
-
-                $this->addOrderBy($sort, $order);
             }
+
+            if (! $hasValidAlias) {
+                $sort = $allAliases[0] . '.' . $sort;
+            }
+
+            $this->addOrderBy($sort, $order);
         }
 
         // Overwrite limits only if they was set in criteria
@@ -1422,7 +1438,7 @@ class QueryBuilder
     /**
      * Gets all query parts.
      *
-     * @psalm-return array<string, mixed> $dqlParts
+     * @phpstan-return array<string, mixed> $dqlParts
      */
     public function getDQLParts()
     {
@@ -1482,7 +1498,7 @@ class QueryBuilder
         return $dql;
     }
 
-    /** @psalm-param array<string, mixed> $options */
+    /** @phpstan-param array<string, mixed> $options */
     private function getReducedDQLQueryPart(string $queryPartName, array $options = []): string
     {
         $queryPart = $this->getDQLPart($queryPartName);
@@ -1500,7 +1516,7 @@ class QueryBuilder
      * Resets DQL parts.
      *
      * @param string[]|null $parts
-     * @psalm-param list<string>|null $parts
+     * @phpstan-param list<string>|null $parts
      *
      * @return $this
      */
@@ -1527,7 +1543,8 @@ class QueryBuilder
     public function resetDQLPart($part)
     {
         $this->dqlParts[$part] = is_array($this->dqlParts[$part]) ? [] : null;
-        $this->state           = self::STATE_DIRTY;
+        // @phpstan-ignore classConstant.deprecated
+        $this->state = self::STATE_DIRTY;
 
         return $this;
     }
